@@ -1,19 +1,30 @@
+using Microsoft.EntityFrameworkCore;
+using SmartPark.Data.Contexts;
+using SmartPark.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
+// Register services to the container using the extension method
+builder.Services.AddApplicationServices();
 
 
-////register db context calss
+//register db context calss
 
-//builder.Services.AddDbContext<ParkingDbContext>(options =>
-//    options.UseSqlServer(
-//        builder.Configuration.GetConnectionString("SmartParkConnectionString"),
-//        sqlOptions =>
-//        {
-//            sqlOptions.CommandTimeout(60);
-//            //sqlOptions.EnableRetryOnFailure();
-//        }));
+builder.Services.AddDbContext<ParkingDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("SmartParkConnectionString"),
+        sqlOptions =>
+        {
+            sqlOptions.CommandTimeout(60);
+            //sqlOptions.EnableRetryOnFailure();
+        }));
 
+// Register MediatR (scan whole assembly for handlers)
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+ });
 
 
 builder.Services.AddControllers();

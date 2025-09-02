@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SmartPark.Models;
 
-namespace SmartPark.Contexts;
+namespace SmartPark.Data.Contexts;
 
 public partial class ParkingDbContext : DbContext
 {
