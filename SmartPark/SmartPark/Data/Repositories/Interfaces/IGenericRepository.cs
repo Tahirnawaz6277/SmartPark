@@ -1,13 +1,16 @@
-﻿namespace SmartPark.Data.Repositories.Interfaces
+﻿using System.Linq.Expressions;
+
+namespace SmartPark.Data.Repositories.Interfaces
 {
-    public interface IGenericRepository<T> where T : class
+    public interface IGenericRepository<TEntity> where TEntity : class
     {
-        Task<T?> GetByIdAsync(Guid id);
-        Task<IEnumerable<T>> GetAllAsync();
-        Task<T> AddAsync(T entity);
-        void Delete(T entity);
-        //Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
-        //void Update(T entity);
-        Task SaveChangesAsync();
+        Task<TEntity> GetByIdAsync(Guid id);
+        Task<IEnumerable<TEntity>> GetAllAsync();
+        Task<TEntity> AddAsync(TEntity entity);
+        Task UpdateAsync(TEntity entity);
+        Task DeleteAsync(TEntity entity);
+
+        Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
     }
+
 }

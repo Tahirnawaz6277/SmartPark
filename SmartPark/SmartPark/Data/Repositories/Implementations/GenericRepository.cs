@@ -1,62 +1,54 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SmartPark.Data.Contexts;
 using SmartPark.Data.Repositories.Interfaces;
+using System.Linq.Expressions;
 
 namespace SmartPark.Data.Repositories.Implementations
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+
+    public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
     {
         private readonly ParkingDbContext _context;
-        private readonly DbSet<T> _dbSet;
+        private readonly DbSet<TEntity> _dbSet;
 
         public GenericRepository(ParkingDbContext context)
         {
             _context = context;
-            _dbSet = context.Set<T>();
+            _dbSet = _context.Set<TEntity>();
         }
 
-        public async Task<T> AddAsync(T entity)
+        public async Task<TEntity> GetByIdAsync(Guid id)
         {
-           await _dbSet.AddAsync(entity);
-            return entity;
+            return await _dbSet.FindAsync(id);
         }
 
-    
-        public void Delete(T entity)
-        {
-             _dbSet.Remove(entity);
-        }
-
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<T?> GetByIdAsync(Guid id)
+        public async Task<TEntity> AddAsync(TEntity entity)
         {
-            return await  _dbSet.FindAsync(id); 
+            await _dbSet.AddAsync(entity);
+            return entity;
         }
 
-        public async Task SaveChangesAsync()
+        public async Task UpdateAsync(TEntity entity)
         {
-           await _context.SaveChangesAsync();
+            _dbSet.Update(entity);
         }
 
-        //public async Task<T> Update<T,TId>(T entity)
-        //{
-        //    //await _dbSet.Update(entity);
-        //    T entityInDb = await _dbSet.FindAsync(entity);
-        //    if (entityInDb != null)
-        //    {
-        //        _context.Entry(entityInDb).CurrentValues.SetValues(entity);
-        //        return entity;
-        //    }
-        //    else
-        //    {
-        //        throw new Exception("Not Found");
-        //    }
-        //}
+        public async Task DeleteAsync(TEntity entity)
+        {
+            _dbSet.Remove(entity);
+        }
 
-
+        public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _dbSet.AnyAsync(predicate);
+        }
     }
+
+
+
 }

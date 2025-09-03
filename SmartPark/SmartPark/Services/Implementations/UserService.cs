@@ -21,7 +21,8 @@ namespace SmartPark.Services.Implementations
             {
                 Name = requestDto.Name,
                 Email = requestDto.Email,
-                City = requestDto.City
+                City = requestDto.City,
+                PhoneNumber = requestDto.PhoneNumber,
             };
             var role = await _unitOfWork.RoleRepository.GetDriverRoleAsync();
             if (role == null)
@@ -31,13 +32,13 @@ namespace SmartPark.Services.Implementations
             }
             user.Password = _cryptoService.Encrypt(requestDto.Password);    
             user.RoleId = role.Id;
-            //var exists = await _unitOfWork.Repository<User>()
-            //    .AnyAsync(u => u.Email == requestDto.Email || u.PhoneNumber == requestDto.PhoneNumber);
+            var exists = await _unitOfWork.Repository<User>()
+                .AnyAsync(u => u.Email == requestDto.Email || u.PhoneNumber == requestDto.PhoneNumber);
 
-            //if (exists)
-            //{
-            //    throw new Exception("Email or phone already registered");
-            //}
+            if (exists)
+            {
+                throw new Exception("Email or phone already registered");
+            }
 
             var newEntry =  await _unitOfWork.Repository<User>().AddAsync(user);
             await _unitOfWork.SaveChangesAsync();
