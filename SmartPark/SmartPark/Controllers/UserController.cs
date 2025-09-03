@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SmartPark.Common.Wrapper;
 using SmartPark.CQRS.Commands;
 using SmartPark.Dtos;
 
@@ -20,7 +21,12 @@ namespace SmartPark.Controllers
         {
             var command = new CreateUserCommand(requestDto);
             var user = await _mediator.Send(command);
-            return Ok(new { Message = "User registered successfully ",Data = user });
+            return Ok(new ApiResponse<UserResponseDto> 
+            { 
+                Success = true,
+                Message = "User registered successfully ",
+                Data = user 
+            });
         }
 
         //[HttpGet("get-user-by/{id}")]
