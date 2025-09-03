@@ -15,9 +15,10 @@ namespace SmartPark.Data.Repositories.Implementations
             _dbSet = context.Set<T>();
         }
 
-        public async Task AddAsync(T entity)
+        public async Task<T> AddAsync(T entity)
         {
-            await _dbSet.AddAsync(entity);
+           await _dbSet.AddAsync(entity);
+            return entity;
         }
 
         public void Delete(T entity)
@@ -40,9 +41,21 @@ namespace SmartPark.Data.Repositories.Implementations
            await _context.SaveChangesAsync();
         }
 
-        public void Update(T entity)
-        {
-           _dbSet.Update(entity);
-        }
+        //public async Task<T> Update<T,TId>(T entity)
+        //{
+        //    //await _dbSet.Update(entity);
+        //    T entityInDb = await _dbSet.FindAsync(entity);
+        //    if (entityInDb != null)
+        //    {
+        //        _context.Entry(entityInDb).CurrentValues.SetValues(entity);
+        //        return entity;
+        //    }
+        //    else
+        //    {
+        //        throw new Exception("Not Found");
+        //    }
+        //}
+
+
     }
 }

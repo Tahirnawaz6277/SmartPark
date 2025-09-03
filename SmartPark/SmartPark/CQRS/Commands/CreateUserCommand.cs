@@ -3,5 +3,5 @@ using SmartPark.Dtos;
 
 namespace SmartPark.CQRS.Commands
 {
-    public record CreateUserCommand(UserRequestDto RequestDto) : IRequest<Guid>;
+    public record CreateUserCommand(UserRequestDto RequestDto) : IRequest<UserResponseDto>;
 }

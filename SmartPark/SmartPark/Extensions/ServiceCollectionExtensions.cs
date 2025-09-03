@@ -1,5 +1,7 @@
 ﻿using SmartPark.Data.Repositories.Implementations;
 using SmartPark.Data.Repositories.Interfaces;
+using SmartPark.Services.Implementations;
+using SmartPark.Services.Interfaces;
 
 namespace SmartPark.Extensions
 {
@@ -20,6 +22,8 @@ namespace SmartPark.Extensions
         {
             // register servicse here 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 

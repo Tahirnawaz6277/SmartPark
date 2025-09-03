@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SmartPark.CQRS.Commands;
 using SmartPark.Dtos;
 
 namespace SmartPark.Controllers
@@ -15,10 +16,11 @@ namespace SmartPark.Controllers
         }
 
         [HttpPost("user-registration")]
-        public async Task<IActionResult> Create([FromBody] UserRequestDto command)
+        public async Task<IActionResult> Create([FromBody] UserRequestDto requestDto)
         {
-            var userId = await _mediator.Send(command);
-            return Ok(new { Id = userId });
+            var command = new CreateUserCommand(requestDto);
+            var user = await _mediator.Send(command);
+            return Ok(new { Message = "User registered successfully ",Data = user });
         }
 
         //[HttpGet("get-user-by/{id}")]

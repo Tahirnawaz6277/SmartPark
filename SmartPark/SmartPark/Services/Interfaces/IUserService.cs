@@ -5,7 +5,7 @@ namespace SmartPark.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<Guid> CreateUserAsync(UserRequestDto requestDto);
+        Task<UserResponseDto> CreateUserAsync(UserRequestDto requestDto);
         Task<User?> GetUserByIdAsync(Guid id);
     }
 }

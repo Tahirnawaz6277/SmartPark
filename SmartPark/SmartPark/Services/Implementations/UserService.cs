@@ -13,7 +13,7 @@ namespace SmartPark.Services.Implementations
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Guid> CreateUserAsync(UserRequestDto requestDto)
+        public async Task<UserResponseDto> CreateUserAsync(UserRequestDto requestDto)
         {
             var user = new User
             {
@@ -22,9 +22,21 @@ namespace SmartPark.Services.Implementations
                 Password = requestDto.Password,
                 City = requestDto.City
             };
-            await _unitOfWork.Repository<User>().AddAsync(user);
+            var role = await _unitOfWork.RoleRepository.GetDriverRoleAsync();
+            user.RoleId = role.Id;
+          var newEntry =  await _unitOfWork.Repository<User>().AddAsync(user);
             await _unitOfWork.SaveChangesAsync();
-            return user.Id;
+            var responseDto = new UserResponseDto
+            {
+                Id = newEntry.Id,
+                Name = newEntry.Name,
+                Email = newEntry.Email,
+                //Phone = newEntry.Phone,
+                RoleId = newEntry.RoleId,
+
+            };
+
+            return responseDto;
         }
 
         public async Task<User?> GetUserByIdAsync(Guid id)
