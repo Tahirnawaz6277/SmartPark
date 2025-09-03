@@ -1,11 +1,24 @@
-﻿namespace SmartPark.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SmartPark.Dtos
 {
     public record UserRequestDto
     {
+        [Required(ErrorMessage ="Name is Required")]
         public string Name { get; set; }
+
+        [Required(ErrorMessage = "Name is Required")]
         public string Email { get; set; }
+
+        [Required(ErrorMessage = "Password is Required")]
         public string Password { get; set; }
-        public string Phone { get; set; }
+
+        public string? Address { get; set; }
+
+        //[Required(ErrorMessage = "PhoneNumber is Required")]
+        public string? PhoneNumber { get; set; }
+
+        [Required(ErrorMessage = "City is Required")]
         public string City { get; set; }
 
     }

@@ -6,6 +6,7 @@
         Task<IEnumerable<T>> GetAllAsync();
         Task<T> AddAsync(T entity);
         void Delete(T entity);
+        //Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
         //void Update(T entity);
         Task SaveChangesAsync();
     }

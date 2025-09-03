@@ -21,6 +21,7 @@ namespace SmartPark.Data.Repositories.Implementations
             return entity;
         }
 
+    
         public void Delete(T entity)
         {
              _dbSet.Remove(entity);
