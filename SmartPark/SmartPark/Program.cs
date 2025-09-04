@@ -1,12 +1,18 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using SmartPark.Configurations;
 using SmartPark.Data.Contexts;
 using SmartPark.Extensions;
+using SmartPark.Middlwares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-// Register services to the container using the extension method
+// Register services and jwt configurations to the container using the extension method
 builder.Services.AddApplicationServices();
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 
 //register db context calss
@@ -32,6 +38,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.ConfigureSwaggerAuthentication();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -42,7 +50,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+// Authentication must come before any middleware that checks authentication
+app.UseAuthentication();
+// Global exception handler should come after auth middleware but before controllers
+app.UseMiddleware<GlobleExceptionHandlerMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -5,13 +5,19 @@ using SmartPark.Models;
 
 namespace SmartPark.Data.Repositories.Implementations
 {
-    public class RoleRepository : IRoleRepository
+    public class HybridRepository : IHybridRepository
     {
         private readonly ParkingDbContext _dbContext;
-        public RoleRepository(ParkingDbContext dbContext)
+        public HybridRepository(ParkingDbContext dbContext)
         {
             _dbContext = dbContext;
         }
+
+        public async Task<DateTime> GetDbServerTime()
+        {
+            return await _dbContext.Database.SqlQueryRaw<DateTime>("SELECT GETDATE()").FirstOrDefaultAsync();
+        }
+
         public async Task<Role?> GetDriverRoleAsync()
         {
             string driverRole = "Driver".ToLower();
@@ -19,5 +25,13 @@ namespace SmartPark.Data.Repositories.Implementations
                 .Where(x => driverRole.Contains(x.RoleName.ToLower()))
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await _dbContext.Users
+                           .FirstOrDefaultAsync(un => un.Email == email);
+        }
+       
+
     }
 }

@@ -10,10 +10,10 @@ namespace SmartPark.Data.Repositories.Implementations
         private readonly ParkingDbContext _context;
         private Hashtable _repositories;
 
-        public UnitOfWork(ParkingDbContext context, IRoleRepository roleRepository)
+        public UnitOfWork(ParkingDbContext context, IHybridRepository hybridRepository)
         {
             _context = context;
-            RoleRepository = roleRepository;
+            HybridRepository = hybridRepository;
         }
 
         public IGenericRepository<TEntity> Repository<TEntity>() where TEntity : class
@@ -30,7 +30,7 @@ namespace SmartPark.Data.Repositories.Implementations
 
         }
 
-        public IRoleRepository RoleRepository {  get;  }
+        public IHybridRepository HybridRepository {  get;  }
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {

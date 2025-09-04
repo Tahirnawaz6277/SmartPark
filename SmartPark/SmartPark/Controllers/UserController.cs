@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SmartPark.Common.Wrapper;
 using SmartPark.CQRS.Commands;
+using SmartPark.CQRS.Queries;
 using SmartPark.Dtos;
 
 namespace SmartPark.Controllers
@@ -17,7 +18,7 @@ namespace SmartPark.Controllers
         }
 
         [HttpPost("user-registration")]
-        public async Task<IActionResult> Create([FromBody] UserRequestDto requestDto)
+        public async Task<IActionResult> Register([FromBody] UserRequestDto requestDto)
         {
             var command = new CreateUserCommand(requestDto);
             var user = await _mediator.Send(command);
@@ -25,6 +26,20 @@ namespace SmartPark.Controllers
             { 
                 Success = true,
                 Message = "User registered successfully ",
+                Data = user 
+            });
+        } 
+        
+        
+        [HttpPost("user-login")]
+        public async Task<IActionResult> Login(string Email, string Password)
+        {
+            var query = new LoginQuery(Email,Password);
+            var user = await _mediator.Send(query);
+            return Ok(new ApiResponse<UserLoginResponse> 
+            { 
+                Success = true,
+                Message = "User login successfully ",
                 Data = user 
             });
         }

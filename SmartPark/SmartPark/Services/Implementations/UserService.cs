@@ -31,7 +31,7 @@ namespace SmartPark.Services.Implementations
                 City = requestDto.City,
                 PhoneNumber = requestDto.PhoneNumber,
             };
-            var role = await _unitOfWork.RoleRepository.GetDriverRoleAsync();
+            var role = await _unitOfWork.HybridRepository.GetDriverRoleAsync();
             if (role == null)
             {
                 throw new Exception("role not found");
