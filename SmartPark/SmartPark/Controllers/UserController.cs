@@ -44,10 +44,20 @@ namespace SmartPark.Controllers
             });
         }
 
-        //[HttpGet("get-user-by/{id}")]
-        //public async Task<IActionResult> GetById(Guid id)
+        [HttpGet("get-user-by/{id}")]
+        public async Task<IActionResult> GetByIdAsync(Guid id)
+        {
+            //var query = new GetUserQuery(id);
+            var user = await _mediator.Send(id);
+            return user != null ? Ok(user) : NotFound();
+        }
+
+
+        //[HttpGet("get-all-users")]
+        //public async Task<IActionResult> GetAllUserAsync()
         //{
-        //    var user = await _mediator.Send(new GetUserByIdQuery(id));
+        //    var query = new GetUserQuery(id);
+        //    var user = await _mediator.Send();
         //    return user != null ? Ok(user) : NotFound();
         //}
     }

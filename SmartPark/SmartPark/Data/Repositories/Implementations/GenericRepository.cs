@@ -17,17 +17,17 @@ namespace SmartPark.Data.Repositories.Implementations
             _dbSet = _context.Set<TEntity>();
         }
 
-        public async Task<TEntity> GetByIdAsync(Guid id)
+        public async Task<TEntity?> GetByIdAsync(Guid id)
         {
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync()
+        public async Task<IEnumerable<TEntity?>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<TEntity> AddAsync(TEntity entity)
+        public async Task<TEntity?> AddAsync(TEntity entity)
         {
             await _dbSet.AddAsync(entity);
             return entity;

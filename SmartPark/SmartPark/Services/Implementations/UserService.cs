@@ -52,9 +52,24 @@ namespace SmartPark.Services.Implementations
             return responseDto;
         }
 
-        public async Task<User?> GetUserByIdAsync(Guid id)
+        public Task<IEnumerable<UserDto?>> GetAllUserAsync()
         {
-            return await _unitOfWork.Repository<User>().GetByIdAsync(id);
+            throw new NotImplementedException();
+        }
+
+        public async Task<UserDto?> GetUserByIdAsync(Guid id)
+        {
+            
+            var domainUser = await _unitOfWork.Repository<User>().GetByIdAsync(id);
+            return domainUser == null ? null : new UserDto
+            {
+                Id = domainUser.Id,
+                Name = domainUser.Name,
+                Email = domainUser.Email,
+                PhoneNumber = domainUser.PhoneNumber,
+                City = domainUser.City,
+                RoleId = domainUser.RoleId
+            };
         }
     }
 }
