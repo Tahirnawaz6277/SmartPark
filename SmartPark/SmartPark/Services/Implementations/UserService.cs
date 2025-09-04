@@ -1,4 +1,5 @@
-﻿using SmartPark.Data.Repositories.Interfaces;
+﻿using Microsoft.EntityFrameworkCore; // use EF Core
+using SmartPark.Data.Contexts;
 using SmartPark.Dtos;
 using SmartPark.Exceptions;
 using SmartPark.Models;
@@ -8,59 +9,60 @@ namespace SmartPark.Services.Implementations
 {
     public class UserService : IUserService
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly ICryptoService _cryptoService;
-        public UserService(IUnitOfWork unitOfWork, ICryptoService cryptoService)
+        private readonly ParkingDbContext _dbContext;
+
+        public UserService(ICryptoService cryptoService, ParkingDbContext dbContext)
         {
-            _unitOfWork = unitOfWork;
             _cryptoService = cryptoService;
+            _dbContext = dbContext;
         }
 
         public async Task<UserResponseDto?> CreateUserAsync(UserRequestDto requestDto)
         {
-            var exists = await _unitOfWork.Repository<User>()
-              .AnyAsync(u => u.Email == requestDto.Email || u.PhoneNumber == requestDto.PhoneNumber);
+            // check duplicates
+            var exists = await _dbContext.Users.AnyAsync(u =>
+                u.Email == requestDto.Email || u.PhoneNumber == requestDto.PhoneNumber);
 
             if (exists)
-            {
                 throw new ConflictException("Email or phone already registered");
-            }
+
+            // fetch role
+            var role = await _dbContext.Roles
+                .FirstOrDefaultAsync(r => r.RoleName.ToLower() == "driver");
+
+            if (role == null)
+                throw new NotFoundException("Role 'Driver' not found");
+
+            // create new user
             var user = new User
             {
                 Name = requestDto.Name,
                 Email = requestDto.Email,
                 City = requestDto.City,
                 PhoneNumber = requestDto.PhoneNumber,
-            };
-            var role = await _unitOfWork.HybridRepository.GetDriverRoleAsync();
-            if (role == null)
-            {
-                throw new NotFoundException("role not found");
-            }
-            user.Password = _cryptoService.Encrypt(requestDto.Password);    
-            user.RoleId = role.Id;
-            var newEntry =  await _unitOfWork.Repository<User>().AddAsync(user);
-            await _unitOfWork.SaveChangesAsync();
-            var responseDto = new UserResponseDto
-            {
-                Id = newEntry.Id,
-                Name = newEntry.Name,
-                Email = newEntry.Email,
-                PhoneNumber = newEntry.PhoneNumber,
+                Password = _cryptoService.Encrypt(requestDto.Password),
+                RoleId = role.Id
             };
 
-            return responseDto;
-        }
+            _dbContext.Users.Add(user);
+            await _dbContext.SaveChangesAsync();
 
-        public Task<IEnumerable<UserDto?>> GetAllUserAsync()
-        {
-            throw new NotImplementedException();
+            return new UserResponseDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber
+            };
         }
 
         public async Task<UserDto?> GetUserByIdAsync(Guid id)
         {
-            
-            var domainUser = await _unitOfWork.Repository<User>().GetByIdAsync(id);
+            var domainUser = await _dbContext.Users
+                .Include(r => r.Role)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
             return domainUser == null ? null : new UserDto
             {
                 Id = domainUser.Id,
@@ -68,8 +70,53 @@ namespace SmartPark.Services.Implementations
                 Email = domainUser.Email,
                 PhoneNumber = domainUser.PhoneNumber,
                 City = domainUser.City,
-                RoleId = domainUser.RoleId
+                RoleId = domainUser.RoleId,
+                RoleName = domainUser.Role.RoleName
             };
         }
+
+        public async Task<IEnumerable<UserDto?>> GetAllUserAsync()
+        {
+            return await _dbContext.Users
+                    .Include(u => u.Role) // include related role
+                    .Select(u => new UserDto
+                    {
+                        Id = u.Id,
+                        Name = u.Name,
+                        Email = u.Email,
+                        Address = u.Address,
+                        PhoneNumber = u.PhoneNumber,
+                        City = u.City,
+                        RoleId = u.RoleId,
+                        RoleName = u.Role.RoleName
+                    })
+                    .ToListAsync();
+        }
+
+        public async Task<UserResponseDto> UpdateUserAsync(Guid id, UpdateUserRequest requestDto)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id/* && !u.IsDeleted*/);
+
+            if (user == null)
+                throw new NotFoundException("User not found");
+
+            // Update fields
+            user.Name = requestDto.Name;
+            user.Email = requestDto.Email;
+            user.PhoneNumber = requestDto.PhoneNumber;
+            user.Address = requestDto.Address;
+            user.City = requestDto.City;
+
+            await _dbContext.SaveChangesAsync();
+
+            return new UserResponseDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+            };
+        }
+
     }
 }

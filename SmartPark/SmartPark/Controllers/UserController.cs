@@ -32,9 +32,9 @@ namespace SmartPark.Controllers
         
         
         [HttpPost("user-login")]
-        public async Task<IActionResult> Login(string Email, string Password)
+        public async Task<IActionResult> Login([FromBody] UserLoginRequestDto requestDto)
         {
-            var query = new LoginQuery(Email,Password);
+            var query = new LoginQuery(requestDto.Email,requestDto.Password);
             var user = await _mediator.Send(query);
             return Ok(new ApiResponse<UserLoginResponse> 
             { 
@@ -47,18 +47,35 @@ namespace SmartPark.Controllers
         [HttpGet("get-user-by/{id}")]
         public async Task<IActionResult> GetByIdAsync(Guid id)
         {
-            //var query = new GetUserQuery(id);
-            var user = await _mediator.Send(id);
+            var query = new GetUserQuery(id);
+            var user = await _mediator.Send(query);
             return user != null ? Ok(user) : NotFound();
         }
 
 
-        //[HttpGet("get-all-users")]
-        //public async Task<IActionResult> GetAllUserAsync()
-        //{
-        //    var query = new GetUserQuery(id);
-        //    var user = await _mediator.Send();
-        //    return user != null ? Ok(user) : NotFound();
-        //}
+        [HttpGet("get-all-users")]
+        public async Task<IActionResult> GetAllUserAsync()
+        {
+            var query = new GetAllUserQuery();
+            var users = await _mediator.Send(query);
+            return Ok(users);
+        }
+
+
+        [HttpPut("update-user/{id}")]
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserRequest updateUser)
+        {
+            var command = new UpdateUserCommand(id, updateUser);
+            var updatedUser = await _mediator.Send(command);
+
+            return Ok(new
+            {
+                Message = "User updated successfully",
+                Data = updatedUser
+            });
+        }
+
+
+
     }
 }

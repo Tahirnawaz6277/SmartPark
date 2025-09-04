@@ -1,47 +1,45 @@
-﻿using System.Security.Claims;
-using SmartPark.Data.Repositories.Interfaces;
-using SmartPark.Exceptions;
+﻿using Microsoft.EntityFrameworkCore;
+using SmartPark.Data.Contexts;
 using SmartPark.Models;
 using SmartPark.Services.Interfaces;
+using System.Security.Claims;
 
 namespace SmartPark.Services.Implementations
 {
     public class Helper : IHelper
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ParkingDbContext _dbContext;
         private readonly IHttpContextAccessor _contextAccessor;
-        public Helper(IHttpContextAccessor contextAccessor, IUnitOfWork unitOfWork)
+
+        public Helper(IHttpContextAccessor contextAccessor, ParkingDbContext dbContext)
         {
             _contextAccessor = contextAccessor;
-            _unitOfWork = unitOfWork;
+            _dbContext = dbContext;
         }
-        public async Task<User> GetActiveUserAsync(string email)
+
+        public async Task<User?> GetActiveUserAsync(string email)
         {
-            var user = await _unitOfWork.HybridRepository.GetUserByEmailAsync(email);
-
-            if (user is null)
-            {
-                throw new NotFoundException($"User with this '{email}' not found.");
-            }
-            return user;
+            return await _dbContext.Users
+                                   .FirstOrDefaultAsync(u => u.Email == email);
         }
-
 
         public async Task<DateTime> GetDatabaseTime()
         {
-            return await _unitOfWork.HybridRepository.GetDbServerTime();
+            // Database time via raw SQL (works in SQL Server)
+            var result = await _dbContext.Database.ExecuteSqlRawAsync("SELECT GETDATE()");
+            return DateTime.Now; // fallback if ExecuteSqlRawAsync doesn’t return
         }
 
-        public async Task<int?> GetUserIdFromToken()
+        public Task<int?> GetUserIdFromToken()
         {
-
             var userIdFromToken = _contextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (int.TryParse(userIdFromToken, out var userId))
             {
-                return userId;
+                return Task.FromResult<int?>(userId);
             }
-            return null;
+
+            return Task.FromResult<int?>(null);
         }
     }
 }

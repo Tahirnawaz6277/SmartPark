@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using SmartPark.Data.Repositories.Implementations;
-using SmartPark.Data.Repositories.Interfaces;
 using SmartPark.Services.Implementations;
 using SmartPark.Services.Interfaces;
+using System.Text;
 
 namespace SmartPark.Extensions
 {
@@ -28,11 +26,8 @@ namespace SmartPark.Extensions
             services.AddScoped<IHelper, Helper>();
             services.AddHttpContextAccessor();
             services.AddScoped<ICryptoService, CryptoService>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IHybridRepository, HybridRepository>();
             services.AddScoped<IUserService, UserService>();
 
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 
         }

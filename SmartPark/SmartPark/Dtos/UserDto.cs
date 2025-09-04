@@ -3,13 +3,13 @@
     public record UserDto
     {
         public Guid Id { get; init; }
-        public string Name { get; init; } = string.Empty;
-        public string Email { get; init; } = string.Empty;
-        public string Address { get; init; } = string.Empty;
-        public string PhoneNumber { get; init; } = string.Empty;
-        public string City { get; init; } = string.Empty;
-        public Guid RoleId { get; init; } 
-        public string RoleName { get; init; } = string.Empty;
+        public string? Name { get; init; } 
+        public string? Email { get; init; } 
+        public string? Address { get; init; } 
+        public string? PhoneNumber { get; init; } 
+        public string? City { get; init; }
+        public Guid? RoleId { get; init; } 
+        public string? RoleName { get; init; } 
 
     }
 }

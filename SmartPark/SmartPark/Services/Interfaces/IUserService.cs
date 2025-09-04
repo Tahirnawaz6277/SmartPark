@@ -1,5 +1,4 @@
 ﻿using SmartPark.Dtos;
-using SmartPark.Models;
 
 namespace SmartPark.Services.Interfaces
 {
@@ -8,5 +7,6 @@ namespace SmartPark.Services.Interfaces
         Task<UserResponseDto?> CreateUserAsync(UserRequestDto requestDto);
         Task<UserDto?> GetUserByIdAsync(Guid id);
         Task<IEnumerable<UserDto?>> GetAllUserAsync();
+        Task<UserResponseDto> UpdateUserAsync(Guid id, UpdateUserRequest requestDto);
     }
 }

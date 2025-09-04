@@ -1,10 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SmartPark.Common.Wrapper;
-using SmartPark.Data.Repositories.Interfaces;
 using SmartPark.Exceptions;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace SmartPark.Middlwares
 {
@@ -66,6 +64,7 @@ namespace SmartPark.Middlwares
             var statusCode = exception switch
             {
                 UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+                UnAuthorizeException => StatusCodes.Status401Unauthorized,
                 BadHttpRequestException => StatusCodes.Status400BadRequest,
                 ValidationException => StatusCodes.Status400BadRequest,
                 ForBiddenException => StatusCodes.Status403Forbidden,

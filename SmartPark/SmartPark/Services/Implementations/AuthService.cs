@@ -1,10 +1,11 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using SmartPark.Dtos;
+using SmartPark.Exceptions;
+using SmartPark.Models;
+using SmartPark.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using SmartPark.Dtos;
-using SmartPark.Services.Interfaces;
-using SmartPark.Models;
 
 namespace SmartPark.Services.Implementations
 {
@@ -24,11 +25,15 @@ namespace SmartPark.Services.Implementations
         public async Task<UserLoginResponse> AuthenticateAsync(string email, string password)
         {
             var user = await _helper.GetActiveUserAsync(email);
+            if (user == null)
+            {
+                throw new NotFoundException("User with this email not found");
+            }
             //handling password
             var encryptedPasswrod = _cryptoService.Encrypt(password);
             if (user.Password != encryptedPasswrod)
             {
-                throw new Exception("Invalid Credentails");
+                throw new UnAuthorizeException("Invalid Password");
             }
             var token = GenerateUserTokenAsync(user);
             var loginResponse = new UserLoginResponse
@@ -42,7 +47,6 @@ namespace SmartPark.Services.Implementations
 
         private async Task<string> GenerateUserTokenAsync(User user)
         {
-
             var jwtSettings = _configuration.GetSection("Jwt");
             var key = jwtSettings.GetValue<string>("Key");
             var tokenExpiry = jwtSettings.GetValue<int>("TokenExpiry");
