@@ -1,5 +1,6 @@
 ﻿using SmartPark.Data.Repositories.Interfaces;
 using SmartPark.Dtos;
+using SmartPark.Exceptions;
 using SmartPark.Models;
 using SmartPark.Services.Interfaces;
 
@@ -22,7 +23,7 @@ namespace SmartPark.Services.Implementations
 
             if (exists)
             {
-                throw new Exception("Email or phone already registered");
+                throw new ConflictException("Email or phone already registered");
             }
             var user = new User
             {
@@ -34,8 +35,7 @@ namespace SmartPark.Services.Implementations
             var role = await _unitOfWork.HybridRepository.GetDriverRoleAsync();
             if (role == null)
             {
-                throw new Exception("role not found");
-                // will handle it globle exception handling later
+                throw new NotFoundException("role not found");
             }
             user.Password = _cryptoService.Encrypt(requestDto.Password);    
             user.RoleId = role.Id;
