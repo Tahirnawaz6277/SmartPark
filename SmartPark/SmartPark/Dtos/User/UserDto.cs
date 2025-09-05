@@ -1,4 +1,4 @@
-﻿namespace SmartPark.Dtos
+﻿namespace SmartPark.Dtos.UserDtos
 {
     public record UserDto
     {

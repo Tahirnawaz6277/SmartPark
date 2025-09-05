@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SmartPark.Dtos
+namespace SmartPark.Dtos.UserDtos
 {
     public record UserLoginRequestDto
     {

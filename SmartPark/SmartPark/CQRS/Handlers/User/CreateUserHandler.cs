@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using SmartPark.CQRS.Commands;
-using SmartPark.Dtos;
+using SmartPark.CQRS.Commands.User;
+using SmartPark.Dtos.UserDtos;
 using SmartPark.Services.Interfaces;
 
-namespace SmartPark.CQRS.Handlers
+namespace SmartPark.CQRS.Handlers.User
 {
     public class CreateUserHandler : IRequestHandler<CreateUserCommand,UserResponseDto>
     {

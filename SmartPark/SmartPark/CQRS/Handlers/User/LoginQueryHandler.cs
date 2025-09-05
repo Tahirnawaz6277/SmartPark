@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using SmartPark.CQRS.Queries;
-using SmartPark.Dtos;
+using SmartPark.CQRS.Queries.User;
+using SmartPark.Dtos.UserDtos;
 using SmartPark.Services.Interfaces;
 
-namespace SmartPark.CQRS.Handlers
+namespace SmartPark.CQRS.Handlers.User
 {
     public class LoginQueryHandler : IRequestHandler<LoginQuery, UserLoginResponse> 
     {

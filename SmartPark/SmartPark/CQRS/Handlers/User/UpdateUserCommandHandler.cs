@@ -1,6 +1,6 @@
 ﻿using MediatR;
-using SmartPark.CQRS.Commands;
-using SmartPark.Dtos;
+using SmartPark.CQRS.Commands.User;
+using SmartPark.Dtos.UserDtos;
 using SmartPark.Services.Interfaces;
 
 public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserResponseDto>

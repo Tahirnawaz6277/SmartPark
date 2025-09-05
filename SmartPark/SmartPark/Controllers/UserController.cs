@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using SmartPark.Common.Wrapper;
 using SmartPark.CQRS.Commands;
-using SmartPark.CQRS.Queries;
-using SmartPark.Dtos;
+using SmartPark.CQRS.Commands.User;
+using SmartPark.CQRS.Queries.User;
+using SmartPark.Dtos.UserDtos;
 
 namespace SmartPark.Controllers
 {

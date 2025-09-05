@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore; // use EF Core
 using SmartPark.Data.Contexts;
-using SmartPark.Dtos;
+using SmartPark.Dtos.UserDtos;
 using SmartPark.Exceptions;
 using SmartPark.Models;
 using SmartPark.Services.Interfaces;

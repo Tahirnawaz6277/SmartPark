@@ -1,4 +1,4 @@
-﻿using SmartPark.Dtos;
+﻿using SmartPark.Dtos.UserDtos;
 
 namespace SmartPark.Services.Interfaces
 {

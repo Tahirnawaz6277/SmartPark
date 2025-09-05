@@ -27,6 +27,7 @@ namespace SmartPark.Extensions
             services.AddHttpContextAccessor();
             services.AddScoped<ICryptoService, CryptoService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ILocationService, LocationService>();
 
 
 

@@ -2,7 +2,7 @@
 using SmartPark.CQRS.Commands;
 using SmartPark.Services.Interfaces;
 
-namespace SmartPark.CQRS.Handlers
+namespace SmartPark.CQRS.Handlers.User
 {
     public class DeleteUserHandler : IRequestHandler<DeleteUserCommad, Guid>
     {
