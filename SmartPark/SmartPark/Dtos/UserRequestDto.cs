@@ -8,6 +8,9 @@ namespace SmartPark.Dtos
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Name is Required")]
+
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Invalid email format.")]
+
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Password is Required")]

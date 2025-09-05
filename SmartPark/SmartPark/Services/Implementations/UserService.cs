@@ -118,5 +118,13 @@ namespace SmartPark.Services.Implementations
             };
         }
 
+        public async Task DeleteUserAsync(Guid id)
+        {
+            var user = await _dbContext.Users.FindAsync(id);
+            if (user == null) throw new NotFoundException("User not found");
+
+            user.IsDeleted = true;
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

@@ -75,6 +75,20 @@ namespace SmartPark.Controllers
             });
         }
 
+        [HttpDelete("delete-user/{id}")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var command = new DeleteUserCommad(id);
+            var deletedUserId = await _mediator.Send(command);
+
+            return Ok(new
+            {
+                Message = "User deleted successfully",
+                Data = deletedUserId
+            });
+        }
+
+
 
 
     }

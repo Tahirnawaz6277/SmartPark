@@ -8,5 +8,6 @@ namespace SmartPark.Services.Interfaces
         Task<UserDto?> GetUserByIdAsync(Guid id);
         Task<IEnumerable<UserDto?>> GetAllUserAsync();
         Task<UserResponseDto> UpdateUserAsync(Guid id, UpdateUserRequest requestDto);
+        Task DeleteUserAsync(Guid id);
     }
 }
