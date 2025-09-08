@@ -1,0 +1,7 @@
+.master-layout {
+  min-height: 100vh;
+  background: var(--main-bg, #f7fafc);
+  &.dark {
+    background: #18181b;
+  }
+} 

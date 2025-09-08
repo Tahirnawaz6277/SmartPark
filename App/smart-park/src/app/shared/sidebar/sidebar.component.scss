@@ -1,0 +1,27 @@
+.sidebar {
+  width: 250px;
+  background: var(--sidebar-bg, #ffffff);
+  color: var(--sidebar-color, #222222);
+  transition: background 0.3s, color 0.3s;
+
+  .material-icons {
+    font-size: 24px;
+  }
+
+  a {
+    transition: background 0.2s;
+  }
+}
+
+:host-context(body.dark) .sidebar {
+  background: #1a202c;
+  color: #ffffff;
+}
+
+:host-context(body.dark) .sidebar a {
+  color: #ffffff;
+}
+
+:host-context(body.dark) .sidebar a:hover {
+  background: #2d3748;
+}

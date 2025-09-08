@@ -1,0 +1,8 @@
+.footer {
+  background: var(--footer-bg, #fff);
+  color: var(--footer-color, #222);
+}
+.footer.dark {
+  background: #1a202c;
+  color: #fff;
+}/*# sourceMappingURL=footer.component.css.map */

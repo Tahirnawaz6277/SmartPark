@@ -1,0 +1,45 @@
+﻿using Microsoft.EntityFrameworkCore;
+using SmartPark.Data.Contexts;
+using SmartPark.Models;
+using SmartPark.Services.Interfaces;
+using System.Security.Claims;
+
+namespace SmartPark.Services.Implementations
+{
+    public class Helper : IHelper
+    {
+        private readonly ParkingDbContext _dbContext;
+        private readonly IHttpContextAccessor _contextAccessor;
+
+        public Helper(IHttpContextAccessor contextAccessor, ParkingDbContext dbContext)
+        {
+            _contextAccessor = contextAccessor;
+            _dbContext = dbContext;
+        }
+
+        public async Task<User?> GetActiveUserAsync(string email)
+        {
+            return await _dbContext.Users
+                                   .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<DateTime> GetDatabaseTime()
+        {
+            // Database time via raw SQL (works in SQL Server)
+            var result = await _dbContext.Database.ExecuteSqlRawAsync("SELECT GETDATE()");
+            return DateTime.Now; // fallback if ExecuteSqlRawAsync doesn’t return
+        }
+
+        public Task<int?> GetUserIdFromToken()
+        {
+            var userIdFromToken = _contextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (int.TryParse(userIdFromToken, out var userId))
+            {
+                return Task.FromResult<int?>(userId);
+            }
+
+            return Task.FromResult<int?>(null);
+        }
+    }
+}

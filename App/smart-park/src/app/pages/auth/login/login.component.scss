@@ -1,0 +1,71 @@
+.flex {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 480px;
+  min-height: 60vh;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px 0 #1f26875e;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 2.5rem 2rem;
+}
+
+form {
+  width: 100%;
+}
+
+.input {
+  height: 56px;
+  font-size: 1.15rem;
+  border: 2px solid #3b82f6;
+  border-radius: 0.75rem;
+  padding: 0 1rem;
+  background: #f8fafc;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px #2563eb33;
+  background: #fff;
+}
+
+.btn-primary {
+  height: 56px;
+  font-size: 1.15rem;
+  border-radius: 0.75rem;
+}
+
+.avatar img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #3b82f6;
+  background: #fff;
+}
+
+@media (max-width: 600px) {
+  .card {
+    max-width: 98vw;
+    min-height: 50vh;
+    max-height: 90vh;
+    padding: 1.5rem 0.5rem;
+  }
+  .input, .btn-primary {
+    height: 48px;
+    font-size: 1rem;
+  }
+  .avatar img {
+    width: 60px;
+    height: 60px;
+  }
+}

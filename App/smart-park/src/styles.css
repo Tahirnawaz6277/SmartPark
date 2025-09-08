@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+  background: #ffffff;
+  color: #222222;
+}
+
+body.dark {
+  background: #1a202c;
+  color: #ffffff;
+}/*# sourceMappingURL=styles.css.map */
