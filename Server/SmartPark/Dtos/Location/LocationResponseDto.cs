@@ -1,4 +1,6 @@
-﻿namespace SmartPark.Dtos.Location
+﻿using SmartPark.Dtos.Slot;
+
+namespace SmartPark.Dtos.Location
 {
     public record LocationResponseDto
     {

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SmartPark.CQRS.Commands.Location;
@@ -9,6 +10,7 @@ namespace SmartPark.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LocationController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -24,6 +26,7 @@ namespace SmartPark.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles ="driver,admin")]
         [HttpGet("get-location-by/{id}")]
         public async Task<IActionResult> GetByIdAsync(Guid id)
         {
@@ -32,6 +35,7 @@ namespace SmartPark.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "driver,admin")]
         [HttpGet("get-all-locations")]
         public async Task<IActionResult> GetAllAsync()
         {

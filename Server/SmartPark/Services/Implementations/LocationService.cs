@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SmartPark.Data.Contexts;
 using SmartPark.Dtos.Location;
+using SmartPark.Dtos.Slot;
 using SmartPark.Models;
 using SmartPark.Services.Interfaces;
 
