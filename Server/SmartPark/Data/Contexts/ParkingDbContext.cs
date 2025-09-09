@@ -20,6 +20,8 @@ public partial class ParkingDbContext : DbContext
 
     public virtual DbSet<Feedback> Feedbacks { get; set; }
 
+    public virtual DbSet<LocationSlot> LocationSlots { get; set; }
+
     public virtual DbSet<ParkingLocation> ParkingLocations { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -130,6 +132,23 @@ public partial class ParkingDbContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Feedback__UserId__6B24EA82");
+        });
+
+        modelBuilder.Entity<LocationSlot>(entity =>
+        {
+            entity.HasKey(e => new { e.LocationId, e.SlotId });
+
+            entity.ToTable("LocationSlot");
+
+            entity.HasOne(d => d.Location).WithMany(p => p.LocationSlots)
+                .HasForeignKey(d => d.LocationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LocationSlot_Location");
+
+            entity.HasOne(d => d.Slot).WithMany(p => p.LocationSlots)
+                .HasForeignKey(d => d.SlotId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LocationSlot_Slot");
         });
 
         modelBuilder.Entity<ParkingLocation>(entity =>

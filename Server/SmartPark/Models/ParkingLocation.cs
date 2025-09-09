@@ -23,6 +23,8 @@ public partial class ParkingLocation
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
+    public virtual ICollection<LocationSlot> LocationSlots { get; set; } = new List<LocationSlot>();
+
     public virtual ICollection<Slot> Slots { get; set; } = new List<Slot>();
 
     public virtual User? User { get; set; }

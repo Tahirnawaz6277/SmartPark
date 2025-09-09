@@ -1,6 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SmartPark.CQRS.Commands.Slot;
 using SmartPark.CQRS.Queries.Slot;
@@ -10,7 +8,7 @@ namespace SmartPark.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize(Roles = "Admin")]
     public class SlotController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -28,7 +26,6 @@ namespace SmartPark.Controllers
         }
 
 
-        [Authorize(Roles = "driver,admin")]
         [HttpGet("get-slot-by/{id:guid}")]
         public async Task<IActionResult> GetByIdAsync(Guid id)
         {
@@ -37,7 +34,6 @@ namespace SmartPark.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "driver,admin")]
         [HttpGet("get-all-slots")]
         public async Task<IActionResult> GetAllAsync()
         {

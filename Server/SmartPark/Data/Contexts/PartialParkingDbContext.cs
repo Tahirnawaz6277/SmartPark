@@ -11,6 +11,12 @@ namespace SmartPark.Data.Contexts
             // global query filter for soft delete
             modelBuilder.Entity<User>()
                         .HasQueryFilter(u => !u.IsDeleted);
+
+            // Optional: Ensure only two slot types exist initially
+            modelBuilder.Entity<Slot>().HasData(
+                new Slot {  SlotType = "small", IsAvailable = true },
+                new Slot {  SlotType = "large", IsAvailable = true }
+            );
         }
     }
 }

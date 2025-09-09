@@ -19,7 +19,7 @@ namespace SmartPark.Services.Implementations
 
         public async Task<User?> GetActiveUserAsync(string email)
         {
-            return await _dbContext.Users
+            return await _dbContext.Users.Include(r => r.Role)
                                    .FirstOrDefaultAsync(u => u.Email == email);
         }
 

@@ -18,4 +18,6 @@ public partial class Slot
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
     public virtual ParkingLocation Location { get; set; } = null!;
+
+    public virtual ICollection<LocationSlot> LocationSlots { get; set; } = new List<LocationSlot>();
 }

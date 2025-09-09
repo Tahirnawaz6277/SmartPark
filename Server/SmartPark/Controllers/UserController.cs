@@ -11,7 +11,7 @@ namespace SmartPark.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize(Roles = "Admin")]
     public class UserController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -19,7 +19,7 @@ namespace SmartPark.Controllers
         {
             _mediator = mediator;
         }
-
+        [AllowAnonymous]
         [HttpPost("user-registration")]
         public async Task<IActionResult> Register([FromBody] UserRequestDto requestDto)
         {
@@ -31,9 +31,9 @@ namespace SmartPark.Controllers
                 Message = "User registered successfully ",
                 Data = user 
             });
-        } 
-        
-        
+        }
+
+        [AllowAnonymous]
         [HttpPost("user-login")]
         public async Task<IActionResult> Login([FromBody] UserLoginRequestDto requestDto)
         {
@@ -47,6 +47,7 @@ namespace SmartPark.Controllers
             });
         }
 
+        [Authorize(Roles = "Admin,Driver")]
         [HttpGet("get-user-by/{id}")]
         public async Task<IActionResult> GetByIdAsync(Guid id)
         {
@@ -63,7 +64,6 @@ namespace SmartPark.Controllers
             var users = await _mediator.Send(query);
             return Ok(users);
         }
-
 
         [HttpPut("update-user/{id}")]
         public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserRequest updateUser)

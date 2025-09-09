@@ -1,10 +1,10 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using SmartPark.Dtos.UserDtos;
+using SmartPark.Models;
+using SmartPark.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using SmartPark.Services.Interfaces;
-using SmartPark.Models;
-using SmartPark.Dtos.UserDtos;
 
 namespace SmartPark.Services.Implementations
 {
@@ -26,7 +26,7 @@ namespace SmartPark.Services.Implementations
             var user = await _helper.GetActiveUserAsync(email);
             //handling password
             var encryptedPasswrod = _cryptoService.Encrypt(password);
-            if (user.Password != encryptedPasswrod)
+            if (user == null || user.Password != encryptedPasswrod)
             {
                 throw new Exception("Invalid Credentails");
             }
@@ -55,7 +55,7 @@ namespace SmartPark.Services.Implementations
                 new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.RoleName),
+                new Claim(ClaimTypes.Role, user?.Role?.RoleName),
 
             };
             // Add role claims - one for each role
