@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { ApiService, UserRegistrationRequest } from '../../../services/api.service';
+import { ApiService, UserRequestDto } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -31,15 +31,18 @@ export class SignupComponent implements OnInit {
   }
 
   onSubmit(form: NgForm): void {
-    if (form.valid && form.value.password === form.value.confirmPassword) {
+    if (form.valid && form.value.Password === form.value.confirmPassword) {
       this.isLoading = true;
       this.errorMessage = '';
       this.successMessage = '';
 
-      const registrationData: UserRegistrationRequest = {
-        fullName: form.value.fullName,
-        email: form.value.email,
-        password: form.value.password
+      const registrationData: UserRequestDto = {
+        Name: form.value.Name,
+        Email: form.value.Email,
+        Password: form.value.Password,
+        Address: form.value.Address ?? null,
+        PhoneNumber: form.value.PhoneNumber ?? null,
+        City: form.value.City
       };
 
       this.apiService.register(registrationData).subscribe({
@@ -62,7 +65,7 @@ export class SignupComponent implements OnInit {
         }
       });
     } else {
-      if (form.value.password !== form.value.confirmPassword) {
+      if (form.value.Password !== form.value.confirmPassword) {
         this.errorMessage = 'Passwords do not match!';
       } else {
         this.errorMessage = 'Please fill in all required fields correctly.';

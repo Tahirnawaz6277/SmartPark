@@ -45,9 +45,9 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th>Full Name</th>
+              <th>Name</th>
               <th>Email</th>
-              <th>Username</th>
+              <th>Phone</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -64,10 +64,10 @@
               </td>
             </tr>
             <tr *ngFor="let user of users" class="hover">
-              <td class="font-mono text-sm">{{ user.id }}</td>
-              <td class="font-semibold">{{ user.fullName }}</td>
-              <td>{{ user.email }}</td>
-              <td>{{ user.username || 'N/A' }}</td>
+              <td class="font-mono text-sm">{{ user.Id }}</td>
+              <td class="font-semibold">{{ user.Name }}</td>
+              <td>{{ user.Email }}</td>
+              <td>{{ user.PhoneNumber || 'N/A' }}</td>
               <td>
                 <div class="flex gap-2">
                   <button 
@@ -114,12 +114,12 @@
           <input 
             type="text" 
             class="input input-bordered w-full" 
-            name="fullName"
-            [(ngModel)]="formData.fullName"
+            name="Name"
+            [(ngModel)]="formData.Name"
             required
             minlength="3"
           />
-          <div class="text-red-500 text-xs mt-1" *ngIf="userForm.submitted && !userForm.controls['fullName']?.valid">
+          <div class="text-red-500 text-xs mt-1" *ngIf="userForm.submitted && !userForm.controls['Name']?.valid">
             Full Name is required (min 3 chars).
           </div>
         </div>
@@ -131,12 +131,12 @@
           <input 
             type="email" 
             class="input input-bordered w-full" 
-            name="email"
-            [(ngModel)]="formData.email"
+            name="Email"
+            [(ngModel)]="formData.Email"
             required
             email
           />
-          <div class="text-red-500 text-xs mt-1" *ngIf="userForm.submitted && !userForm.controls['email']?.valid">
+          <div class="text-red-500 text-xs mt-1" *ngIf="userForm.submitted && !userForm.controls['Email']?.valid">
             Valid email is required.
           </div>
         </div>
@@ -148,17 +148,55 @@
           <input 
             type="password" 
             class="input input-bordered w-full" 
-            name="password"
-            [(ngModel)]="formData.password"
+            name="Password"
+            [(ngModel)]="formData.Password"
             [required]="!editingUser"
             minlength="6"
           />
-          <div class="text-red-500 text-xs mt-1" *ngIf="userForm.submitted && !userForm.controls['password']?.valid">
+          <div class="text-red-500 text-xs mt-1" *ngIf="userForm.submitted && !userForm.controls['Password']?.valid">
             Password is required (min 6 chars).
           </div>
           <div class="text-gray-500 text-xs mt-1" *ngIf="editingUser">
             Leave blank to keep current password.
           </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold">Phone (optional)</span>
+            </label>
+            <input 
+              type="text" 
+              class="input input-bordered w-full" 
+              name="PhoneNumber"
+              [(ngModel)]="formData.PhoneNumber"
+            />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold">City</span>
+            </label>
+            <input 
+              type="text" 
+              class="input input-bordered w-full" 
+              name="City"
+              [(ngModel)]="formData.City"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-control mb-4">
+          <label class="label">
+            <span class="label-text font-semibold">Address (optional)</span>
+          </label>
+          <input 
+            type="text" 
+            class="input input-bordered w-full" 
+            name="Address"
+            [(ngModel)]="formData.Address"
+          />
         </div>
 
         <div class="modal-action">

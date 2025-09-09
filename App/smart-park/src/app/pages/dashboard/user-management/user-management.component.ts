@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { ApiService, UserResponse, UserRegistrationRequest } from '../../../services/api.service';
+import { ApiService, UserResponseDto, UserRequestDto } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -12,18 +12,21 @@ import { AuthService } from '../../../services/auth.service';
   styleUrl: './user-management.component.scss'
 })
 export class UserManagementComponent implements OnInit {
-  users: UserResponse[] = [];
+  users: UserResponseDto[] = [];
   isLoading = false;
   errorMessage = '';
   successMessage = '';
   showAddForm = false;
-  editingUser: UserResponse | null = null;
+  editingUser: UserResponseDto | null = null;
 
   // Form data for add/edit
-  formData: UserRegistrationRequest = {
-    fullName: '',
-    email: '',
-    password: ''
+  formData: UserRequestDto = {
+    Name: '',
+    Email: '',
+    Password: '',
+    Address: null,
+    PhoneNumber: null,
+    City: ''
   };
 
   constructor(
@@ -65,9 +68,12 @@ export class UserManagementComponent implements OnInit {
         if (response.success && response.data) {
           this.editingUser = response.data;
           this.formData = {
-            fullName: response.data.fullName,
-            email: response.data.email,
-            password: ''
+            Name: response.data.Name ?? '',
+            Email: response.data.Email ?? '',
+            Password: '',
+            Address: null,
+            PhoneNumber: response.data.PhoneNumber ?? null,
+            City: ''
           };
           this.showAddForm = true;
         } else {
@@ -84,16 +90,19 @@ export class UserManagementComponent implements OnInit {
   addUser(): void {
     this.editingUser = null;
     this.formData = {
-      fullName: '',
-      email: '',
-      password: ''
+      Name: '',
+      Email: '',
+      Password: '',
+      Address: null,
+      PhoneNumber: null,
+      City: ''
     };
     this.showAddForm = true;
     this.clearMessages();
   }
 
-  editUser(user: UserResponse): void {
-    this.getUserById(user.id);
+  editUser(user: UserResponseDto): void {
+    this.getUserById(user.Id);
   }
 
   saveUser(form: NgForm): void {
@@ -104,7 +113,7 @@ export class UserManagementComponent implements OnInit {
 
       if (this.editingUser) {
         // Update existing user
-        this.apiService.updateUser(this.editingUser.id, this.formData).subscribe({
+        this.apiService.updateUser(this.editingUser.Id, this.formData).subscribe({
           next: (response) => {
             this.isLoading = false;
             if (response.success) {
@@ -144,12 +153,12 @@ export class UserManagementComponent implements OnInit {
     }
   }
 
-  deleteUser(user: UserResponse): void {
-    if (confirm(`Are you sure you want to delete user "${user.fullName}"?`)) {
+  deleteUser(user: UserResponseDto): void {
+    if (confirm(`Are you sure you want to delete user "${user.Name ?? ''}"?`)) {
       this.isLoading = true;
       this.errorMessage = '';
       
-      this.apiService.deleteUser(user.id).subscribe({
+      this.apiService.deleteUser(user.Id).subscribe({
         next: (response) => {
           this.isLoading = false;
           if (response.success) {
@@ -171,9 +180,12 @@ export class UserManagementComponent implements OnInit {
     this.showAddForm = false;
     this.editingUser = null;
     this.formData = {
-      fullName: '',
-      email: '',
-      password: ''
+      Name: '',
+      Email: '',
+      Password: '',
+      Address: null,
+      PhoneNumber: null,
+      City: ''
     };
     this.clearMessages();
   }

@@ -23,9 +23,10 @@ export class LocationManagementComponent implements OnInit {
   formData: LocationRequest = {
     name: '',
     address: '',
-    capacity: 0,
-    hourlyRate: 0,
-    description: ''
+    totalSlots: 0,
+    city: '',
+    image: '',
+    userId: ''
   };
 
   constructor(
@@ -69,9 +70,10 @@ export class LocationManagementComponent implements OnInit {
           this.formData = {
             name: response.data.name,
             address: response.data.address,
-            capacity: response.data.capacity,
-            hourlyRate: response.data.hourlyRate,
-            description: response.data.description || ''
+            totalSlots: response.data.totalSlots,
+            city: response.data.city,
+            image: response.data.image,
+            userId: response.data.userId
           };
           this.showAddForm = true;
         } else {
@@ -90,9 +92,10 @@ export class LocationManagementComponent implements OnInit {
     this.formData = {
       name: '',
       address: '',
-      capacity: 0,
-      hourlyRate: 0,
-      description: ''
+      totalSlots: 0,
+      city: '',
+      image: '',
+      userId: ''
     };
     this.showAddForm = true;
     this.clearMessages();
@@ -179,9 +182,10 @@ export class LocationManagementComponent implements OnInit {
     this.formData = {
       name: '',
       address: '',
-      capacity: 0,
-      hourlyRate: 0,
-      description: ''
+      totalSlots: 0,
+      city: '',
+      image: '',
+      userId: ''
     };
     this.clearMessages();
   }

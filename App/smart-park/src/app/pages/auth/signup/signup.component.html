@@ -25,12 +25,12 @@
         </div>
 
         <div class="form-control">
-          <label class="label" for="fullName">
+          <label class="label" for="Name">
             <span class="label-text font-semibold">Full Name</span>
           </label>
           <input 
-            id="fullName" 
-            name="fullName" 
+            id="Name" 
+            name="Name" 
             type="text" 
             class="input input-bordered w-full" 
             required 
@@ -38,7 +38,7 @@
             ngModel 
             (focus)="clearMessages()"
           />
-          <div class="text-red-500 text-xs mt-1" *ngIf="signupForm.submitted && !signupForm.controls['fullName']?.valid">
+          <div class="text-red-500 text-xs mt-1" *ngIf="signupForm.submitted && !signupForm.controls['Name']?.valid">
             Full Name is required (min 3 chars).
           </div>
         </div>
@@ -48,7 +48,7 @@
           </label>
           <input 
             id="email" 
-            name="email" 
+            name="Email" 
             type="email" 
             class="input input-bordered w-full" 
             required 
@@ -56,7 +56,7 @@
             ngModel 
             (focus)="clearMessages()"
           />
-          <div class="text-red-500 text-xs mt-1" *ngIf="signupForm.submitted && !signupForm.controls['email']?.valid">
+          <div class="text-red-500 text-xs mt-1" *ngIf="signupForm.submitted && !signupForm.controls['Email']?.valid">
             Valid email is required.
           </div>
         </div>
@@ -66,7 +66,7 @@
           </label>
           <input 
             id="password" 
-            name="password" 
+            name="Password" 
             type="password" 
             class="input input-bordered w-full" 
             required 
@@ -74,7 +74,7 @@
             ngModel 
             (focus)="clearMessages()"
           />
-          <div class="text-red-500 text-xs mt-1" *ngIf="signupForm.submitted && !signupForm.controls['password']?.valid">
+          <div class="text-red-500 text-xs mt-1" *ngIf="signupForm.submitted && !signupForm.controls['Password']?.valid">
             Password is required (min 6 chars).
           </div>
         </div>
@@ -91,9 +91,57 @@
             ngModel 
             (focus)="clearMessages()"
           />
-          <div class="text-red-500 text-xs mt-1" *ngIf="signupForm.submitted && signupForm.controls['confirmPassword']?.value !== signupForm.controls['password']?.value">
+          <div class="text-red-500 text-xs mt-1" *ngIf="signupForm.submitted && signupForm.controls['confirmPassword']?.value !== signupForm.controls['Password']?.value">
             Passwords must match.
           </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label" for="City">
+              <span class="label-text font-semibold">City</span>
+            </label>
+            <input 
+              id="City" 
+              name="City" 
+              type="text" 
+              class="input input-bordered w-full" 
+              required 
+              ngModel 
+              (focus)="clearMessages()"
+            />
+            <div class="text-red-500 text-xs mt-1" *ngIf="signupForm.submitted && !signupForm.controls['City']?.valid">
+              City is required.
+            </div>
+          </div>
+
+          <div class="form-control">
+            <label class="label" for="PhoneNumber">
+              <span class="label-text font-semibold">Phone Number (optional)</span>
+            </label>
+            <input 
+              id="PhoneNumber" 
+              name="PhoneNumber" 
+              type="text" 
+              class="input input-bordered w-full" 
+              ngModel 
+              (focus)="clearMessages()"
+            />
+          </div>
+        </div>
+
+        <div class="form-control">
+          <label class="label" for="Address">
+            <span class="label-text font-semibold">Address (optional)</span>
+          </label>
+          <input 
+            id="Address" 
+            name="Address" 
+            type="text" 
+            class="input input-bordered w-full" 
+            ngModel 
+            (focus)="clearMessages()"
+          />
         </div>
         <div class="form-control pt-2">
           <button 

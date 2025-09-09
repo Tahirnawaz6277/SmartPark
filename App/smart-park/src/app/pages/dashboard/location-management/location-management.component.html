@@ -65,8 +65,6 @@
       <div class="card-body">
         <div class="flex justify-between items-start mb-4">
           <h2 class="card-title text-xl font-bold text-gray-800">{{ location.name }}</h2>
-          <div class="badge badge-success" *ngIf="location.isActive">Active</div>
-          <div class="badge badge-error" *ngIf="!location.isActive">Inactive</div>
         </div>
         
         <div class="space-y-3">
@@ -82,18 +80,18 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            <span class="text-sm">Capacity: {{ location.capacity }} spots</span>
+            <span class="text-sm">Total Slots: {{ location.totalSlots }}</span>
           </div>
           
           <div class="flex items-center text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
             </svg>
-            <span class="text-sm">${{ location.hourlyRate }}/hour</span>
+            <span class="text-sm">City: {{ location.city }}</span>
           </div>
           
-          <div *ngIf="location.description" class="text-gray-600">
-            <p class="text-sm">{{ location.description }}</p>
+          <div class="text-gray-600">
+            <p class="text-sm">Owner: {{ location.userId }}</p>
           </div>
         </div>
         
@@ -152,19 +150,19 @@
 
           <div class="form-control">
             <label class="label">
-              <span class="label-text font-semibold">Capacity</span>
+              <span class="label-text font-semibold">Total Slots</span>
             </label>
             <input 
               type="number" 
               class="input input-bordered w-full" 
-              name="capacity"
-              [(ngModel)]="formData.capacity"
+              name="totalSlots"
+              [(ngModel)]="formData.totalSlots"
               required
               min="1"
               placeholder="Number of parking spots"
             />
-            <div class="text-red-500 text-xs mt-1" *ngIf="locationForm.submitted && !locationForm.controls['capacity']?.valid">
-              Capacity is required (min 1).
+            <div class="text-red-500 text-xs mt-1" *ngIf="locationForm.submitted && !locationForm.controls['totalSlots']?.valid">
+              Total slots is required (min 1).
             </div>
           </div>
         </div>
@@ -187,35 +185,54 @@
           </div>
         </div>
 
-        <div class="form-control mt-4">
-          <label class="label">
-            <span class="label-text font-semibold">Hourly Rate ($)</span>
-          </label>
-          <input 
-            type="number" 
-            class="input input-bordered w-full" 
-            name="hourlyRate"
-            [(ngModel)]="formData.hourlyRate"
-            required
-            min="0"
-            step="0.01"
-            placeholder="0.00"
-          />
-          <div class="text-red-500 text-xs mt-1" *ngIf="locationForm.submitted && !locationForm.controls['hourlyRate']?.valid">
-            Hourly rate is required (min $0.00).
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold">City</span>
+            </label>
+            <input 
+              type="text" 
+              class="input input-bordered w-full" 
+              name="city"
+              [(ngModel)]="formData.city"
+              required
+              minlength="2"
+              placeholder="City"
+            />
+            <div class="text-red-500 text-xs mt-1" *ngIf="locationForm.submitted && !locationForm.controls['city']?.valid">
+              City is required.
+            </div>
+          </div>
+
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold">Image URL</span>
+            </label>
+            <input 
+              type="text" 
+              class="input input-bordered w-full" 
+              name="image"
+              [(ngModel)]="formData.image"
+              placeholder="https://..."
+            />
           </div>
         </div>
 
         <div class="form-control mt-4">
           <label class="label">
-            <span class="label-text font-semibold">Description (Optional)</span>
+            <span class="label-text font-semibold">Owner User Id</span>
           </label>
-          <textarea 
-            class="textarea textarea-bordered w-full h-24" 
-            name="description"
-            [(ngModel)]="formData.description"
-            placeholder="Additional details about the location..."
-          ></textarea>
+          <input 
+            type="text" 
+            class="input input-bordered w-full" 
+            name="userId"
+            [(ngModel)]="formData.userId"
+            required
+            placeholder="Guid of owner user"
+          />
+          <div class="text-red-500 text-xs mt-1" *ngIf="locationForm.submitted && !locationForm.controls['userId']?.valid">
+            Owner user id is required.
+          </div>
         </div>
 
         <div class="modal-action">

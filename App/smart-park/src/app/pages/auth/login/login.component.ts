@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { ApiService, UserLoginRequest } from '../../../services/api.service';
+import { ApiService, UserLoginRequestDto } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -36,9 +36,9 @@ export class LoginComponent implements OnInit {
       this.errorMessage = '';
       this.successMessage = '';
 
-      const loginData: UserLoginRequest = {
-        username: form.value.username,
-        password: form.value.password
+      const loginData: UserLoginRequestDto = {
+        Email: form.value.email ?? form.value.username,
+        Password: form.value.password
       };
 
       this.apiService.login(loginData).subscribe({
