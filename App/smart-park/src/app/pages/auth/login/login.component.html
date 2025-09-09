@@ -8,21 +8,72 @@
       </div>
       <h2 class="text-3xl font-extrabold mb-1 text-primary drop-shadow">Welcome To SmartPark!</h2>
       <p class="text-gray-600 mb-8 text-center">Sign in to access your dashboard</p>
-      <form class="w-full space-y-5">
+      <form class="w-full space-y-5" #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)">
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="alert alert-error shadow-lg">
+          <div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{{ errorMessage }}</span>
+          </div>
+        </div>
+
+        <!-- Success Message -->
+        <div *ngIf="successMessage" class="alert alert-success shadow-lg">
+          <div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{{ successMessage }}</span>
+          </div>
+        </div>
+
         <div class="form-control">
           <label class="label" for="username">
             <span class="label-text font-semibold">Username</span>
           </label>
-          <input id="username" type="text" placeholder="Enter your username" class="input input-bordered w-full focus:ring-2 focus:ring-primary/80 transition" />
+          <input 
+            id="username" 
+            name="username"
+            type="text" 
+            placeholder="Enter your username" 
+            class="input input-bordered w-full focus:ring-2 focus:ring-primary/80 transition" 
+            required
+            ngModel
+            (focus)="clearMessages()"
+          />
+          <div class="text-red-500 text-xs mt-1" *ngIf="loginForm.submitted && !loginForm.controls['username']?.valid">
+            Username is required.
+          </div>
         </div>
         <div class="form-control">
           <label class="label" for="password">
             <span class="label-text font-semibold">Password</span>
           </label>
-          <input id="password" type="password" placeholder="Enter your password" class="input input-bordered w-full focus:ring-2 focus:ring-primary/50 transition" />
+          <input 
+            id="password" 
+            name="password"
+            type="password" 
+            placeholder="Enter your password" 
+            class="input input-bordered w-full focus:ring-2 focus:ring-primary/50 transition" 
+            required
+            ngModel
+            (focus)="clearMessages()"
+          />
+          <div class="text-red-500 text-xs mt-1" *ngIf="loginForm.submitted && !loginForm.controls['password']?.valid">
+            Password is required.
+          </div>
         </div>
         <div class="form-control pt-2">
-          <button type="submit" class="btn btn-primary w-full text-lg font-bold tracking-wide shadow-lg hover:scale-105 transition-transform">Login</button>
+          <button 
+            type="submit" 
+            class="btn btn-primary w-full text-lg font-bold tracking-wide shadow-lg hover:scale-105 transition-transform"
+            [disabled]="isLoading"
+          >
+            <span *ngIf="isLoading" class="loading loading-spinner loading-sm"></span>
+            {{ isLoading ? 'Signing in...' : 'Login' }}
+          </button>
         </div>
       </form>
       

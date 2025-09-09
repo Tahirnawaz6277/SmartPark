@@ -9,6 +9,15 @@ using SmartPark.Middlwares;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularDev",
+        policy => policy
+            .WithOrigins("http://localhost:4200") // allow only specified origins
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
 
 // Register services and jwt configurations to the container using the extension method
 builder.Services.AddApplicationServices();
@@ -41,6 +50,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.ConfigureSwaggerAuthentication();
 
 var app = builder.Build();
+
+// Use CORS
+app.UseCors("AllowAngularDev");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
