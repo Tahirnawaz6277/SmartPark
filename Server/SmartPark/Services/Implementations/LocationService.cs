@@ -1,10 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SmartPark.Common.Enum;
-using SmartPark.Common.Helpers;
-using SmartPark.Data.Contexts;
+﻿using SmartPark.Data.Contexts;
 using SmartPark.Dtos.Location;
-using SmartPark.Dtos.Slot;
-using SmartPark.Exceptions;
 using SmartPark.Models;
 using SmartPark.Services.Interfaces;
 
@@ -14,18 +9,13 @@ namespace SmartPark.Services.Implementations
     {
         private readonly ParkingDbContext _dbContext;
         private readonly IHelper _helper;
-
-        // Cache enum descriptions to avoid repeated calls
-        private static readonly string SmallType = NanoHelpers.GetEnumDescription(SlotType.small);
-        private static readonly string LargeType = NanoHelpers.GetEnumDescription(SlotType.large);
-        private static readonly string MediumType = NanoHelpers.GetEnumDescription(SlotType.medium);
         public LocationService(ParkingDbContext dbContext, IHelper helper)
         {
             _dbContext = dbContext;
             _helper = helper;
         }
 
-        public async Task<CreateLocationReponse> CreateLocationAsync(CreateLocationRequest dto, CancellationToken cancellationToken)
+        public async Task<LocationReponse> CreateLocationAsync(LocationRequest dto, CancellationToken cancellationToken)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -41,46 +31,37 @@ namespace SmartPark.Services.Implementations
                     Address = dto.Address,
                     City = dto.City,
                     Image = dto.Image,
-                    TotalSlots = (dto.SmallSlotCount + dto.LargeSlotCount),
+                    TotalSlots = dto.TotalSlots,
                     UserId = userId ?? Guid.Empty,
-                    TimeStamp = serverTime
+                    CreatedAt = serverTime,
+                    CreatedBy = userId,
                 };
 
                 _dbContext.ParkingLocations.Add(location);
                 await _dbContext.SaveChangesAsync(cancellationToken);
+                // handl slots insertion based on total slots in location
 
-                // Link to existing slot types with counts
-                var smallSlot = await _dbContext.Slots
-                    .FirstAsync(s => s.SlotType == SmallType, cancellationToken);
-                var largeSlot = await _dbContext.Slots
-                    .FirstAsync(s => s.SlotType == LargeType, cancellationToken);      
-                var mediumSlot = await _dbContext.Slots
-                    .FirstAsync(s => s.SlotType == MediumType, cancellationToken);
-
-                var locationSlots = new List<LocationSlot>
+                for (int i = 1; i < location.TotalSlots; i++)
                 {
-                    new LocationSlot { LocationId = location.Id, SlotId = smallSlot.Id, SlotCount = dto.SmallSlotCount },
-                    new LocationSlot { LocationId = location.Id, SlotId = largeSlot.Id, SlotCount = dto.LargeSlotCount },
-                    new LocationSlot { LocationId = location.Id, SlotId = largeSlot.Id, SlotCount = dto.MediumSlotCount }
-                };
-
-                _dbContext.LocationSlots.AddRange(locationSlots);
+                    location.Slots.Add(new Slot
+                    {
+                        LocationId = location.Id,
+                        SlotNumber = $"S{i}",
+                        IsAvailable = true
+                    });
+                }
                 await _dbContext.SaveChangesAsync(cancellationToken);
-
                 await transaction.CommitAsync(cancellationToken);
 
                 // Map to response with calculated total
                 var result = MapToResponse(location);
-                result.TotalSlots = locationSlots.Sum(ls => ls.SlotCount);
-                //result.Slots.Add(new SlotSummaryDto { SlotType = "small", SlotCount = dto.SmallSlotCount, IsAvailable = smallSlot.IsAvailable });
-                //result.Slots.Add(new SlotSummaryDto { SlotType = "large", SlotCount = dto.LargeSlotCount, IsAvailable = largeSlot.IsAvailable });
-
+                
                 return result;
             }
             catch (Exception)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                throw; // Let the mediator handle the exception or return a custom error
+                throw; 
             }
         }
 
@@ -95,116 +76,116 @@ namespace SmartPark.Services.Implementations
             return true;
         }
 
-        public async Task<IEnumerable<LocationDto>> GetAllLocationsAsync()
+        //public async Task<IEnumerable<LocationDto>> GetAllLocationsAsync()
+        //{
+        //    return await _dbContext.ParkingLocations
+        //        .Include(l => l.LocationSlots)
+        //        .ThenInclude(ls => ls.Slot)
+        //        .Select(l => new LocationDto
+        //        {
+        //            Id = l.Id,
+        //            Name = l.Name,
+        //            Address = l.Address,
+        //            City = l.City,
+        //            Image = l.Image,
+        //            UserId = l.UserId,
+        //            TimeStamp = l.TimeStamp,
+        //            TotalSlots = l.LocationSlots.Sum(ls => ls.SlotCount),
+        //            SmallSlots = l.LocationSlots
+        //                .Where(ls => ls.Slot.SlotType == SmallType)
+        //                .Sum(ls => ls.SlotCount),
+        //            LargeSlots = l.LocationSlots
+        //                 .Where(ls => ls.Slot.SlotType == LargeType)
+        //                 .Sum(ls => ls.SlotCount),
+        //            MediumSlots = l.LocationSlots
+        //                 .Where(ls => ls.Slot.SlotType == MediumType)
+        //                 .Sum(ls => ls.SlotCount),
+        //            Slots = l.LocationSlots.Select(ls => new SlotSummaryDto
+        //            {
+        //                SlotType = ls.Slot.SlotType,
+        //                SlotCount = ls.SlotCount,
+        //                IsAvailable = ls.Slot.IsAvailable
+        //            }).ToList()
+        //        })
+        //        .ToListAsync();
+        //}
+
+        //public async Task<LocationDto?> GetLocationByIdAsync(Guid id)
+        //{
+        //    return await _dbContext.ParkingLocations
+        //        .Include(l => l.LocationSlots)
+        //        .ThenInclude(ls => ls.Slot)
+        //        .Where(l => l.Id == id)
+        //        .Select(l => new LocationDto
+        //        {
+        //            Id = l.Id,
+        //            Name = l.Name,
+        //            Address = l.Address,
+        //            City = l.City,
+        //            Image = l.Image,
+        //            UserId = l.UserId,
+        //            TimeStamp = l.TimeStamp,
+        //            TotalSlots = l.LocationSlots.Sum(ls => ls.SlotCount),
+        //            SmallSlots = l.LocationSlots
+        //                .Where(ls => ls.Slot.SlotType == SmallType)
+        //                .Sum(ls => ls.SlotCount),
+        //            LargeSlots = l.LocationSlots
+        //                 .Where(ls => ls.Slot.SlotType == LargeType)
+        //                 .Sum(ls => ls.SlotCount),
+        //            MediumSlots = l.LocationSlots
+        //                 .Where(ls => ls.Slot.SlotType == MediumType)
+        //                 .Sum(ls => ls.SlotCount),
+        //            Slots = l.LocationSlots.Select(ls => new SlotSummaryDto
+        //            {
+        //                SlotType = ls.Slot.SlotType,
+        //                SlotCount = ls.SlotCount,
+        //                IsAvailable = ls.Slot.IsAvailable
+        //            }).ToList()
+        //        })
+        //        .FirstOrDefaultAsync();
+        //}
+
+
+        //public async Task<CreateLocationReponse> UpdateLocationAsync(Guid id, CreateLocationRequest dto)
+        //{
+        //    var location = await _dbContext.ParkingLocations
+        //        .Include(l => l.LocationSlots)
+        //        .FirstOrDefaultAsync(l => l.Id == id);
+
+        //    if (location == null)
+        //        throw new NotFoundException("Location not found");
+
+        //    location.Name = dto.Name ?? location.Name;
+        //    location.Address = dto.Address ?? location.Address;
+        //    location.City = dto.City ?? location.City;
+        //    location.Image = dto.Image ?? location.Image;
+
+        //    // Update slot counts if provided
+        //    var smallSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == SmallType, cancellationToken: default);
+        //    var largeSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == LargeType, cancellationToken: default);
+        //    var mediumSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == MediumType, cancellationToken: default);
+        //    var smallLocationSlot = location.LocationSlots.FirstOrDefault(ls => ls.SlotId == smallSlot.Id);
+        //    var largeLocationSlot = location.LocationSlots.FirstOrDefault(ls => ls.SlotId == largeSlot.Id);
+        //    var mediumLocationSlot = location.LocationSlots.FirstOrDefault(ls => ls.SlotId == mediumSlot.Id);
+
+        //    if (smallLocationSlot != null) smallLocationSlot.SlotCount = dto.SmallSlotCount;
+        //    if (largeLocationSlot != null) largeLocationSlot.SlotCount = dto.LargeSlotCount;
+        //    if (mediumLocationSlot != null) mediumLocationSlot.SlotCount = dto.MediumSlotCount;
+
+        //    await _dbContext.SaveChangesAsync();
+
+        //    return MapToResponse(location);
+        //}
+
+        private LocationReponse MapToResponse(ParkingLocation loc)
         {
-            return await _dbContext.ParkingLocations
-                .Include(l => l.LocationSlots)
-                .ThenInclude(ls => ls.Slot)
-                .Select(l => new LocationDto
-                {
-                    Id = l.Id,
-                    Name = l.Name,
-                    Address = l.Address,
-                    City = l.City,
-                    Image = l.Image,
-                    UserId = l.UserId,
-                    TimeStamp = l.TimeStamp,
-                    TotalSlots = l.LocationSlots.Sum(ls => ls.SlotCount),
-                    SmallSlots = l.LocationSlots
-                        .Where(ls => ls.Slot.SlotType == SmallType)
-                        .Sum(ls => ls.SlotCount),
-                    LargeSlots = l.LocationSlots
-                         .Where(ls => ls.Slot.SlotType == LargeType)
-                         .Sum(ls => ls.SlotCount),
-                    MediumSlots = l.LocationSlots
-                         .Where(ls => ls.Slot.SlotType == MediumType)
-                         .Sum(ls => ls.SlotCount),
-                    Slots = l.LocationSlots.Select(ls => new SlotSummaryDto
-                    {
-                        SlotType = ls.Slot.SlotType,
-                        SlotCount = ls.SlotCount,
-                        IsAvailable = ls.Slot.IsAvailable
-                    }).ToList()
-                })
-                .ToListAsync();
-        }
-
-        public async Task<LocationDto?> GetLocationByIdAsync(Guid id)
-        {
-            return await _dbContext.ParkingLocations
-                .Include(l => l.LocationSlots)
-                .ThenInclude(ls => ls.Slot)
-                .Where(l => l.Id == id)
-                .Select(l => new LocationDto
-                {
-                    Id = l.Id,
-                    Name = l.Name,
-                    Address = l.Address,
-                    City = l.City,
-                    Image = l.Image,
-                    UserId = l.UserId,
-                    TimeStamp = l.TimeStamp,
-                    TotalSlots = l.LocationSlots.Sum(ls => ls.SlotCount),
-                    SmallSlots = l.LocationSlots
-                        .Where(ls => ls.Slot.SlotType == SmallType)
-                        .Sum(ls => ls.SlotCount),
-                    LargeSlots = l.LocationSlots
-                         .Where(ls => ls.Slot.SlotType == LargeType)
-                         .Sum(ls => ls.SlotCount),
-                    MediumSlots = l.LocationSlots
-                         .Where(ls => ls.Slot.SlotType == MediumType)
-                         .Sum(ls => ls.SlotCount),
-                    Slots = l.LocationSlots.Select(ls => new SlotSummaryDto
-                    {
-                        SlotType = ls.Slot.SlotType,
-                        SlotCount = ls.SlotCount,
-                        IsAvailable = ls.Slot.IsAvailable
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync();
-        }
-
-
-        public async Task<CreateLocationReponse> UpdateLocationAsync(Guid id, CreateLocationRequest dto)
-        {
-            var location = await _dbContext.ParkingLocations
-                .Include(l => l.LocationSlots)
-                .FirstOrDefaultAsync(l => l.Id == id);
-
-            if (location == null)
-                throw new NotFoundException("Location not found");
-
-            location.Name = dto.Name ?? location.Name;
-            location.Address = dto.Address ?? location.Address;
-            location.City = dto.City ?? location.City;
-            location.Image = dto.Image ?? location.Image;
-
-            // Update slot counts if provided
-            var smallSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == SmallType, cancellationToken: default);
-            var largeSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == LargeType, cancellationToken: default);
-            var mediumSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == MediumType, cancellationToken: default);
-            var smallLocationSlot = location.LocationSlots.FirstOrDefault(ls => ls.SlotId == smallSlot.Id);
-            var largeLocationSlot = location.LocationSlots.FirstOrDefault(ls => ls.SlotId == largeSlot.Id);
-            var mediumLocationSlot = location.LocationSlots.FirstOrDefault(ls => ls.SlotId == mediumSlot.Id);
-
-            if (smallLocationSlot != null) smallLocationSlot.SlotCount = dto.SmallSlotCount;
-            if (largeLocationSlot != null) largeLocationSlot.SlotCount = dto.LargeSlotCount;
-            if (mediumLocationSlot != null) mediumLocationSlot.SlotCount = dto.MediumSlotCount;
-
-            await _dbContext.SaveChangesAsync();
-
-            return MapToResponse(location);
-        }
-
-        private CreateLocationReponse MapToResponse(ParkingLocation loc)
-        {
-            return new CreateLocationReponse
+            return new LocationReponse
             {
-                LocationId = loc.Id,
+                Id = loc.Id,
                 Name = loc.Name ?? "",
                 Address = loc.Address ?? "",
                 City = loc.City,
-                TotalSlots = loc.LocationSlots?.Sum(ls => ls.SlotCount) ?? 0,
+                TotalSlots = loc.TotalSlots
             };
         }
     }

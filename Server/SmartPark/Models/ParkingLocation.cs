@@ -17,15 +17,19 @@ public partial class ParkingLocation
 
     public string? Image { get; set; }
 
-    public DateTime? TimeStamp { get; set; }
+    public Guid UserId { get; set; }
 
-    public Guid? UserId { get; set; }
+    public DateTime? CreatedAt { get; set; }
+
+    public Guid? CreatedBy { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
+    public Guid? UpdatedBy { get; set; }
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
-    public virtual ICollection<LocationSlot> LocationSlots { get; set; } = new List<LocationSlot>();
-
     public virtual ICollection<Slot> Slots { get; set; } = new List<Slot>();
 
-    public virtual User? User { get; set; }
+    public virtual User User { get; set; } = null!;
 }

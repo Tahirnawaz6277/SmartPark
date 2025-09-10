@@ -1,16 +1,16 @@
-﻿using MediatR;
-using SmartPark.CQRS.Queries.Location;
-using SmartPark.Dtos.Location;
-using SmartPark.Services.Interfaces;
+﻿//using MediatR;
+//using SmartPark.CQRS.Queries.Location;
+//using SmartPark.Dtos.Location;
+//using SmartPark.Services.Interfaces;
 
-namespace SmartPark.CQRS.Handlers.Location
-{
-    public class GetAllLocationsHandler : IRequestHandler<GetAllLocationsQuery, IEnumerable<LocationDto>>
-    {
-        private readonly ILocationService _service;
-        public GetAllLocationsHandler(ILocationService service) => _service = service;
+//namespace SmartPark.CQRS.Handlers.Location
+//{
+//    public class GetAllLocationsHandler : IRequestHandler<GetAllLocationsQuery, IEnumerable<LocationDto>>
+//    {
+//        private readonly ILocationService _service;
+//        public GetAllLocationsHandler(ILocationService service) => _service = service;
 
-        public async Task<IEnumerable<LocationDto>> Handle(GetAllLocationsQuery request, CancellationToken cancellationToken)
-            => await _service.GetAllLocationsAsync();
-    }
-}
+//        public async Task<IEnumerable<LocationDto>> Handle(GetAllLocationsQuery request, CancellationToken cancellationToken)
+//            => await _service.GetAllLocationsAsync();
+//    }
+//}

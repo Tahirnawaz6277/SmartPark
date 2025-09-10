@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SmartPark.Models;
 
 namespace SmartPark.Data.Contexts;
@@ -19,8 +17,6 @@ public partial class ParkingDbContext : DbContext
     public virtual DbSet<BookingHistory> BookingHistories { get; set; }
 
     public virtual DbSet<Feedback> Feedbacks { get; set; }
-
-    public virtual DbSet<LocationSlot> LocationSlots { get; set; }
 
     public virtual DbSet<ParkingLocation> ParkingLocations { get; set; }
 
@@ -134,23 +130,6 @@ public partial class ParkingDbContext : DbContext
                 .HasConstraintName("FK__Feedback__UserId__6B24EA82");
         });
 
-        modelBuilder.Entity<LocationSlot>(entity =>
-        {
-            entity.HasKey(e => new { e.LocationId, e.SlotId });
-
-            entity.ToTable("LocationSlot");
-
-            entity.HasOne(d => d.Location).WithMany(p => p.LocationSlots)
-                .HasForeignKey(d => d.LocationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_LocationSlot_Location");
-
-            entity.HasOne(d => d.Slot).WithMany(p => p.LocationSlots)
-                .HasForeignKey(d => d.SlotId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_LocationSlot_Slot");
-        });
-
         modelBuilder.Entity<ParkingLocation>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__ParkingL__3214EC078AEAF522");
@@ -164,18 +143,20 @@ public partial class ParkingDbContext : DbContext
             entity.Property(e => e.City)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.Image)
                 .HasMaxLength(255)
                 .IsUnicode(false);
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.TimeStamp)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.User).WithMany(p => p.ParkingLocations)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__ParkingLo__UserI__4E88ABD4");
         });
 
@@ -197,13 +178,12 @@ public partial class ParkingDbContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.IsAvailable).HasDefaultValue(true);
-            entity.Property(e => e.SlotType)
+            entity.Property(e => e.SlotNumber)
                 .HasMaxLength(50)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.Location).WithMany(p => p.Slots)
                 .HasForeignKey(d => d.LocationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Slots__LocationI__534D60F1");
         });
 
