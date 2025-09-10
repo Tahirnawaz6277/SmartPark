@@ -18,7 +18,7 @@ namespace SmartPark.Services.Implementations
             _dbContext = dbContext;
         }
 
-        public async Task<UserResponseDto?> CreateUserAsync(UserRequestDto requestDto)
+        public async Task<RegistrationResponse?> CreateUserAsync(RegistrationRequest requestDto)
         {
             // check duplicates
             var exists = await _dbContext.Users.AnyAsync(u =>
@@ -48,7 +48,7 @@ namespace SmartPark.Services.Implementations
             _dbContext.Users.Add(user);
             await _dbContext.SaveChangesAsync();
 
-            return new UserResponseDto
+            return new RegistrationResponse
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -93,7 +93,7 @@ namespace SmartPark.Services.Implementations
                     .ToListAsync();
         }
 
-        public async Task<UserResponseDto> UpdateUserAsync(Guid id, UpdateUserRequest requestDto)
+        public async Task<RegistrationResponse> UpdateUserAsync(Guid id, UpdateUserRequest requestDto)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id/* && !u.IsDeleted*/);
 
@@ -109,7 +109,7 @@ namespace SmartPark.Services.Implementations
 
             await _dbContext.SaveChangesAsync();
 
-            return new UserResponseDto
+            return new RegistrationResponse
             {
                 Id = user.Id,
                 Name = user.Name,

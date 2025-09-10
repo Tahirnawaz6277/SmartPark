@@ -3,6 +3,6 @@ using SmartPark.Dtos.Location;
 
 namespace SmartPark.CQRS.Commands.Location
 {
-    public record CreateLocationCommand(LocationRequestDto Request) : IRequest<LocationResponseDto>;
+    public record CreateLocationCommand(CreateLocationRequest Request) : IRequest<CreateLocationReponse>;
 
 }

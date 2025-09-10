@@ -5,7 +5,7 @@ using SmartPark.Services.Interfaces;
 
 namespace SmartPark.CQRS.Handlers.User
 {
-    public class CreateUserHandler : IRequestHandler<CreateUserCommand,UserResponseDto>
+    public class CreateUserHandler : IRequestHandler<CreateUserCommand,RegistrationResponse>
     {
         private readonly IUserService _userService;
         public CreateUserHandler(IUserService userService)
@@ -13,7 +13,7 @@ namespace SmartPark.CQRS.Handlers.User
             _userService = userService;
         }
 
-        public async Task<UserResponseDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        public async Task<RegistrationResponse> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             return await _userService.CreateUserAsync(request.RequestDto);
         }

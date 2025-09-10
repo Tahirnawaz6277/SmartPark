@@ -5,12 +5,12 @@ using SmartPark.Services.Interfaces;
 
 namespace SmartPark.CQRS.Handlers.Location
 {
-    public class GetLocationByIdHandler : IRequestHandler<GetLocationByIdQuery, LocationResponseDto?>
+    public class GetLocationByIdHandler : IRequestHandler<GetLocationByIdQuery, LocationDto?>
     {
         private readonly ILocationService _service;
         public GetLocationByIdHandler(ILocationService service) => _service = service;
 
-        public async Task<LocationResponseDto?> Handle(GetLocationByIdQuery request, CancellationToken cancellationToken)
+        public async Task<LocationDto?> Handle(GetLocationByIdQuery request, CancellationToken cancellationToken)
             => await _service.GetLocationByIdAsync(request.Id);
     }
 }

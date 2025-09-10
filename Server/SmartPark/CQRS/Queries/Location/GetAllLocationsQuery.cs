@@ -3,6 +3,6 @@ using SmartPark.Dtos.Location;
 
 namespace SmartPark.CQRS.Queries.Location
 {
-    public record GetAllLocationsQuery() : IRequest<IEnumerable<LocationResponseDto>>;
+    public record GetAllLocationsQuery() : IRequest<IEnumerable<LocationDto>>;
 
 }

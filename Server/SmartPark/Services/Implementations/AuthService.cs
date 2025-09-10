@@ -21,7 +21,7 @@ namespace SmartPark.Services.Implementations
             _helper = helper;
         }
 
-        public async Task<UserLoginResponse> AuthenticateAsync(string email, string password)
+        public async Task<LoginResponse> AuthenticateAsync(string email, string password)
         {
             var user = await _helper.GetActiveUserAsync(email);
             //handling password
@@ -31,7 +31,7 @@ namespace SmartPark.Services.Implementations
                 throw new Exception("Invalid Credentails");
             }
             var token = GenerateUserTokenAsync(user);
-            var loginResponse = new UserLoginResponse
+            var loginResponse = new LoginResponse
             {
                 Name = user.Name,
                 Email = user.Email,

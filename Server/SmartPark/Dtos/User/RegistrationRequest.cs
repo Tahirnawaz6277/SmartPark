@@ -2,7 +2,7 @@
 
 namespace SmartPark.Dtos.UserDtos
 {
-    public record UserRequestDto
+    public record RegistrationRequest
     {
         [Required(ErrorMessage ="Name is Required")]
         public string Name { get; set; }

@@ -4,7 +4,7 @@ namespace SmartPark.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<UserLoginResponse> AuthenticateAsync(string email, string password);
+        Task<LoginResponse> AuthenticateAsync(string email, string password);
 
     }
 }

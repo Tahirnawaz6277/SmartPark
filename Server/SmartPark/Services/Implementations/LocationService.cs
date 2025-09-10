@@ -185,7 +185,7 @@ namespace SmartPark.Services.Implementations
             _helper = helper;
         }
 
-        public async Task<LocationResponseDto> CreateLocationAsync(LocationRequestDto dto, CancellationToken cancellationToken)
+        public async Task<CreateLocationReponse> CreateLocationAsync(CreateLocationRequest dto, CancellationToken cancellationToken)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -201,7 +201,7 @@ namespace SmartPark.Services.Implementations
                     Address = dto.Address,
                     City = dto.City,
                     Image = dto.Image,
-                    TotalSlots = (dto.SmallSlotCount+dto.LargeSlotCount),
+                    TotalSlots = (dto.SmallSlotCount + dto.LargeSlotCount),
                     UserId = userId ?? Guid.Empty,
                     TimeStamp = serverTime
                 };
@@ -229,8 +229,8 @@ namespace SmartPark.Services.Implementations
                 // Map to response with calculated total
                 var result = MapToResponse(location);
                 result.TotalSlots = locationSlots.Sum(ls => ls.SlotCount);
-                result.Slots.Add(new SlotSummaryDto { SlotType = "small", SlotCount = dto.SmallSlotCount, IsAvailable = smallSlot.IsAvailable });
-                result.Slots.Add(new SlotSummaryDto { SlotType = "large", SlotCount = dto.LargeSlotCount, IsAvailable = largeSlot.IsAvailable });
+                //result.Slots.Add(new SlotSummaryDto { SlotType = "small", SlotCount = dto.SmallSlotCount, IsAvailable = smallSlot.IsAvailable });
+                //result.Slots.Add(new SlotSummaryDto { SlotType = "large", SlotCount = dto.LargeSlotCount, IsAvailable = largeSlot.IsAvailable });
 
                 return result;
             }
@@ -252,12 +252,12 @@ namespace SmartPark.Services.Implementations
             return true;
         }
 
-        public async Task<IEnumerable<LocationResponseDto>> GetAllLocationsAsync()
+        public async Task<IEnumerable<LocationDto>> GetAllLocationsAsync()
         {
             return await _dbContext.ParkingLocations
                 .Include(l => l.LocationSlots)
                 .ThenInclude(ls => ls.Slot)
-                .Select(l => new LocationResponseDto
+                .Select(l => new LocationDto
                 {
                     Id = l.Id,
                     Name = l.Name,
@@ -267,6 +267,12 @@ namespace SmartPark.Services.Implementations
                     UserId = l.UserId,
                     TimeStamp = l.TimeStamp,
                     TotalSlots = l.LocationSlots.Sum(ls => ls.SlotCount), // Calculate from junction table
+                    SmallSlots = l.LocationSlots
+                        .Where(ls => ls.Slot.SlotType == "small")
+                        .Sum(ls => ls.SlotCount),
+                    LargeSlots = l.LocationSlots
+                         .Where(ls => ls.Slot.SlotType == "large")
+                         .Sum(ls => ls.SlotCount),
                     Slots = l.LocationSlots.Select(ls => new SlotSummaryDto
                     {
                         SlotType = ls.Slot.SlotType,
@@ -277,13 +283,13 @@ namespace SmartPark.Services.Implementations
                 .ToListAsync();
         }
 
-        public async Task<LocationResponseDto?> GetLocationByIdAsync(Guid id)
+        public async Task<LocationDto?> GetLocationByIdAsync(Guid id)
         {
             return await _dbContext.ParkingLocations
                 .Include(l => l.LocationSlots)
                 .ThenInclude(ls => ls.Slot)
                 .Where(l => l.Id == id)
-                .Select(l => new LocationResponseDto
+                .Select(l => new LocationDto
                 {
                     Id = l.Id,
                     Name = l.Name,
@@ -293,6 +299,12 @@ namespace SmartPark.Services.Implementations
                     UserId = l.UserId,
                     TimeStamp = l.TimeStamp,
                     TotalSlots = l.LocationSlots.Sum(ls => ls.SlotCount), // Calculate from junction table
+                    SmallSlots = l.LocationSlots
+                        .Where(ls => ls.Slot.SlotType == "small" && l.Id == id)
+                        .Sum(ls => ls.SlotCount),
+                    LargeSlots = l.LocationSlots
+                         .Where(ls => ls.Slot.SlotType == "large" && l.Id == id)
+                         .Sum(ls => ls.SlotCount),
                     Slots = l.LocationSlots.Select(ls => new SlotSummaryDto
                     {
                         SlotType = ls.Slot.SlotType,
@@ -303,7 +315,7 @@ namespace SmartPark.Services.Implementations
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<LocationResponseDto> UpdateLocationAsync(Guid id, LocationRequestDto dto)
+        public async Task<CreateLocationReponse> UpdateLocationAsync(Guid id, CreateLocationRequest dto)
         {
             var location = await _dbContext.ParkingLocations
                 .Include(l => l.LocationSlots)
@@ -331,24 +343,15 @@ namespace SmartPark.Services.Implementations
             return MapToResponse(location);
         }
 
-        private LocationResponseDto MapToResponse(ParkingLocation loc)
+        private CreateLocationReponse MapToResponse(ParkingLocation loc)
         {
-            return new LocationResponseDto
+            return new CreateLocationReponse
             {
-                Id = loc.Id,
-                Name = loc.Name,
-                Address = loc.Address,
+                LocationId = loc.Id,
+                Name = loc.Name ?? "",
+                Address = loc.Address ?? "",
                 City = loc.City,
-                Image = loc.Image,
-                UserId = loc.UserId,
-                TimeStamp = loc.TimeStamp,
                 TotalSlots = loc.LocationSlots?.Sum(ls => ls.SlotCount) ?? 0,
-                Slots = loc.LocationSlots?.Select(ls => new SlotSummaryDto
-                {
-                    SlotType = ls.Slot.SlotType,
-                    SlotCount = ls.SlotCount,
-                    IsAvailable = ls.Slot.IsAvailable
-                }).ToList() ?? new List<SlotSummaryDto>()
             };
         }
     }

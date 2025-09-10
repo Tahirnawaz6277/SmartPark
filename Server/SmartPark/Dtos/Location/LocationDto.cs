@@ -2,16 +2,17 @@
 
 namespace SmartPark.Dtos.Location
 {
-    public record LocationResponseDto
+    public record LocationDto
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }
         public string? Address { get; set; }
         public int? TotalSlots { get; set; }
+        public int? SmallSlots { get; set; }
+        public int? LargeSlots { get; set; }
         public string? City { get; set; }
         public string? Image { get; set; }
         public Guid? UserId { get; set; }
-        //public List<SlotResponseDto> Slots { get; set; } = new();
         public DateTime? TimeStamp { get; set; }
         public List<SlotSummaryDto> Slots { get; set; } = new List<SlotSummaryDto>(); // Summary of slot counts
 

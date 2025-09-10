@@ -4,10 +4,10 @@ namespace SmartPark.Services.Interfaces
 {
     public interface ILocationService
     {
-        Task<LocationResponseDto> CreateLocationAsync(LocationRequestDto dto, CancellationToken cancellationToken);
-        Task<LocationResponseDto?> GetLocationByIdAsync(Guid id);
-        Task<IEnumerable<LocationResponseDto>> GetAllLocationsAsync();
-        Task<LocationResponseDto> UpdateLocationAsync(Guid id, LocationRequestDto dto);
+        Task<CreateLocationReponse> CreateLocationAsync(CreateLocationRequest dto, CancellationToken cancellationToken);
+        Task<LocationDto?> GetLocationByIdAsync(Guid id);
+        Task<IEnumerable<LocationDto>> GetAllLocationsAsync();
+        Task<CreateLocationReponse> UpdateLocationAsync(Guid id, CreateLocationRequest dto);
         Task<bool> DeleteLocationAsync(Guid id);
     }
 }

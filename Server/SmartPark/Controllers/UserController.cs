@@ -21,11 +21,11 @@ namespace SmartPark.Controllers
         }
         [AllowAnonymous]
         [HttpPost("user-registration")]
-        public async Task<IActionResult> Register([FromBody] UserRequestDto requestDto)
+        public async Task<IActionResult> Register([FromBody] RegistrationRequest requestDto)
         {
             var command = new CreateUserCommand(requestDto);
             var user = await _mediator.Send(command);
-            return Ok(new ApiResponse<UserResponseDto> 
+            return Ok(new ApiResponse<RegistrationResponse> 
             { 
                 Success = true,
                 Message = "User registered successfully ",
@@ -35,11 +35,11 @@ namespace SmartPark.Controllers
 
         [AllowAnonymous]
         [HttpPost("user-login")]
-        public async Task<IActionResult> Login([FromBody] UserLoginRequestDto requestDto)
+        public async Task<IActionResult> Login([FromBody] LoginRequest requestDto)
         {
             var query = new LoginQuery(requestDto.Email,requestDto.Password);
             var user = await _mediator.Send(query);
-            return Ok(new ApiResponse<UserLoginResponse> 
+            return Ok(new ApiResponse<LoginResponse> 
             { 
                 Success = true,
                 Message = "User login successfully ",

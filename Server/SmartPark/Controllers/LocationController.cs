@@ -18,7 +18,7 @@ namespace SmartPark.Controllers
         }
 
         [HttpPost("create-location")]
-        public async Task<IActionResult> CreateAsync([FromBody] LocationRequestDto dto)
+        public async Task<IActionResult> CreateAsync([FromBody] CreateLocationRequest dto)
         {
             var result = await _mediator.Send(new CreateLocationCommand(dto));
             return Ok(result);
@@ -42,7 +42,7 @@ namespace SmartPark.Controllers
         }
 
         [HttpPut("update-location/{id:guid}")]
-        public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] LocationRequestDto dto)
+        public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] CreateLocationRequest dto)
         {
             var result = await _mediator.Send(new UpdateLocationCommand(id, dto));
             return Ok(result);

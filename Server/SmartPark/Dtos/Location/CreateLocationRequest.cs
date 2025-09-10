@@ -1,6 +1,6 @@
 ﻿namespace SmartPark.Dtos.Location
 {
-    public record LocationRequestDto
+    public record CreateLocationRequest
     {
         public string Name { get; set; }
         public string Address { get; set; }
