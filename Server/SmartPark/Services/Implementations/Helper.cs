@@ -30,16 +30,16 @@ namespace SmartPark.Services.Implementations
             return DateTime.Now; // fallback if ExecuteSqlRawAsync doesn’t return
         }
 
-        public Task<int?> GetUserIdFromToken()
+        public Task<Guid?> GetUserIdFromToken()
         {
             var userIdFromToken = _contextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (int.TryParse(userIdFromToken, out var userId))
+            if (Guid.TryParse(userIdFromToken, out var userId))
             {
-                return Task.FromResult<int?>(userId);
+                return Task.FromResult<Guid?>(userId);
             }
 
-            return Task.FromResult<int?>(null);
+            return Task.FromResult<Guid?>(null);
         }
     }
 }

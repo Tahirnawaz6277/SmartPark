@@ -11,9 +11,16 @@ namespace SmartPark.Dtos.Location
         public string? City { get; set; }
         public string? Image { get; set; }
         public Guid? UserId { get; set; }
+        //public List<SlotResponseDto> Slots { get; set; } = new();
+        public DateTime? TimeStamp { get; set; }
+        public List<SlotSummaryDto> Slots { get; set; } = new List<SlotSummaryDto>(); // Summary of slot counts
 
+    }
 
-        public List<SlotResponseDto> Slots { get; set; } = new();
-
+    public class SlotSummaryDto
+    {
+        public string SlotType { get; set; }
+        public int SlotCount { get; set; }
+        public bool? IsAvailable { get; set; }
     }
 }

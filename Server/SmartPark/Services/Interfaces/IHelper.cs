@@ -5,7 +5,7 @@ namespace SmartPark.Services.Interfaces
     public interface IHelper
     {
         Task<User> GetActiveUserAsync(string userName);
-        Task<int?> GetUserIdFromToken();
+        Task<Guid?> GetUserIdFromToken();
         Task<DateTime> GetDatabaseTime();
     }
 }

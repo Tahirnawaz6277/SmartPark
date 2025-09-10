@@ -11,6 +11,6 @@ namespace SmartPark.CQRS.Handlers.Location
         public CreateLocationHandler(ILocationService service) => _service = service;
 
         public async Task<LocationResponseDto> Handle(CreateLocationCommand request, CancellationToken cancellationToken)
-            => await _service.CreateLocationAsync(request.Request);
+            => await _service.CreateLocationAsync(request.Request, cancellationToken);
     }
 }
