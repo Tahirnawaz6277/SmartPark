@@ -165,6 +165,8 @@
 
 
 using Microsoft.EntityFrameworkCore;
+using SmartPark.Common.Enum;
+using SmartPark.Common.Helpers;
 using SmartPark.Data.Contexts;
 using SmartPark.Dtos.Location;
 using SmartPark.Dtos.Slot;
@@ -187,6 +189,8 @@ namespace SmartPark.Services.Implementations
 
         public async Task<CreateLocationReponse> CreateLocationAsync(CreateLocationRequest dto, CancellationToken cancellationToken)
         {
+            string smalltype = NanoHelpers.GetEnumDescription(SlotType.small);
+            string largetype = NanoHelpers.GetEnumDescription(SlotType.large);
             using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
             try
             {
@@ -211,9 +215,9 @@ namespace SmartPark.Services.Implementations
 
                 // Link to existing slot types with counts
                 var smallSlot = await _dbContext.Slots
-                    .FirstAsync(s => s.SlotType == "small", cancellationToken);
+                    .FirstAsync(s => s.SlotType == smalltype, cancellationToken);
                 var largeSlot = await _dbContext.Slots
-                    .FirstAsync(s => s.SlotType == "large", cancellationToken);
+                    .FirstAsync(s => s.SlotType == largetype, cancellationToken);
 
                 var locationSlots = new List<LocationSlot>
                 {
@@ -254,6 +258,9 @@ namespace SmartPark.Services.Implementations
 
         public async Task<IEnumerable<LocationDto>> GetAllLocationsAsync()
         {
+            string smalltype = NanoHelpers.GetEnumDescription(SlotType.small);
+            string largetype = NanoHelpers.GetEnumDescription(SlotType.large);
+
             return await _dbContext.ParkingLocations
                 .Include(l => l.LocationSlots)
                 .ThenInclude(ls => ls.Slot)
@@ -268,10 +275,10 @@ namespace SmartPark.Services.Implementations
                     TimeStamp = l.TimeStamp,
                     TotalSlots = l.LocationSlots.Sum(ls => ls.SlotCount), // Calculate from junction table
                     SmallSlots = l.LocationSlots
-                        .Where(ls => ls.Slot.SlotType == "small")
+                        .Where(ls => ls.Slot.SlotType == smalltype)
                         .Sum(ls => ls.SlotCount),
                     LargeSlots = l.LocationSlots
-                         .Where(ls => ls.Slot.SlotType == "large")
+                         .Where(ls => ls.Slot.SlotType == largetype)
                          .Sum(ls => ls.SlotCount),
                     Slots = l.LocationSlots.Select(ls => new SlotSummaryDto
                     {
@@ -285,6 +292,10 @@ namespace SmartPark.Services.Implementations
 
         public async Task<LocationDto?> GetLocationByIdAsync(Guid id)
         {
+            string smalltype = NanoHelpers.GetEnumDescription(SlotType.small);
+            string largetype = NanoHelpers.GetEnumDescription(SlotType.large);
+            //string medium = NanoHelpers.GetEnumDescription(SlotType.medium);
+
             return await _dbContext.ParkingLocations
                 .Include(l => l.LocationSlots)
                 .ThenInclude(ls => ls.Slot)
@@ -300,10 +311,10 @@ namespace SmartPark.Services.Implementations
                     TimeStamp = l.TimeStamp,
                     TotalSlots = l.LocationSlots.Sum(ls => ls.SlotCount), // Calculate from junction table
                     SmallSlots = l.LocationSlots
-                        .Where(ls => ls.Slot.SlotType == "small" && l.Id == id)
+                        .Where(ls => ls.Slot.SlotType == smalltype && l.Id == id)
                         .Sum(ls => ls.SlotCount),
                     LargeSlots = l.LocationSlots
-                         .Where(ls => ls.Slot.SlotType == "large" && l.Id == id)
+                         .Where(ls => ls.Slot.SlotType == largetype && l.Id == id)
                          .Sum(ls => ls.SlotCount),
                     Slots = l.LocationSlots.Select(ls => new SlotSummaryDto
                     {
@@ -317,6 +328,9 @@ namespace SmartPark.Services.Implementations
 
         public async Task<CreateLocationReponse> UpdateLocationAsync(Guid id, CreateLocationRequest dto)
         {
+            string smalltype = NanoHelpers.GetEnumDescription(SlotType.small);
+            string largetype = NanoHelpers.GetEnumDescription(SlotType.large);
+
             var location = await _dbContext.ParkingLocations
                 .Include(l => l.LocationSlots)
                 .FirstOrDefaultAsync(l => l.Id == id);
@@ -330,8 +344,8 @@ namespace SmartPark.Services.Implementations
             location.Image = dto.Image ?? location.Image;
 
             // Update slot counts if provided
-            var smallSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == "small", cancellationToken: default);
-            var largeSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == "large", cancellationToken: default);
+            var smallSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == smalltype, cancellationToken: default);
+            var largeSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == largetype, cancellationToken: default);
             var smallLocationSlot = location.LocationSlots.FirstOrDefault(ls => ls.SlotId == smallSlot.Id);
             var largeLocationSlot = location.LocationSlots.FirstOrDefault(ls => ls.SlotId == largeSlot.Id);
 
