@@ -8,10 +8,7 @@
         public int? TotalSlots { get; set; }
         public string? City { get; set; }
         public string? Image { get; set; }
-        public DateTime? CreatedAt { get; set; }   // align with domain
-        //public Guid? CreatedBy { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        //public Guid? UpdatedBy { get; set; }
+
         public List<SlotResponseDto> Slots { get; set; } = new();
 
     }

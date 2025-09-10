@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartPark.Common.Wrapper;
 using SmartPark.CQRS.Commands.Location;
+using SmartPark.CQRS.Queries.Location;
 using SmartPark.Dtos.Location;
 
 namespace SmartPark.Controllers
@@ -31,22 +32,22 @@ namespace SmartPark.Controllers
             });
         }
 
-        ////[Authorize(Roles = "Driver,Admin")]
-        //[HttpGet("get-location-by/{id}")]
-        //public async Task<IActionResult> GetByIdAsync(Guid id)
-        //{
-        //    var result = await _mediator.Send(new GetLocationByIdQuery(id));
-        //    if (result == null) return NotFound();
-        //    return Ok(result);
-        //}
+        [Authorize(Roles = "Driver,Admin")]
+        [HttpGet("get-location-by/{id}")]
+        public async Task<IActionResult> GetByIdAsync(Guid id)
+        {
+            var result = await _mediator.Send(new GetLocationByIdQuery(id));
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
 
-        ////[Authorize(Roles = "Driver,Admin")]
-        //[HttpGet("get-all-locations")]
-        //public async Task<IActionResult> GetAllAsync()
-        //{
-        //    var result = await _mediator.Send(new GetAllLocationsQuery());
-        //    return Ok(result);
-        //}
+        [Authorize(Roles = "Driver,Admin")]
+        [HttpGet("get-all-locations")]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            var result = await _mediator.Send(new GetAllLocationsQuery());
+            return Ok(result);
+        }
 
         [HttpPut("update-location/{id:guid}")]
         public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] LocationRequest dto)
