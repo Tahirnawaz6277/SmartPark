@@ -4,12 +4,14 @@ import { AuthService } from './auth.service';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-export interface UserLoginRequestDto {
+
+//
+export interface LoginRequest {
   Email: string;
   Password: string;
 }
 
-export interface UserRequestDto {
+export interface RegistrationRequest {
   Name: string;
   Email: string;
   Password: string;
@@ -18,50 +20,90 @@ export interface UserRequestDto {
   City: string;
 }
 
-export interface UserResponseDto {
+export interface RegistrationResponse {
   Id: string; // Guid as string
   Name?: string | null;
   Email: string | "";
   PhoneNumber?: string | null;
 }
 
-export interface UserLoginResponse {
-  Name?: string | null;
+export interface LoginResponse {
+  name?: string | null;
+  email?: string | null;
+  accessToken?: string | null;
+}
+
+
+export interface UserDto {
+  Id: string; // Guid
+  Name: string;
   Email?: string | null;
-  AccessToken?: string | null;
+  Address: string | null;
+  PhoneNumber?: string | null;
+  City: string;
+  RoleId: string; // Guid
+  RoleName: string; 
 }
 
-export interface LocationRequest {
-  name: string;
-  address: string;
-  totalSlots: number;
+export interface UpdateUserRequest {
+  Name: string;
+  Address: string;
+  PhoneNumber: string;
+  City: string;
+  Email: string ;
+}
+
+// this is Create Location api request
+export interface CreateLocationRequest {
+  Name: string;
+  Address: string;
+  SmallSlotCount: number; 
+  LargeSlotCount: number;
+  MediumSlotCount: number;
   city: string;
   image: string;
-  userId: string; // Guid
+}
+// this is Create Location api response
+export interface CreateLocationReponse {
+  LocationId: string;
+  Name?: string | null;
+  Address?: string | null;
+  TotalSlots?: number | null;
+  City?: string | null;
 }
 
-export interface LocationResponse {
-  id: string;
-  name: string;
-  address: string;
-  totalSlots: number;
-  city: string;
-  image: string;
-  userId: string;
+// this is Get All Locations and get Location by Id apis response
+export interface LocationDto {
+  Id: string;
+  Name?: string | null;
+  Address?: string | null;
+  TotalSlots?: number | null;
+  City?: string | null;
+  Image?: string | null;
+  UserId?: string | null;
+  TimeStamp?: Date | null;
+  Slots: SlotSummaryDto[];
 }
 
-export interface SlotRequest {
-  locationId: string;
-  slotType: string;
-  isAvailable: boolean;
+export interface SlotSummaryDto {
+  SlotType: string;
+  SlotCount: number;
+  IsAvailable?: boolean | null;
 }
 
-export interface SlotResponse {
-  id: string;
-  locationId: string;
-  slotType: string;
-  isAvailable: boolean;
-}
+
+// export interface SlotRequest {
+//   locationId: string;
+//   slotType: string;
+//   isAvailable: boolean;
+// }
+
+// export interface SlotResponse {
+//   id: string;
+//   locationId: string;
+//   slotType: string;
+//   isAvailable: boolean;
+// }
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -96,8 +138,8 @@ export class ApiService {
   }
 
   // User Authentication
-  login(credentials: UserLoginRequestDto): Observable<ApiResponse<UserLoginResponse>> {
-    return this.http.post<ApiResponse<UserLoginResponse>>(
+  login(credentials: LoginRequest): Observable<ApiResponse<LoginResponse>> {
+    return this.http.post<ApiResponse<LoginResponse>>(
       `${this.baseUrl}/User/user-login`,
       credentials,
       this.httpOptions
@@ -106,8 +148,8 @@ export class ApiService {
     );
   }
 
-  register(userData: UserRequestDto): Observable<ApiResponse<UserResponseDto>> {
-    return this.http.post<ApiResponse<UserResponseDto>>(
+  register(userData: RegistrationRequest): Observable<ApiResponse<RegistrationResponse>> {
+    return this.http.post<ApiResponse<RegistrationResponse>>(
       `${this.baseUrl}/User/user-registration`,
       userData,
       this.httpOptions
@@ -117,8 +159,8 @@ export class ApiService {
   }
 
   // User CRUD Operations
-  getAllUsers(): Observable<ApiResponse<UserResponseDto[]>> {
-    return this.http.get<ApiResponse<UserResponseDto[]>>(
+  getAllUsers(): Observable<ApiResponse<UserDto[]>> {
+    return this.http.get<ApiResponse<UserDto[]>>(
       `${this.baseUrl}/User/get-all-users`,
       { headers: this.authHeaders() }
     ).pipe(
@@ -126,8 +168,8 @@ export class ApiService {
     );
   }
 
-  getUserById(id: string): Observable<ApiResponse<UserResponseDto>> {
-    return this.http.get<ApiResponse<UserResponseDto>>(
+  getUserById(id: string): Observable<ApiResponse<UserDto>> {
+    return this.http.get<ApiResponse<UserDto>>(
       `${this.baseUrl}/User/get-user-by/${id}`,
       { headers: this.authHeaders() }
     ).pipe(
@@ -135,8 +177,8 @@ export class ApiService {
     );
   }
 
-  updateUser(id: string, userData: Partial<UserRequestDto>): Observable<ApiResponse<UserResponseDto>> {
-    return this.http.put<ApiResponse<UserResponseDto>>(
+  updateUser(id: string, userData: Partial<UpdateUserRequest>): Observable<ApiResponse<RegistrationResponse>> {
+    return this.http.put<ApiResponse<RegistrationResponse>>(
       `${this.baseUrl}/User/update-user/${id}`,
       userData,
       { headers: this.authHeaders() }
@@ -155,8 +197,8 @@ export class ApiService {
   }
 
   // Location CRUD Operations
-  getAllLocations(): Observable<ApiResponse<LocationResponse[]>> {
-    return this.http.get<ApiResponse<LocationResponse[]>>(
+  getAllLocations(): Observable<ApiResponse<LocationDto[]>> {
+    return this.http.get<ApiResponse<LocationDto[]>>(
       `${this.baseUrl}/Location/get-all-locations`,
       { headers: this.authHeaders() }
     ).pipe(
@@ -164,8 +206,8 @@ export class ApiService {
     );
   }
 
-  getLocationById(id: string): Observable<ApiResponse<LocationResponse>> {
-    return this.http.get<ApiResponse<LocationResponse>>(
+  getLocationById(id: string): Observable<ApiResponse<LocationDto>> {
+    return this.http.get<ApiResponse<LocationDto>>(
       `${this.baseUrl}/Location/get-location-by/${id}`,
       { headers: this.authHeaders() }
     ).pipe(
@@ -173,8 +215,8 @@ export class ApiService {
     );
   }
 
-  createLocation(locationData: LocationRequest): Observable<ApiResponse<LocationResponse>> {
-    return this.http.post<ApiResponse<LocationResponse>>(
+  createLocation(locationData: CreateLocationRequest): Observable<ApiResponse<CreateLocationReponse>> {
+    return this.http.post<ApiResponse<CreateLocationReponse>>(
       `${this.baseUrl}/Location/create-location`,
       locationData,
       { headers: this.authHeaders() }
@@ -183,8 +225,8 @@ export class ApiService {
     );
   }
 
-  updateLocation(id: string, locationData: Partial<LocationRequest>): Observable<ApiResponse<LocationResponse>> {
-    return this.http.put<ApiResponse<LocationResponse>>(
+  updateLocation(id: string, locationData: Partial<CreateLocationRequest>): Observable<ApiResponse<LocationDto>> {
+    return this.http.put<ApiResponse<LocationDto>>(
       `${this.baseUrl}/Location/update-location/${id}`,
       locationData,
       { headers: this.authHeaders() }
@@ -202,22 +244,6 @@ export class ApiService {
     );
   }
 
-  // Slot APIs
-  addSlot(payload: SlotRequest): Observable<ApiResponse<SlotResponse>> {
-    return this.http.post<ApiResponse<SlotResponse>>(
-      `${this.baseUrl}/Slot/add-slot`,
-      payload,
-      { headers: this.authHeaders() }
-    ).pipe(catchError(this.handleError));
-  }
-
-  updateSlot(id: string, payload: SlotRequest): Observable<ApiResponse<SlotResponse>> {
-    return this.http.put<ApiResponse<SlotResponse>>(
-      `${this.baseUrl}/Slot/update-slot/${id}`,
-      payload,
-      { headers: this.authHeaders() }
-    ).pipe(catchError(this.handleError));
-  }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';

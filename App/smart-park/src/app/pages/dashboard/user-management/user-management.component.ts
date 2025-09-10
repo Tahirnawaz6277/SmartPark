@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { ApiService, UserResponseDto, UserRequestDto } from '../../../services/api.service';
+import { ApiService, RegistrationResponse, RegistrationRequest ,UserDto, UpdateUserRequest} from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -12,15 +12,16 @@ import { AuthService } from '../../../services/auth.service';
   styleUrl: './user-management.component.scss'
 })
 export class UserManagementComponent implements OnInit {
-  users: UserResponseDto[] = [];
+  users: UserDto[] = [];
+  selectedUser: UserDto | null = null;
   isLoading = false;
   errorMessage = '';
   successMessage = '';
   showAddForm = false;
-  editingUser: UserResponseDto | null = null;
+  editingUserId: string | null = null;
 
   // Form data for add/edit
-  formData: UserRequestDto = {
+  formData: RegistrationRequest = {
     Name: '',
     Email: '',
     Password: '',
@@ -49,11 +50,13 @@ export class UserManagementComponent implements OnInit {
           this.users = response.data;
         } else {
           this.errorMessage = response.message || 'Failed to load users.';
+          this.autoDismissMessages();
         }
       },
       error: (error) => {
         this.isLoading = false;
         this.errorMessage = error.message || 'An error occurred while loading users.';
+        this.autoDismissMessages();
       }
     });
   }
@@ -66,29 +69,33 @@ export class UserManagementComponent implements OnInit {
       next: (response) => {
         this.isLoading = false;
         if (response.success && response.data) {
-          this.editingUser = response.data;
+          const user = response.data;
+          this.selectedUser = user as unknown as UserDto;
           this.formData = {
-            Name: response.data.Name ?? '',
-            Email: response.data.Email ?? '',
+            Name: user.Name ?? '',
+            Email: user.Email ?? '',
             Password: '',
-            Address: null,
-            PhoneNumber: response.data.PhoneNumber ?? null,
-            City: ''
+            Address: user.Address ?? '',
+            PhoneNumber: user.PhoneNumber ?? null,
+            City: user.City ?? ''
           };
+          this.editingUserId = user.Id;
           this.showAddForm = true;
         } else {
           this.errorMessage = response.message || 'Failed to load user details.';
+          this.autoDismissMessages();
         }
       },
       error: (error) => {
         this.isLoading = false;
         this.errorMessage = error.message || 'An error occurred while loading user details.';
+        this.autoDismissMessages();
       }
     });
   }
 
   addUser(): void {
-    this.editingUser = null;
+    this.editingUserId = null;
     this.formData = {
       Name: '',
       Email: '',
@@ -101,7 +108,7 @@ export class UserManagementComponent implements OnInit {
     this.clearMessages();
   }
 
-  editUser(user: UserResponseDto): void {
+  editUser(user: RegistrationResponse | UserDto): void {
     this.getUserById(user.Id);
   }
 
@@ -111,22 +118,31 @@ export class UserManagementComponent implements OnInit {
       this.errorMessage = '';
       this.successMessage = '';
 
-      if (this.editingUser) {
+      if (this.editingUserId) {
         // Update existing user
-        this.apiService.updateUser(this.editingUser.Id, this.formData).subscribe({
+        this.apiService.updateUser(this.editingUserId, {
+          Name: this.formData.Name,
+          Address: this.formData.Address ?? '',
+          PhoneNumber: this.formData.PhoneNumber ?? '',
+          City: this.formData.City,
+          Email: this.formData.Email
+        }).subscribe({
           next: (response) => {
             this.isLoading = false;
             if (response.success) {
               this.successMessage = 'User updated successfully!';
               this.loadUsers();
               this.closeForm();
+              this.autoDismissMessages();
             } else {
               this.errorMessage = response.message || 'Failed to update user.';
+              this.autoDismissMessages();
             }
           },
           error: (error) => {
             this.isLoading = false;
             this.errorMessage = error.message || 'An error occurred while updating user.';
+            this.autoDismissMessages();
           }
         });
       } else {
@@ -138,22 +154,26 @@ export class UserManagementComponent implements OnInit {
               this.successMessage = 'User created successfully!';
               this.loadUsers();
               this.closeForm();
+              this.autoDismissMessages();
             } else {
               this.errorMessage = response.message || 'Failed to create user.';
+              this.autoDismissMessages();
             }
           },
           error: (error) => {
             this.isLoading = false;
             this.errorMessage = error.message || 'An error occurred while creating user.';
+            this.autoDismissMessages();
           }
         });
       }
     } else {
       this.errorMessage = 'Please fill in all required fields correctly.';
+      this.autoDismissMessages();
     }
   }
 
-  deleteUser(user: UserResponseDto): void {
+  deleteUser(user: RegistrationResponse | UserDto): void {
     if (confirm(`Are you sure you want to delete user "${user.Name ?? ''}"?`)) {
       this.isLoading = true;
       this.errorMessage = '';
@@ -164,13 +184,16 @@ export class UserManagementComponent implements OnInit {
           if (response.success) {
             this.successMessage = 'User deleted successfully!';
             this.loadUsers();
+            this.autoDismissMessages();
           } else {
             this.errorMessage = response.message || 'Failed to delete user.';
+            this.autoDismissMessages();
           }
         },
         error: (error) => {
           this.isLoading = false;
           this.errorMessage = error.message || 'An error occurred while deleting user.';
+          this.autoDismissMessages();
         }
       });
     }
@@ -178,7 +201,7 @@ export class UserManagementComponent implements OnInit {
 
   closeForm(): void {
     this.showAddForm = false;
-    this.editingUser = null;
+    this.editingUserId = null;
     this.formData = {
       Name: '',
       Email: '',
@@ -193,5 +216,11 @@ export class UserManagementComponent implements OnInit {
   clearMessages(): void {
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  private autoDismissMessages(): void {
+    setTimeout(() => {
+      this.clearMessages();
+    }, 3000);
   }
 }

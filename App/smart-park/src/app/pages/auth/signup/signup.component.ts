@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { ApiService, UserRequestDto } from '../../../services/api.service';
+import { ApiService, RegistrationRequest } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -36,7 +36,7 @@ export class SignupComponent implements OnInit {
       this.errorMessage = '';
       this.successMessage = '';
 
-      const registrationData: UserRequestDto = {
+      const registrationData: RegistrationRequest = {
         Name: form.value.Name,
         Email: form.value.Email,
         Password: form.value.Password,

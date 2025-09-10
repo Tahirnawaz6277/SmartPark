@@ -103,7 +103,7 @@
   <div *ngIf="showAddForm" class="modal modal-open">
     <div class="modal-box w-11/12 max-w-2xl">
       <h3 class="font-bold text-lg mb-4">
-        {{ editingUser ? 'Edit User' : 'Add New User' }}
+        {{ editingUserId ? 'Edit User' : 'Add New User' }}
       </h3>
       
       <form #userForm="ngForm" (ngSubmit)="saveUser(userForm)">
@@ -150,13 +150,13 @@
             class="input input-bordered w-full" 
             name="Password"
             [(ngModel)]="formData.Password"
-            [required]="!editingUser"
+            [required]="!editingUserId"
             minlength="6"
           />
           <div class="text-red-500 text-xs mt-1" *ngIf="userForm.submitted && !userForm.controls['Password']?.valid">
             Password is required (min 6 chars).
           </div>
-          <div class="text-gray-500 text-xs mt-1" *ngIf="editingUser">
+          <div class="text-gray-500 text-xs mt-1" *ngIf="editingUserId">
             Leave blank to keep current password.
           </div>
         </div>
@@ -214,7 +214,7 @@
             [disabled]="isLoading"
           >
             <span *ngIf="isLoading" class="loading loading-spinner loading-sm"></span>
-            {{ isLoading ? 'Saving...' : (editingUser ? 'Update User' : 'Create User') }}
+            {{ isLoading ? 'Saving...' : (editingUserId ? 'Update User' : 'Create User') }}
           </button>
         </div>
       </form>

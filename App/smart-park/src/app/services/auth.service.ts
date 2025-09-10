@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { UserResponseDto, UserLoginResponse } from './api.service';
+import { RegistrationResponse, LoginResponse } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<UserResponseDto | UserLoginResponse | null>(null);
+  private currentUserSubject = new BehaviorSubject<RegistrationResponse | LoginResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
@@ -33,19 +33,19 @@ export class AuthService {
     }
   }
 
-  setCurrentUser(user: UserResponseDto | UserLoginResponse): void {
+  setCurrentUser(user: RegistrationResponse | LoginResponse): void {
     this.currentUserSubject.next(user);
     this.isLoggedInSubject.next(true);
     localStorage.setItem('currentUser', JSON.stringify(user));
 
     // Persist access token if available
-    const maybeToken = (user as UserLoginResponse)?.AccessToken;
+    const maybeToken = (user as LoginResponse)?.accessToken as unknown as string | undefined;
     if (maybeToken) {
       localStorage.setItem('accessToken', maybeToken);
     }
   }
 
-  getCurrentUser(): UserResponseDto | UserLoginResponse | null {
+  getCurrentUser(): RegistrationResponse | LoginResponse | null {
     return this.currentUserSubject.value;
   }
 
@@ -69,7 +69,7 @@ export class AuthService {
     if (!token) return null;
     try {
       const payload = JSON.parse(atob(token.split('.')[1] || ''));
-      return payload['role'] || payload['Role'] || payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
+      return payload['rolename'] || payload['RoleName'] || payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
     } catch {
       return null;
     }

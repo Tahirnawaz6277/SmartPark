@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { ApiService, LocationResponse, LocationRequest } from '../../../services/api.service';
+import { ApiService, LocationDto, CreateLocationRequest, CreateLocationReponse } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -12,21 +12,22 @@ import { AuthService } from '../../../services/auth.service';
   styleUrl: './location-management.component.scss'
 })
 export class LocationManagementComponent implements OnInit {
-  locations: LocationResponse[] = [];
+  locations: LocationDto[] = [];
   isLoading = false;
   errorMessage = '';
   successMessage = '';
   showAddForm = false;
-  editingLocation: LocationResponse | null = null;
+  editingLocation: LocationDto | null = null;
 
   // Form data for add/edit
-  formData: LocationRequest = {
-    name: '',
-    address: '',
-    totalSlots: 0,
+  formData: CreateLocationRequest = {
+    Name: '',
+    Address: '',
+    SmallSlotCount: 0,
+    MediumSlotCount: 0,
+    LargeSlotCount: 0,
     city: '',
-    image: '',
-    userId: ''
+    image: ''
   };
 
   constructor(
@@ -49,11 +50,13 @@ export class LocationManagementComponent implements OnInit {
           this.locations = response.data;
         } else {
           this.errorMessage = response.message || 'Failed to load locations.';
+          this.autoDismissMessages();
         }
       },
       error: (error) => {
         this.isLoading = false;
         this.errorMessage = error.message || 'An error occurred while loading locations.';
+        this.autoDismissMessages();
       }
     });
   }
@@ -68,21 +71,24 @@ export class LocationManagementComponent implements OnInit {
         if (response.success && response.data) {
           this.editingLocation = response.data;
           this.formData = {
-            name: response.data.name,
-            address: response.data.address,
-            totalSlots: response.data.totalSlots,
-            city: response.data.city,
-            image: response.data.image,
-            userId: response.data.userId
+            Name: response.data.Name ?? '',
+            Address: response.data.Address ?? '',
+            SmallSlotCount: 0,
+            MediumSlotCount: 0,
+            LargeSlotCount: 0,
+            city: response.data.City ?? '',
+            image: response.data.Image ?? ''
           };
           this.showAddForm = true;
         } else {
           this.errorMessage = response.message || 'Failed to load location details.';
+          this.autoDismissMessages();
         }
       },
       error: (error) => {
         this.isLoading = false;
         this.errorMessage = error.message || 'An error occurred while loading location details.';
+        this.autoDismissMessages();
       }
     });
   }
@@ -90,19 +96,20 @@ export class LocationManagementComponent implements OnInit {
   addLocation(): void {
     this.editingLocation = null;
     this.formData = {
-      name: '',
-      address: '',
-      totalSlots: 0,
+      Name: '',
+      Address: '',
+      SmallSlotCount: 0,
+      MediumSlotCount: 0,
+      LargeSlotCount: 0,
       city: '',
-      image: '',
-      userId: ''
+      image: ''
     };
     this.showAddForm = true;
     this.clearMessages();
   }
 
-  editLocation(location: LocationResponse): void {
-    this.getLocationById(location.id);
+  editLocation(location: LocationDto): void {
+    this.getLocationById(location.Id);
   }
 
   saveLocation(form: NgForm): void {
@@ -113,20 +120,23 @@ export class LocationManagementComponent implements OnInit {
 
       if (this.editingLocation) {
         // Update existing location
-        this.apiService.updateLocation(this.editingLocation.id, this.formData).subscribe({
+        this.apiService.updateLocation(this.editingLocation.Id, this.formData).subscribe({
           next: (response) => {
             this.isLoading = false;
             if (response.success) {
               this.successMessage = 'Location updated successfully!';
               this.loadLocations();
               this.closeForm();
+              this.autoDismissMessages();
             } else {
               this.errorMessage = response.message || 'Failed to update location.';
+              this.autoDismissMessages();
             }
           },
           error: (error) => {
             this.isLoading = false;
             this.errorMessage = error.message || 'An error occurred while updating location.';
+            this.autoDismissMessages();
           }
         });
       } else {
@@ -138,39 +148,46 @@ export class LocationManagementComponent implements OnInit {
               this.successMessage = 'Location created successfully!';
               this.loadLocations();
               this.closeForm();
+              this.autoDismissMessages();
             } else {
               this.errorMessage = response.message || 'Failed to create location.';
+              this.autoDismissMessages();
             }
           },
           error: (error) => {
             this.isLoading = false;
             this.errorMessage = error.message || 'An error occurred while creating location.';
+            this.autoDismissMessages();
           }
         });
       }
     } else {
       this.errorMessage = 'Please fill in all required fields correctly.';
+      this.autoDismissMessages();
     }
   }
 
-  deleteLocation(location: LocationResponse): void {
-    if (confirm(`Are you sure you want to delete location "${location.name}"?`)) {
+  deleteLocation(location: LocationDto): void {
+    if (confirm(`Are you sure you want to delete location "${location.Name}"?`)) {
       this.isLoading = true;
       this.errorMessage = '';
       
-      this.apiService.deleteLocation(location.id).subscribe({
+      this.apiService.deleteLocation(location.Id).subscribe({
         next: (response) => {
           this.isLoading = false;
           if (response.success) {
             this.successMessage = 'Location deleted successfully!';
             this.loadLocations();
+            this.autoDismissMessages();
           } else {
             this.errorMessage = response.message || 'Failed to delete location.';
+            this.autoDismissMessages();
           }
         },
         error: (error) => {
           this.isLoading = false;
           this.errorMessage = error.message || 'An error occurred while deleting location.';
+          this.autoDismissMessages();
         }
       });
     }
@@ -180,12 +197,13 @@ export class LocationManagementComponent implements OnInit {
     this.showAddForm = false;
     this.editingLocation = null;
     this.formData = {
-      name: '',
-      address: '',
-      totalSlots: 0,
+      Name: '',
+      Address: '',
+      SmallSlotCount: 0,
+      MediumSlotCount: 0,
+      LargeSlotCount: 0,
       city: '',
-      image: '',
-      userId: ''
+      image: ''
     };
     this.clearMessages();
   }
@@ -193,5 +211,11 @@ export class LocationManagementComponent implements OnInit {
   clearMessages(): void {
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  private autoDismissMessages(): void {
+    setTimeout(() => {
+      this.clearMessages();
+    }, 3000);
   }
 }
