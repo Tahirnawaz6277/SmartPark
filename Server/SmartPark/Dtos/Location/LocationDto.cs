@@ -10,6 +10,7 @@ namespace SmartPark.Dtos.Location
         public int? TotalSlots { get; set; }
         public int? SmallSlots { get; set; }
         public int? LargeSlots { get; set; }
+        public int? MediumSlots { get; set; }
         public string? City { get; set; }
         public string? Image { get; set; }
         public Guid? UserId { get; set; }
