@@ -1,16 +1,26 @@
-﻿namespace SmartPark.Dtos.UserDtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SmartPark.Dtos.UserDtos
 {
     public record UpdateUserRequest
     {
-        public string Name { get; set; } = null!;
+        [Required(ErrorMessage = "Name is Required")]
+        public string Name { get; set; }
 
-        public string Address { get; set; }
+        [Required(ErrorMessage = "Email is Required")]
 
-        public string PhoneNumber { get; set; }
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Invalid email format.")]
 
+        public string Email { get; set; }
+
+        public string? Address { get; set; }
+
+        //[Required(ErrorMessage = "PhoneNumber is Required")]
+        public string? PhoneNumber { get; set; }
+
+        [Required(ErrorMessage = "City is Required")]
         public string City { get; set; }
 
-        public string Email { get; set; } = null!;
 
     }
 }
