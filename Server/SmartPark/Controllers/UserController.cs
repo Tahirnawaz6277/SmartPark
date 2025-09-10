@@ -49,6 +49,7 @@ namespace SmartPark.Controllers
 
         [Authorize(Roles = "Admin,Driver")]
         [HttpGet("get-user-by/{id}")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByIdAsync(Guid id)
         {
             var query = new GetUserQuery(id);
@@ -58,6 +59,8 @@ namespace SmartPark.Controllers
 
 
         [HttpGet("get-all-users")]
+        [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
+
         public async Task<IActionResult> GetAllUserAsync()
         {
             var query = new GetAllUserQuery();

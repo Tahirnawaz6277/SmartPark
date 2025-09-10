@@ -34,6 +34,8 @@ namespace SmartPark.Controllers
 
         [Authorize(Roles = "Driver,Admin")]
         [HttpGet("get-location-by/{id}")]
+        [ProducesResponseType(typeof(LocationDto), StatusCodes.Status200OK)]
+
         public async Task<IActionResult> GetByIdAsync(Guid id)
         {
             var result = await _mediator.Send(new GetLocationByIdQuery(id));
@@ -43,6 +45,7 @@ namespace SmartPark.Controllers
 
         [Authorize(Roles = "Driver,Admin")]
         [HttpGet("get-all-locations")]
+        [ProducesResponseType(typeof(IEnumerable<LocationDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllAsync()
         {
             var result = await _mediator.Send(new GetAllLocationsQuery());
