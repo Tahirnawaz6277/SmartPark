@@ -1,5 +1,7 @@
-﻿using SmartPark.Data.Contexts;
+﻿using Microsoft.EntityFrameworkCore;
+using SmartPark.Data.Contexts;
 using SmartPark.Dtos.Location;
+using SmartPark.Exceptions;
 using SmartPark.Models;
 using SmartPark.Services.Interfaces;
 
@@ -41,7 +43,7 @@ namespace SmartPark.Services.Implementations
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 // handl slots insertion based on total slots in location
 
-                for (int i = 1; i < location.TotalSlots; i++)
+                for (int i = 1; i <= location.TotalSlots; i++)
                 {
                     location.Slots.Add(new Slot
                     {
@@ -68,7 +70,8 @@ namespace SmartPark.Services.Implementations
         public async Task<bool> DeleteLocationAsync(Guid id)
         {
             var location = await _dbContext.ParkingLocations.FindAsync(id);
-            if (location == null) return false;
+            if (location == null)
+                throw new NotFoundException("Locaiont not found");
 
             _dbContext.ParkingLocations.Remove(location);
             await _dbContext.SaveChangesAsync();
@@ -146,36 +149,115 @@ namespace SmartPark.Services.Implementations
         //}
 
 
-        //public async Task<CreateLocationReponse> UpdateLocationAsync(Guid id, CreateLocationRequest dto)
-        //{
-        //    var location = await _dbContext.ParkingLocations
-        //        .Include(l => l.LocationSlots)
-        //        .FirstOrDefaultAsync(l => l.Id == id);
+        public async Task<LocationReponse> UpdateLocationAsync(Guid id, LocationRequest dto)
+        {
+            var location = await _dbContext.ParkingLocations
+                .Include(l => l.Slots)
+                .FirstOrDefaultAsync(l => l.Id == id);
 
-        //    if (location == null)
-        //        throw new NotFoundException("Location not found");
+            if (location == null)
+                throw new NotFoundException("Location not found");
 
-        //    location.Name = dto.Name ?? location.Name;
-        //    location.Address = dto.Address ?? location.Address;
-        //    location.City = dto.City ?? location.City;
-        //    location.Image = dto.Image ?? location.Image;
+            // Get user ID and server time
+            var userId = await _helper.GetUserIdFromToken();
+            var serverTime = await _helper.GetDatabaseTime();
 
-        //    // Update slot counts if provided
-        //    var smallSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == SmallType, cancellationToken: default);
-        //    var largeSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == LargeType, cancellationToken: default);
-        //    var mediumSlot = await _dbContext.Slots.FirstAsync(s => s.SlotType == MediumType, cancellationToken: default);
-        //    var smallLocationSlot = location.LocationSlots.FirstOrDefault(ls => ls.SlotId == smallSlot.Id);
-        //    var largeLocationSlot = location.LocationSlots.FirstOrDefault(ls => ls.SlotId == largeSlot.Id);
-        //    var mediumLocationSlot = location.LocationSlots.FirstOrDefault(ls => ls.SlotId == mediumSlot.Id);
+            location.Name = dto.Name;
+            location.Address = dto.Address;
+            location.TotalSlots = dto.TotalSlots;
+            location.City = dto.City ?? location.City;
+            location.Image = dto.Image ?? location.Image;
+            location.UpdatedAt = serverTime;
+            location.UpdatedBy = userId;
 
-        //    if (smallLocationSlot != null) smallLocationSlot.SlotCount = dto.SmallSlotCount;
-        //    if (largeLocationSlot != null) largeLocationSlot.SlotCount = dto.LargeSlotCount;
-        //    if (mediumLocationSlot != null) mediumLocationSlot.SlotCount = dto.MediumSlotCount;
+            //// Update slots if provided for update
+            //int currentCount = location.Slots.Count;
 
-        //    await _dbContext.SaveChangesAsync();
+            //if (currentCount != dto.TotalSlots)
+            //{
+            //    if (dto.TotalSlots > currentCount)
+            //    {
+            //        // Add extra slots
+            //        for (int i = currentCount + 1; i <= dto.TotalSlots; i++)
+            //        {
+            //            location.Slots.Add(new Slot
+            //            {
+            //                LocationId = location.Id,
+            //                IsAvailable = true
+            //            });
+            //            if (location.UpdatedAt == null)
+            //            {
+            //                location.Slots.Add(new Slot
+            //                {
+            //                    SlotNumber = $"S{i}N",
+            //                });
+            //            }
+            //            else if (location.UpdatedAt != null && location.UpdatedAt < serverTime)
+            //            {
+            //                location.Slots.Add(new Slot
+            //                {
+            //                    SlotNumber = $"S{i}NN",
+            //                });
+            //            }
+            //        }
+            //    }
+            //    else if(dto.TotalSlots < currentCount)
+            //    {
+            //        // Remove slots only if they are not in use
+            //        var removable = location.Slots
+            //            .OrderByDescending(s => s.Id)
+            //            .Take(currentCount - dto.TotalSlots)
+            //            .ToList();
 
-        //    return MapToResponse(location);
-        //}
+            //        if (removable.Any(s => !(bool)s.IsAvailable))
+            //            throw new ConflictException("Cannot remove/update slots that are currently occupied.");
+
+            //        _dbContext.Slots.RemoveRange(removable);
+            //    }
+            //}
+            // Handle slot adjustments
+            var currentCount = location.Slots.Count;
+
+            if (currentCount != dto.TotalSlots)
+            {
+                if (dto.TotalSlots > currentCount)
+                {
+                    // Find the last slot number in use
+                    int maxSlotNumber = location.Slots
+                        .Select(s => int.TryParse(s.SlotNumber.Replace("S", ""), out var n) ? n : 0)
+                        .DefaultIfEmpty(0)
+                        .Max();
+
+                    // Add new slots continuing from maxSlotNumber
+                    for (int i = maxSlotNumber + 1; i <= dto.TotalSlots; i++)
+                    {
+                        location.Slots.Add(new Slot
+                        {
+                            LocationId = location.Id,
+                            SlotNumber = $"S{i}",
+                            IsAvailable = true
+                        });
+                    }
+                }
+                else
+                {
+                    // Remove slots starting from the highest SlotNumber
+                    var removable = location.Slots
+                        .OrderByDescending(s => int.Parse(s.SlotNumber.Replace("S", "")))
+                        .Take(currentCount - dto.TotalSlots)
+                        .ToList();
+
+                    if (removable.Any(s => s.IsAvailable == false))
+                        throw new ConflictException("Cannot remove occupied slots.");
+
+                    _dbContext.Slots.RemoveRange(removable);
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return MapToResponse(location);
+        }
 
         private LocationReponse MapToResponse(ParkingLocation loc)
         {

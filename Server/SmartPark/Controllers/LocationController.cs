@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmartPark.Common.Wrapper;
 using SmartPark.CQRS.Commands.Location;
 using SmartPark.Dtos.Location;
 
@@ -22,7 +23,12 @@ namespace SmartPark.Controllers
         public async Task<IActionResult> CreateAsync([FromBody] LocationRequest dto)
         {
             var result = await _mediator.Send(new CreateLocationCommand(dto));
-            return Ok(result);
+            return Ok(new ApiResponse<LocationReponse>
+            {
+                Success = true,
+                Message = "Location created successfully with slots",
+                Data = result
+            });
         }
 
         ////[Authorize(Roles = "Driver,Admin")]
@@ -42,12 +48,17 @@ namespace SmartPark.Controllers
         //    return Ok(result);
         //}
 
-        //[HttpPut("update-location/{id:guid}")]
-        //public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] CreateLocationRequest dto)
-        //{
-        //    var result = await _mediator.Send(new UpdateLocationCommand(id, dto));
-        //    return Ok(result);
-        //}
+        [HttpPut("update-location/{id:guid}")]
+        public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] LocationRequest dto)
+        {
+            var result = await _mediator.Send(new UpdateLocationCommand(id, dto));
+            return Ok(new ApiResponse<LocationReponse>
+            {
+                Success = true,
+                Message = "Location update successfully with slots",
+                Data = result
+            });
+        }
 
         [HttpDelete("delete-location/{id:guid}")]
         public async Task<IActionResult> DeleteAsync(Guid id)
