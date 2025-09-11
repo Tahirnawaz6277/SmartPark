@@ -117,16 +117,18 @@
 
           <div class="form-control">
             <label class="label" for="PhoneNumber">
-              <span class="label-text font-semibold">Phone Number (optional)</span>
+              <span class="label-text font-semibold">Phone Number</span>
             </label>
             <input 
               id="PhoneNumber" 
               name="PhoneNumber" 
-              type="text" 
+              type="tel" 
               class="input input-bordered w-full" 
               ngModel 
               (focus)="clearMessages()"
+              placeholder="Optional"
             />
+            <span class="text-xs text-gray-500 mt-1">Optional</span>
           </div>
         </div>
 

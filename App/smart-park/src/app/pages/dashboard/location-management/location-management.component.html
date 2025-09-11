@@ -64,7 +64,7 @@
     <div *ngFor="let location of locations" class="card bg-white shadow-xl hover:shadow-2xl transition-shadow duration-300">
       <div class="card-body">
         <div class="flex justify-between items-start mb-4">
-          <h2 class="card-title text-xl font-bold text-gray-800">{{ location.Name }}</h2>
+          <h2 class="card-title text-xl font-bold text-gray-800">{{ location.name }}</h2>
         </div>
         
         <div class="space-y-3">
@@ -73,25 +73,25 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span class="text-sm">{{ location.Address }}</span>
+            <span class="text-sm">{{ location.address }}</span>
           </div>
           
           <div class="flex items-center text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            <span class="text-sm">Total Slots: {{ location.TotalSlots }}</span>
+            <span class="text-sm">Total Slots: {{ location.totalSlots }}</span>
           </div>
           
           <div class="flex items-center text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
             </svg>
-            <span class="text-sm">City: {{ location.City }}</span>
+            <span class="text-sm">City: {{ location.city }}</span>
           </div>
           
           <div class="text-gray-600">
-            <p class="text-sm">Owner: {{ location.UserId }}</p>
+            <p class="text-sm" *ngIf="location.image">Image: {{ location.image }}</p>
           </div>
         </div>
         
@@ -123,7 +123,7 @@
 
   <!-- Add/Edit Location Modal -->
   <div *ngIf="showAddForm" class="modal modal-open">
-    <div class="modal-box w-11/12 max-w-2xl">
+    <div class="modal-box w-11/12 max-w-3xl">
       <h3 class="font-bold text-lg mb-4">
         {{ editingLocation ? 'Edit Location' : 'Add New Location' }}
       </h3>
@@ -137,33 +137,30 @@
             <input 
               type="text" 
               class="input input-bordered w-full" 
-              name="Name"
-              [(ngModel)]="formData.Name"
+              name="name"
+              [(ngModel)]="formData.name"
               required
               minlength="3"
               placeholder="e.g., Downtown Mall Parking"
             />
-            <div class="text-red-500 text-xs mt-1" *ngIf="locationForm.submitted && !locationForm.controls['Name']?.valid">
+            <div class="text-red-500 text-xs mt-1" *ngIf="locationForm.submitted && !locationForm.controls['name']?.valid">
               Location name is required (min 3 chars).
             </div>
           </div>
 
           <div class="form-control">
             <label class="label">
-              <span class="label-text font-semibold">Small Slots</span>
+              <span class="label-text font-semibold">Total Slots</span>
             </label>
             <input 
               type="number" 
               class="input input-bordered w-full" 
-              name="SmallSlotCount"
-              [(ngModel)]="formData.SmallSlotCount"
+              name="totalSlots"
+              [(ngModel)]="formData.totalSlots"
               required
-              min="1"
-              placeholder="Number of small spots"
+              min="0"
+              placeholder="Total number of slots"
             />
-            <div class="text-red-500 text-xs mt-1" *ngIf="locationForm.submitted && !locationForm.controls['SmallSlotCount']?.valid">
-              Small slot count is required (min 1).
-            </div>
           </div>
         </div>
 
@@ -174,13 +171,13 @@
           <input 
             type="text" 
             class="input input-bordered w-full" 
-            name="Address"
-            [(ngModel)]="formData.Address"
+            name="address"
+            [(ngModel)]="formData.address"
             required
             minlength="5"
             placeholder="Full address of the location"
           />
-          <div class="text-red-500 text-xs mt-1" *ngIf="locationForm.submitted && !locationForm.controls['Address']?.valid">
+          <div class="text-red-500 text-xs mt-1" *ngIf="locationForm.submitted && !locationForm.controls['address']?.valid">
             Address is required (min 5 chars).
           </div>
         </div>
@@ -216,39 +213,8 @@
               placeholder="https://..."
             />
           </div>
-
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-semibold">Medium Slots</span>
-            </label>
-            <input 
-              type="number" 
-              class="input input-bordered w-full" 
-              name="MediumSlotCount"
-              [(ngModel)]="formData.MediumSlotCount"
-              required
-              min="0"
-              placeholder="Number of medium spots"
-            />
-          </div>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-semibold">Large Slots</span>
-            </label>
-            <input 
-              type="number" 
-              class="input input-bordered w-full" 
-              name="LargeSlotCount"
-              [(ngModel)]="formData.LargeSlotCount"
-              required
-              min="0"
-              placeholder="Number of large spots"
-            />
-          </div>
-        </div>
+        
 
         <div class="modal-action">
           <button 

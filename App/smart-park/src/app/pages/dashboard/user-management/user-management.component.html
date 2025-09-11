@@ -44,11 +44,14 @@
         <table class="table table-zebra w-full">
           <thead>
             <tr>
-              <th>ID</th>
+              <th class="w-48">ID</th>
               <th>Name</th>
               <th>Email</th>
               <th>Phone</th>
-              <th>Actions</th>
+              <th>City</th>
+              <th>Address</th>
+              <th>Role</th>
+              <th class="text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -64,12 +67,15 @@
               </td>
             </tr>
             <tr *ngFor="let user of users" class="hover">
-              <td class="font-mono text-sm">{{ user.Id }}</td>
-              <td class="font-semibold">{{ user.Name }}</td>
-              <td>{{ user.Email }}</td>
-              <td>{{ user.PhoneNumber || 'N/A' }}</td>
+              <td class="font-mono text-xs md:text-sm truncate max-w-[12rem]" [title]="user.id">{{ user.id }}</td>
+              <td class="font-semibold">{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.phoneNumber || 'N/A' }}</td>
+              <td>{{ user.city || '—' }}</td>
+              <td class="truncate max-w-[12rem]" [title]="user.address">{{ user.address || '—' }}</td>
+              <td>{{ user.roleName || '—' }}</td>
               <td>
-                <div class="flex gap-2">
+                <div class="flex gap-2 justify-end">
                   <button 
                     class="btn btn-sm btn-info"
                     (click)="editUser(user)"

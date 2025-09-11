@@ -34,15 +34,16 @@ export interface LoginResponse {
 }
 
 
+// Users
 export interface UserDto {
-  Id: string; // Guid
-  Name: string;
-  Email?: string | null;
-  Address: string | null;
-  PhoneNumber?: string | null;
-  City: string;
-  RoleId: string; // Guid
-  RoleName: string; 
+  id: string; // Guid
+  name: string;
+  email?: string | null;
+  address: string | null;
+  phoneNumber?: string | null;
+  city: string;
+  roleId?: string | null; // Guid
+  roleName?: string | null;
 }
 
 export interface UpdateUserRequest {
@@ -53,42 +54,39 @@ export interface UpdateUserRequest {
   Email: string ;
 }
 
-// this is Create Location api request
-export interface CreateLocationRequest {
-  Name: string;
-  Address: string;
-  SmallSlotCount: number; 
-  LargeSlotCount: number;
-  MediumSlotCount: number;
+// Location request/response contracts (updated)
+export interface LocationRequest {
+  name: string;
+  address: string;
+  totalSlots: number;
   city: string;
   image: string;
 }
-// this is Create Location api response
-export interface CreateLocationReponse {
-  LocationId: string;
-  Name?: string | null;
-  Address?: string | null;
-  TotalSlots?: number | null;
+
+export interface LocationResponse {
+  Id: string;
+  Name: string;
+  Address: string;
   City?: string | null;
+  TotalSlots?: number | null;
 }
 
 // this is Get All Locations and get Location by Id apis response
-export interface LocationDto {
-  Id: string;
-  Name?: string | null;
-  Address?: string | null;
-  TotalSlots?: number | null;
-  City?: string | null;
-  Image?: string | null;
-  UserId?: string | null;
-  TimeStamp?: Date | null;
-  Slots: SlotSummaryDto[];
+export interface SlotResponseDto {
+  id: string;
+  locationId: string;
+  slotNumber: string;
+  isAvailable: boolean;
 }
 
-export interface SlotSummaryDto {
-  SlotType: string;
-  SlotCount: number;
-  IsAvailable?: boolean | null;
+export interface LocationDto {
+  id: string;
+  name: string;
+  address: string;
+  totalSlots: number;
+  city: string;
+  image: string;
+  slots: SlotResponseDto[];
 }
 
 
@@ -105,11 +103,7 @@ export interface SlotSummaryDto {
 //   isAvailable: boolean;
 // }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message: string;
-}
+export interface ApiResponse<T> { success: boolean; data: T; message: string; }
 
 @Injectable({
   providedIn: 'root'
@@ -137,6 +131,10 @@ export class ApiService {
     return headers;
   }
 
+  private unwrapResponse<T>() {
+    return map((res: any) => (res && typeof res === 'object' && 'data' in res ? (res.data as T) : (res as T)));
+  }
+
   // User Authentication
   login(credentials: LoginRequest): Observable<ApiResponse<LoginResponse>> {
     return this.http.post<ApiResponse<LoginResponse>>(
@@ -159,22 +157,18 @@ export class ApiService {
   }
 
   // User CRUD Operations
-  getAllUsers(): Observable<ApiResponse<UserDto[]>> {
-    return this.http.get<ApiResponse<UserDto[]>>(
+  getAllUsers(): Observable<UserDto[]> {
+    return this.http.get<any>(
       `${this.baseUrl}/User/get-all-users`,
       { headers: this.authHeaders() }
-    ).pipe(
-      catchError(this.handleError)
-    );
+    ).pipe(this.unwrapResponse<UserDto[]>(), catchError(this.handleError));
   }
 
-  getUserById(id: string): Observable<ApiResponse<UserDto>> {
-    return this.http.get<ApiResponse<UserDto>>(
+  getUserById(id: string): Observable<UserDto> {
+    return this.http.get<any>(
       `${this.baseUrl}/User/get-user-by/${id}`,
       { headers: this.authHeaders() }
-    ).pipe(
-      catchError(this.handleError)
-    );
+    ).pipe(this.unwrapResponse<UserDto>(), catchError(this.handleError));
   }
 
   updateUser(id: string, userData: Partial<UpdateUserRequest>): Observable<ApiResponse<RegistrationResponse>> {
@@ -197,42 +191,34 @@ export class ApiService {
   }
 
   // Location CRUD Operations
-  getAllLocations(): Observable<ApiResponse<LocationDto[]>> {
-    return this.http.get<ApiResponse<LocationDto[]>>(
+  getAllLocations(): Observable<LocationDto[]> {
+    return this.http.get<any>(
       `${this.baseUrl}/Location/get-all-locations`,
       { headers: this.authHeaders() }
-    ).pipe(
-      catchError(this.handleError)
-    );
+    ).pipe(this.unwrapResponse<LocationDto[]>(), catchError(this.handleError));
   }
 
-  getLocationById(id: string): Observable<ApiResponse<LocationDto>> {
-    return this.http.get<ApiResponse<LocationDto>>(
+  getLocationById(id: string): Observable<LocationDto> {
+    return this.http.get<any>(
       `${this.baseUrl}/Location/get-location-by/${id}`,
       { headers: this.authHeaders() }
-    ).pipe(
-      catchError(this.handleError)
-    );
+    ).pipe(this.unwrapResponse<LocationDto>(), catchError(this.handleError));
   }
 
-  createLocation(locationData: CreateLocationRequest): Observable<ApiResponse<CreateLocationReponse>> {
-    return this.http.post<ApiResponse<CreateLocationReponse>>(
+  createLocation(locationData: LocationRequest): Observable<LocationResponse> {
+    return this.http.post<any>(
       `${this.baseUrl}/Location/create-location`,
       locationData,
       { headers: this.authHeaders() }
-    ).pipe(
-      catchError(this.handleError)
-    );
+    ).pipe(this.unwrapResponse<LocationResponse>(), catchError(this.handleError));
   }
 
-  updateLocation(id: string, locationData: Partial<CreateLocationRequest>): Observable<ApiResponse<LocationDto>> {
-    return this.http.put<ApiResponse<LocationDto>>(
+  updateLocation(id: string, locationData: Partial<LocationRequest>): Observable<LocationResponse | LocationDto> {
+    return this.http.put<any>(
       `${this.baseUrl}/Location/update-location/${id}`,
       locationData,
       { headers: this.authHeaders() }
-    ).pipe(
-      catchError(this.handleError)
-    );
+    ).pipe(this.unwrapResponse<LocationResponse | LocationDto>(), catchError(this.handleError));
   }
 
   deleteLocation(id: string): Observable<ApiResponse<boolean>> {

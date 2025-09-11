@@ -46,12 +46,7 @@ export class UserManagementComponent implements OnInit {
     this.apiService.getAllUsers().subscribe({
       next: (response) => {
         this.isLoading = false;
-        if (response.success && response.data) {
-          this.users = response.data;
-        } else {
-          this.errorMessage = response.message || 'Failed to load users.';
-          this.autoDismissMessages();
-        }
+        this.users = response || [];
       },
       error: (error) => {
         this.isLoading = false;
@@ -68,23 +63,18 @@ export class UserManagementComponent implements OnInit {
     this.apiService.getUserById(id).subscribe({
       next: (response) => {
         this.isLoading = false;
-        if (response.success && response.data) {
-          const user = response.data;
-          this.selectedUser = user as unknown as UserDto;
-          this.formData = {
-            Name: user.Name ?? '',
-            Email: user.Email ?? '',
-            Password: '',
-            Address: user.Address ?? '',
-            PhoneNumber: user.PhoneNumber ?? null,
-            City: user.City ?? ''
-          };
-          this.editingUserId = user.Id;
-          this.showAddForm = true;
-        } else {
-          this.errorMessage = response.message || 'Failed to load user details.';
-          this.autoDismissMessages();
-        }
+        const user = response as unknown as UserDto;
+        this.selectedUser = user as unknown as UserDto;
+        this.formData = {
+          Name: (user as any).name ?? '',
+          Email: (user as any).email ?? '',
+          Password: '',
+          Address: (user as any).address ?? '',
+          PhoneNumber: (user as any).phoneNumber ?? null,
+          City: (user as any).city ?? ''
+        };
+        this.editingUserId = (user as any).id;
+        this.showAddForm = true;
       },
       error: (error) => {
         this.isLoading = false;
@@ -109,7 +99,8 @@ export class UserManagementComponent implements OnInit {
   }
 
   editUser(user: RegistrationResponse | UserDto): void {
-    this.getUserById(user.Id);
+    const id = (user as any).Id ?? (user as any).id;
+    this.getUserById(id);
   }
 
   saveUser(form: NgForm): void {
@@ -174,11 +165,13 @@ export class UserManagementComponent implements OnInit {
   }
 
   deleteUser(user: RegistrationResponse | UserDto): void {
-    if (confirm(`Are you sure you want to delete user "${user.Name ?? ''}"?`)) {
+    const name = (user as any).Name ?? (user as any).name ?? '';
+    if (confirm(`Are you sure you want to delete user "${name}"?`)) {
       this.isLoading = true;
       this.errorMessage = '';
       
-      this.apiService.deleteUser(user.Id).subscribe({
+      const id = (user as any).Id ?? (user as any).id;
+      this.apiService.deleteUser(id).subscribe({
         next: (response) => {
           this.isLoading = false;
           if (response.success) {
