@@ -3,11 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ApiService, LocationDto, LocationRequest, LocationResponse } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
+import { MasterLayoutComponent } from '../../../shared/master-layout/master-layout.component';
 
 @Component({
   selector: 'app-location-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MasterLayoutComponent],
   templateUrl: './location-management.component.html',
   styleUrl: './location-management.component.scss'
 })

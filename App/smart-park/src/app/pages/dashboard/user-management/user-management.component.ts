@@ -3,11 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ApiService, RegistrationResponse, RegistrationRequest ,UserDto, UpdateUserRequest} from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
+import { MasterLayoutComponent } from '../../../shared/master-layout/master-layout.component';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MasterLayoutComponent],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.scss'
 })

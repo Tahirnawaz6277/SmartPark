@@ -1,7 +1,8 @@
-<div class="container mx-auto px-4 py-8">
+<app-master-layout>
+<div class="container mx-auto px-4 py-6">
   <div class="mb-8">
-    <h1 class="text-4xl font-bold text-gray-800 mb-2">User Management</h1>
-    <p class="text-gray-600">Manage users and their permissions</p>
+    <h1 class="text-4xl font-bold text-gray-800 dark:text-white mb-2">User Management</h1>
+    <p class="text-gray-600 dark:text-gray-300">Manage users and their permissions</p>
   </div>
 
   <!-- Messages -->
@@ -30,21 +31,18 @@
       (click)="addUser()"
       [disabled]="isLoading"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-      </svg>
       Add New User
     </button>
   </div>
 
   <!-- Users Table -->
-  <div class="card bg-white shadow-xl">
+  <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-xl">
     <div class="card-body">
       <div class="overflow-x-auto">
-        <table class="table table-zebra w-full">
+        <table class="table w-full">
           <thead>
             <tr>
-              <th class="w-48">ID</th>
+              <!-- ID removed -->
               <th>Name</th>
               <th>Email</th>
               <th>Phone</th>
@@ -67,7 +65,6 @@
               </td>
             </tr>
             <tr *ngFor="let user of users" class="hover">
-              <td class="font-mono text-xs md:text-sm truncate max-w-[12rem]" [title]="user.id">{{ user.id }}</td>
               <td class="font-semibold">{{ user.name }}</td>
               <td>{{ user.email }}</td>
               <td>{{ user.phoneNumber || 'N/A' }}</td>
@@ -76,25 +73,15 @@
               <td>{{ user.roleName || '—' }}</td>
               <td>
                 <div class="flex gap-2 justify-end">
-                  <button 
-                    class="btn btn-sm btn-info"
-                    (click)="editUser(user)"
-                    [disabled]="isLoading"
-                  >
+                  <button class="btn btn-ghost btn-xs" (click)="editUser(user)" [disabled]="isLoading" title="Edit">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
-                    Edit
                   </button>
-                  <button 
-                    class="btn btn-sm btn-error"
-                    (click)="deleteUser(user)"
-                    [disabled]="isLoading"
-                  >
+                  <button class="btn btn-ghost btn-xs" (click)="deleteUser(user)" [disabled]="isLoading" title="Delete">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    Delete
                   </button>
                 </div>
               </td>
@@ -107,7 +94,7 @@
 
   <!-- Add/Edit User Modal -->
   <div *ngIf="showAddForm" class="modal modal-open">
-    <div class="modal-box w-11/12 max-w-2xl">
+    <div class="modal-box w-11/12 max-w-2xl bg-white dark:bg-gray-800">
       <h3 class="font-bold text-lg mb-4">
         {{ editingUserId ? 'Edit User' : 'Add New User' }}
       </h3>
@@ -147,7 +134,7 @@
           </div>
         </div>
 
-        <div class="form-control mb-6">
+        <div class="form-control mb-6" *ngIf="!editingUserId">
           <label class="label">
             <span class="label-text font-semibold">Password</span>
           </label>
@@ -156,15 +143,15 @@
             class="input input-bordered w-full" 
             name="Password"
             [(ngModel)]="formData.Password"
-            [required]="!editingUserId"
+            required
             minlength="6"
           />
-          <div class="text-red-500 text-xs mt-1" *ngIf="userForm.submitted && !userForm.controls['Password']?.valid">
+          <!-- <div class="text-red-500 text-xs mt-1" *ngIf="userForm.submitted && !userForm.controls['Password']?.valid">
             Password is required (min 6 chars).
           </div>
           <div class="text-gray-500 text-xs mt-1" *ngIf="editingUserId">
             Leave blank to keep current password.
-          </div>
+          </div> -->
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -205,25 +192,21 @@
           />
         </div>
 
-        <div class="modal-action">
-          <button 
-            type="button" 
-            class="btn btn-ghost" 
-            (click)="closeForm()"
-            [disabled]="isLoading"
-          >
-            Cancel
+        <div class="modal-action gap-2">
+          <button type="button" class="btn" (click)="closeForm()" [disabled]="isLoading" title="Cancel">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
-          <button 
-            type="submit" 
-            class="btn btn-primary"
-            [disabled]="isLoading"
-          >
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading" title="Save">
             <span *ngIf="isLoading" class="loading loading-spinner loading-sm"></span>
-            {{ isLoading ? 'Saving...' : (editingUserId ? 'Update User' : 'Create User') }}
+            <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
           </button>
         </div>
       </form>
     </div>
   </div>
 </div>
+</app-master-layout>
