@@ -135,16 +135,60 @@ export class ApiService {
     return map((res: any) => (res && typeof res === 'object' && 'data' in res ? (res.data as T) : (res as T)));
   }
 
-  // User Authentication
-  login(credentials: LoginRequest): Observable<ApiResponse<LoginResponse>> {
-    return this.http.post<ApiResponse<LoginResponse>>(
+  // // User Authentication
+  // login(credentials: LoginRequest): Observable<ApiResponse<LoginResponse>> {
+  //   return this.http.post<ApiResponse<LoginResponse>>(
+  //     `${this.baseUrl}/User/user-login`,
+  //     credentials,
+  //     this.httpOptions
+  //   ).pipe(
+  //     catchError(this.handleError)
+  //   );
+  // }
+  login(credentials: LoginRequest) {
+    return this.http.post<any>(
       `${this.baseUrl}/User/user-login`,
       credentials,
       this.httpOptions
     ).pipe(
-      catchError(this.handleError)
+      map(res => {
+        // Case 1: new success format { success, message, data }
+        if ('success' in res && 'message' in res) {
+          return {
+            success: res.success,
+            message: res.message,
+            data: res.data
+          };
+        }
+  
+        // Case 2: old error format { StatusCode, Message }
+        if ('StatusCode' in res && 'Message' in res) {
+          return {
+            success: res.StatusCode === 200,
+            message: res.Message,
+            data: res.Data ?? null
+          };
+        }
+  
+        // fallback
+        return {
+          success: false,
+          message: 'Unexpected response format',
+          data: null
+        };
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return throwError(() => ({
+          success: false,
+          message: error.error?.Message || error.error?.message || 'Server error',
+          data: null
+        }));
+      })
     );
   }
+  
+  
+  
 
   register(userData: RegistrationRequest): Observable<ApiResponse<RegistrationResponse>> {
     return this.http.post<ApiResponse<RegistrationResponse>>(

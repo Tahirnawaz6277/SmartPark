@@ -168,6 +168,7 @@ export class LocationManagementComponent implements OnInit {
           } else {
             this.errorMessage = response.message || 'Failed to delete location.';
             this.autoDismissMessages();
+            this.loadLocations();
           }
         },
         error: (error) => {

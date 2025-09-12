@@ -27,7 +27,7 @@
   <!-- Add User Button -->
   <div class="mb-6">
     <button 
-      class="btn btn-primary" 
+      class="btn btn-primary bg-gray-200 px-4" 
       (click)="addUser()"
       [disabled]="isLoading"
     >
@@ -36,7 +36,7 @@
   </div>
 
   <!-- Users Table -->
-  <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-xl">
+  <div class="card bg-white dark:bg-gray-800 shadow-xl rounded-xl  px-4 ">
     <div class="card-body">
       <div class="overflow-x-auto">
         <table class="table w-full">
@@ -92,9 +92,11 @@
     </div>
   </div>
 
-  <!-- Add/Edit User Modal -->
+  <!-- Add/Edit User Modal -->  
   <div *ngIf="showAddForm" class="modal modal-open">
-    <div class="modal-box w-11/12 max-w-2xl bg-white dark:bg-gray-800">
+    <!-- <div class="modal-box w-11/12 bg-white dark:bg-gray-800 mt-4px-4 py-2"> -->
+      <div class="modal-box  w-11/12 bg-white dark:bg-gray-800 mt-4 px-4 py-6 w-full ">
+
       <h3 class="font-bold text-lg mb-4">
         {{ editingUserId ? 'Edit User' : 'Add New User' }}
       </h3>
@@ -157,7 +159,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-control">
             <label class="label">
-              <span class="label-text font-semibold">Phone (optional)</span>
+              <span class="label-text font-semibold">Phone </span>
             </label>
             <input 
               type="text" 
@@ -182,7 +184,7 @@
 
         <div class="form-control mb-4">
           <label class="label">
-            <span class="label-text font-semibold">Address (optional)</span>
+            <span class="label-text font-semibold">Address</span>
           </label>
           <input 
             type="text" 
