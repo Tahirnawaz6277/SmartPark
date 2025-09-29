@@ -41,17 +41,40 @@ export class LoginComponent implements OnInit {
         Password: form.value.password
       };
 
+      // this.apiService.login(loginData).subscribe({
+      //   next: (response) => {
+      //     this.isLoading = false;
+      //     if (response.success && response.data) {
+      //       this.authService.setCurrentUser(response.data);
+      //       this.successMessage = 'Login successful! Redirecting...';
+            
+      //       // Redirect to dashboard after a short delay
+      //       setTimeout(() => {
+      //         this.router.navigate(['/dashboard']);
+      //       }, 1000);
+      //     } else {
+      //       this.errorMessage = response.message || 'Login failed. Please try again.';
+      //       console.log("server response" + response.message);
+            
+      //     }
+      //   },
+      //   error: (error) => {
+      //     this.isLoading = false;
+      //     this.errorMessage = error.message || 'An error occurred during login. Please try again.';
+      //   }
+      // });
       this.apiService.login(loginData).subscribe({
         next: (response) => {
           this.isLoading = false;
+          console.log("server response:", response.message);
+      
           if (response.success && response.data) {
             this.authService.setCurrentUser(response.data);
-            this.successMessage = 'Login successful! Redirecting...';
-            
-            // Redirect to dashboard after a short delay
+            this.successMessage = response.message || 'Login successful!';
+      
             setTimeout(() => {
               this.router.navigate(['/dashboard']);
-            }, 1500);
+            }, 1000);
           } else {
             this.errorMessage = response.message || 'Login failed. Please try again.';
           }
@@ -59,8 +82,11 @@ export class LoginComponent implements OnInit {
         error: (error) => {
           this.isLoading = false;
           this.errorMessage = error.message || 'An error occurred during login. Please try again.';
+          console.log("server response:", error.message);
+
         }
       });
+      
     } else {
       this.errorMessage = 'Please fill in all required fields.';
     }

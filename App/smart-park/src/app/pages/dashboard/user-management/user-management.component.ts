@@ -102,6 +102,8 @@ export class UserManagementComponent implements OnInit {
   editUser(user: RegistrationResponse | UserDto): void {
     const id = (user as any).Id ?? (user as any).id;
     this.getUserById(id);
+    this.loadUsers();
+
   }
 
   saveUser(form: NgForm): void {
@@ -129,6 +131,7 @@ export class UserManagementComponent implements OnInit {
             } else {
               this.errorMessage = response.message || 'Failed to update user.';
               this.autoDismissMessages();
+              this.loadUsers();
             }
           },
           error: (error) => {
@@ -150,6 +153,8 @@ export class UserManagementComponent implements OnInit {
             } else {
               this.errorMessage = response.message || 'Failed to create user.';
               this.autoDismissMessages();
+              this.loadUsers();
+
             }
           },
           error: (error) => {
@@ -182,6 +187,8 @@ export class UserManagementComponent implements OnInit {
           } else {
             this.errorMessage = response.message || 'Failed to delete user.';
             this.autoDismissMessages();
+            this.loadUsers();
+
           }
         },
         error: (error) => {
