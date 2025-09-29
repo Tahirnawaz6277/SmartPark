@@ -28,6 +28,9 @@
 
   <ItemGroup>
     <Folder Include="AutoMapper\" />
+    <Folder Include="CQRS\Commands\Booking\" />
+    <Folder Include="CQRS\Handlers\Booking\" />
+    <Folder Include="CQRS\Queries\Booking\" />
   </ItemGroup>
 
 </Project>

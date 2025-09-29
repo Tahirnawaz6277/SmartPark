@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace SmartPark.Models;
+﻿namespace SmartPark.Models;
 
 public partial class BookingHistory
 {
