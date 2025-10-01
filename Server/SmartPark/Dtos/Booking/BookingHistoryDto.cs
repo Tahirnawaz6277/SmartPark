@@ -1,6 +1,6 @@
 ﻿namespace SmartPark.Dtos.Booking
 {
-    public record BookingHistoryResponse
+    public record BookingHistoryDto
     {
         public Guid Id { get; set; }
         public int? Duration { get; set; }

@@ -1,13 +1,13 @@
-﻿using SmartPark.Dtos.Location;
+﻿using SmartPark.Dtos.Booking;
 
 namespace SmartPark.Services.Interfaces
 {
     public interface IBookingService
     {
-        Task<LocationReponse> CreateBookingAsync(LocationRequest dto, CancellationToken cancellationToken);
-        Task<LocationDto?> GetBookingByIdAsync(Guid id);
-        Task<IEnumerable<LocationDto>> GetAllBookingsAsync();
-        Task<LocationReponse> UpdateBookingAsync(Guid id, LocationRequest dto);
+        Task<BookingResponse> CreateBookingAsync(BookingRequest dto, CancellationToken cancellationToken);
+        Task<BookingDto?> GetBookingByIdAsync(Guid id);
+        Task<IEnumerable<BookingDto>> GetAllBookingsAsync();
+        Task<BookingResponse> UpdateBookingAsync(Guid id, BookingRequest dto);
         Task<bool> DeleteBookingAsync(Guid id);
     }
 }
