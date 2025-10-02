@@ -28,6 +28,7 @@ namespace SmartPark.Extensions
             services.AddScoped<ICryptoService, CryptoService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ILocationService, LocationService>();
+            services.AddScoped<IBookingService, BookingService>();
 
 
 

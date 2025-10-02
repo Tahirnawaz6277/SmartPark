@@ -208,9 +208,16 @@ namespace SmartPark.Services.Implementations
         }
 
         // booking history get methods
-        public async Task<IEnumerable<BookingHistoryDto>> GetBookingHistories(Guid? bookingId)
+        public async Task<IEnumerable<BookingHistoryDto?>> GetBookingHistoriesAsync(Guid? bookingId)
         {
-            var histories = await _dbContext.BookingHistories
+
+            var query = _dbContext.BookingHistories.AsQueryable();
+            if (bookingId != null)
+            {
+                query = query.Where(h => h.BookingId != null && h.BookingId == bookingId.Value);   
+            }
+
+            var histories = await query
                 .Select(h => new BookingHistoryDto
                 {
                     Id = h.Id,
@@ -223,19 +230,16 @@ namespace SmartPark.Services.Implementations
                     SlotId = h.SlotId,
                     BookingId = h.BookingId,
                     UserId = h.UserId
-                })
-                .ToListAsync();
-
-            //if (!histories.Any())
-            //    return NotFoundException($"No histories found for bookingId: {bookingId}");
+                }).ToListAsync();
 
             return histories;
         }
 
-        public async Task<BookingHistoryDto> GetBookingHistory(Guid id)
+        // get booking history by id
+        public async Task<BookingHistoryDto?> GetBookingHistoryByIdAsync(Guid historyId)
         {
             var history = await _dbContext.BookingHistories
-                .Where(h => h.Id == id)
+                .Where(h => h.Id == historyId)
                 .Select(h => new BookingHistoryDto
                 {
                     Id = h.Id,
@@ -252,7 +256,7 @@ namespace SmartPark.Services.Implementations
                 .FirstOrDefaultAsync();
 
             if (history == null)
-                return null;
+                throw new NotFoundException("bookingHistory not found");
 
             return history;
         }
