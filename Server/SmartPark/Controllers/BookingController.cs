@@ -20,7 +20,7 @@ namespace SmartPark.Controllers
         }
 
         //  Create Booking
-        [Authorize(Roles = "Driver")]
+        [Authorize(Roles = "Admin,Driver")]
         [HttpPost("create-booking")]
         public async Task<IActionResult> CreateAsync([FromBody] BookingRequest dto)
         {
@@ -34,7 +34,7 @@ namespace SmartPark.Controllers
         }
 
         // Get Booking by Id
-        [Authorize(Roles = "Driver")]
+        [Authorize(Roles = "Admin,Driver")]
         [HttpGet("get-booking-by/{id:guid}")]
         [ProducesResponseType(typeof(BookingDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByIdAsync(Guid id)
@@ -54,7 +54,7 @@ namespace SmartPark.Controllers
         }
 
         //  Update Booking
-        [Authorize(Roles = "Driver")]
+        [Authorize(Roles = "Admin,Driver")]
         [HttpPut("update-booking/{id:guid}")]
         public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] BookingRequest dto)
         {
@@ -77,23 +77,22 @@ namespace SmartPark.Controllers
         }
 
         //  Get Booking Histories (by BookingId)
-        [HttpGet("get-booking-histories/{bookingId}")]
+        [HttpGet("get-booking-histories")]
         [ProducesResponseType(typeof(IEnumerable<BookingHistoryDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetHistoriesAsync(Guid? bookingId)
+        public async Task<IActionResult> GetHistoriesAsync([FromQuery] Guid? bookingId)
         {
             var result = await _mediator.Send(new GetBookingHistoriesQuery(bookingId));
-            if (!result.Any()) return NotFound($"No histories found for booking {bookingId}");
             return Ok(result);
         }
 
         //  Get Single Booking History
-        [Authorize(Roles = "Driver")]
+        [Authorize(Roles = "Admin,Driver")]
         [HttpGet("get-booking-history-by/{id:guid}")]
         [ProducesResponseType(typeof(BookingHistoryDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetHistoryByIdAsync(Guid id)
         {
             var result = await _mediator.Send(new GetBookingHistoryByIdQuery(id));
-            if (result == null) return NotFound();
+            //if (result == null) return NotFound();
             return Ok(result);
         }
     }

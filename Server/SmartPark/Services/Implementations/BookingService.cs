@@ -4,7 +4,6 @@ using SmartPark.Dtos.Booking;
 using SmartPark.Exceptions;
 using SmartPark.Models;
 using SmartPark.Services.Interfaces;
-using System.Data.Entity;
 
 namespace SmartPark.Services.Implementations
 {
@@ -101,6 +100,7 @@ namespace SmartPark.Services.Implementations
         public async Task<IEnumerable<BookingDto>> GetAllBookingsAsync()
         {
            return await _dbContext.Bookings
+                            .AsNoTracking()
                           .Select(b => new BookingDto
                           {
                               Id = b.Id,
@@ -121,6 +121,7 @@ namespace SmartPark.Services.Implementations
         public async Task<BookingDto?> GetBookingByIdAsync(Guid id)
         {
             var booking = await _dbContext.Bookings
+                          .AsNoTracking()
                           .Where(b => b.Id == id)
                           .Select(b => new BookingDto
                           {
@@ -210,8 +211,7 @@ namespace SmartPark.Services.Implementations
         // booking history get methods
         public async Task<IEnumerable<BookingHistoryDto?>> GetBookingHistoriesAsync(Guid? bookingId)
         {
-
-            var query = _dbContext.BookingHistories.AsQueryable();
+            var query = _dbContext.BookingHistories.AsNoTracking().AsQueryable();
             if (bookingId != null)
             {
                 query = query.Where(h => h.BookingId != null && h.BookingId == bookingId.Value);   
@@ -239,6 +239,7 @@ namespace SmartPark.Services.Implementations
         public async Task<BookingHistoryDto?> GetBookingHistoryByIdAsync(Guid historyId)
         {
             var history = await _dbContext.BookingHistories
+                .AsNoTracking()
                 .Where(h => h.Id == historyId)
                 .Select(h => new BookingHistoryDto
                 {
@@ -256,7 +257,7 @@ namespace SmartPark.Services.Implementations
                 .FirstOrDefaultAsync();
 
             if (history == null)
-                throw new NotFoundException("bookingHistory not found");
+                throw new NotFoundException("BookingHistory not found");
 
             return history;
         }
