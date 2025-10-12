@@ -29,9 +29,10 @@ namespace SmartPark.Services.Implementations
 
                 var booking = new Booking
                 {
-                    //Duration = dto.Duration,
                     Status = "Booked",
-                    TimeStamp = serverTime,
+                    StartTime = dto.StartTime,
+                    EndTime = dto.EndTime,
+                    CreatedAt = serverTime,
                     UserId = userId ?? Guid.Empty,
                     SlotId = dto.SlotId
                 };
@@ -41,8 +42,9 @@ namespace SmartPark.Services.Implementations
 
                 var bookingHistory = new BookingHistory
                 {
-                    //Duration = dto.Duration,
                     StatusSnapshot = booking.Status,
+                    StartTime = dto.StartTime,
+                    EndTime = dto.EndTime,
                     TimeStamp = serverTime,
                     SlotId = dto.SlotId,
                     BookingId = booking.Id,
@@ -99,6 +101,8 @@ namespace SmartPark.Services.Implementations
                           {
                               Id = b.Id,
                               Status = b.Status,
+                              StartTime = b.StartTime,
+                              EndTime = b.EndTime,
                               UserId = b.UserId,
                               UserName = b.User != null ? b.User.Name : null,
                               SlotId = b.SlotId,
@@ -116,6 +120,8 @@ namespace SmartPark.Services.Implementations
                           {
                               Id = b.Id,
                               Status = b.Status,
+                              StartTime = b.StartTime,
+                              EndTime = b.EndTime,
                               UserId = b.UserId,
                               UserName = b.User != null ? b.User.Name : null,
                               SlotId = b.SlotId,
@@ -139,8 +145,9 @@ namespace SmartPark.Services.Implementations
             var serverTime = await _helper.GetDatabaseTime();
 
             // update booking
-            //booking.Duration = dto.Duration;
-            booking.TimeStamp = serverTime;
+            booking.UpdatedAt = serverTime;
+            booking.StartTime = dto.StartTime;
+            booking.EndTime = dto.EndTime;
             booking.SlotId = dto.SlotId;
 
             _dbContext.Bookings.Update(booking);

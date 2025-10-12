@@ -17,7 +17,9 @@ public partial class Booking
 
     public DateTime EndTime { get; set; }
 
-    public DateTime? TimeStamp { get; set; }
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
 
     public virtual ICollection<Billing> Billings { get; set; } = new List<Billing>();
 
