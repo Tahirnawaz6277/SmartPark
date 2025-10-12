@@ -29,11 +29,9 @@ namespace SmartPark.Services.Implementations
 
                 var booking = new Booking
                 {
-                    Duration = dto.Duration,
-                    Status = dto.Status,
+                    //Duration = dto.Duration,
+                    Status = "Booked",
                     BookingDateTime = serverTime,
-                    ParkingStartTime = dto.ParkingStartTime,
-                    ParkingEndTime = dto.ParkingEndTime,
                     TimeStamp = serverTime,
                     UserId = userId ?? Guid.Empty,
                     SlotId = dto.SlotId
@@ -44,11 +42,8 @@ namespace SmartPark.Services.Implementations
 
                 var bookingHistory = new BookingHistory
                 {
-                    Duration = dto.Duration,
-                    StartedAt = dto.ParkingStartTime,
-                    EndedAt = dto.ParkingEndTime,
-                    StatusSnapshot = dto.Status,
-                    IsArchived = false,
+                    //Duration = dto.Duration,
+                    StatusSnapshot = booking.Status,
                     TimeStamp = serverTime,
                     SlotId = dto.SlotId,
                     BookingId = booking.Id,
@@ -107,9 +102,6 @@ namespace SmartPark.Services.Implementations
                               Duration = b.Duration,
                               Status = b.Status,
                               BookingDateTime = b.BookingDateTime,
-                              ParkingStartTime = b.ParkingStartTime,
-                              ParkingEndTime = b.ParkingEndTime,
-                              TimeStamp = b.TimeStamp,
                               UserId = b.UserId,
                               UserName = b.User != null ? b.User.Name : null,
                               SlotId = b.SlotId,
@@ -129,9 +121,6 @@ namespace SmartPark.Services.Implementations
                               Duration = b.Duration,
                               Status = b.Status,
                               BookingDateTime = b.BookingDateTime,
-                              ParkingStartTime = b.ParkingStartTime,
-                              ParkingEndTime = b.ParkingEndTime,
-                              TimeStamp = b.TimeStamp,
                               UserId = b.UserId,
                               UserName = b.User != null ? b.User.Name : null,
                               SlotId = b.SlotId,
@@ -155,10 +144,7 @@ namespace SmartPark.Services.Implementations
             var serverTime = await _helper.GetDatabaseTime();
 
             // update booking
-            booking.Duration = dto.Duration;
-            booking.Status = dto.Status;
-            booking.ParkingStartTime = dto.ParkingStartTime;
-            booking.ParkingEndTime = dto.ParkingEndTime;
+            //booking.Duration = dto.Duration;
             booking.TimeStamp = serverTime;
             booking.SlotId = dto.SlotId;
 
@@ -167,11 +153,8 @@ namespace SmartPark.Services.Implementations
             //  insert new history snapshot
             var history = new BookingHistory
             {
-                Duration = dto.Duration,
-                StartedAt = dto.ParkingStartTime,
-                EndedAt = dto.ParkingEndTime,
-                StatusSnapshot = dto.Status,
-                IsArchived = false,
+                //Duration = dto.Duration,
+                StatusSnapshot = booking.Status,
                 TimeStamp = serverTime,
                 SlotId = dto.SlotId,
                 BookingId = booking.Id,
@@ -200,9 +183,6 @@ namespace SmartPark.Services.Implementations
                 Duration = booking.Duration,
                 Status = booking.Status,
                 BookingDateTime = booking.BookingDateTime,
-                ParkingStartTime = booking.ParkingStartTime,
-                ParkingEndTime = booking.ParkingEndTime,
-                TimeStamp = booking.TimeStamp,
                 UserId = booking.UserId,
                 SlotId = booking.SlotId
             };
@@ -222,10 +202,7 @@ namespace SmartPark.Services.Implementations
                 {
                     Id = h.Id,
                     Duration = h.Duration,
-                    StartedAt = h.StartedAt,
-                    EndedAt = h.EndedAt,
                     StatusSnapshot = h.StatusSnapshot,
-                    IsArchived = h.IsArchived,
                     TimeStamp = h.TimeStamp,
                     SlotId = h.SlotId,
                     BookingId = h.BookingId,
@@ -245,10 +222,7 @@ namespace SmartPark.Services.Implementations
                 {
                     Id = h.Id,
                     Duration = h.Duration,
-                    StartedAt = h.StartedAt,
-                    EndedAt = h.EndedAt,
                     StatusSnapshot = h.StatusSnapshot,
-                    IsArchived = h.IsArchived,
                     TimeStamp = h.TimeStamp,
                     SlotId = h.SlotId,
                     BookingId = h.BookingId,

@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using SmartPark.Models;
 
 namespace SmartPark.Data.Contexts;
@@ -59,8 +61,12 @@ public partial class ParkingDbContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.BookingDateTime).HasColumnType("datetime");
-            entity.Property(e => e.ParkingEndTime).HasColumnType("datetime");
-            entity.Property(e => e.ParkingStartTime).HasColumnType("datetime");
+            entity.Property(e => e.BookingType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Duration)
+                .HasMaxLength(50)
+                .IsUnicode(false);
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -70,10 +76,12 @@ public partial class ParkingDbContext : DbContext
 
             entity.HasOne(d => d.Slot).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.SlotId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Booking__SlotId__59063A47");
 
             entity.HasOne(d => d.User).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Booking__UserId__5812160E");
         });
 
@@ -84,9 +92,9 @@ public partial class ParkingDbContext : DbContext
             entity.ToTable("BookingHistory");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.EndedAt).HasColumnType("datetime");
-            entity.Property(e => e.IsArchived).HasDefaultValue(false);
-            entity.Property(e => e.StartedAt).HasColumnType("datetime");
+            entity.Property(e => e.BookingType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
             entity.Property(e => e.StatusSnapshot)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -100,10 +108,12 @@ public partial class ParkingDbContext : DbContext
 
             entity.HasOne(d => d.Slot).WithMany(p => p.BookingHistories)
                 .HasForeignKey(d => d.SlotId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__BookingHi__SlotI__6383C8BA");
 
             entity.HasOne(d => d.User).WithMany(p => p.BookingHistories)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__BookingHi__UserI__656C112C");
         });
 
