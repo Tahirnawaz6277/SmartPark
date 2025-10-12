@@ -183,6 +183,8 @@ namespace SmartPark.Services.Implementations
             {
                 Id = booking.Id,
                 Status = booking.Status,
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
                 UserId = booking.UserId,
                 SlotId = booking.SlotId
             };
