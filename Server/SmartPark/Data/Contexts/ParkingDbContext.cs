@@ -60,13 +60,8 @@ public partial class ParkingDbContext : DbContext
             entity.ToTable("Booking");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.BookingDateTime).HasColumnType("datetime");
-            entity.Property(e => e.BookingType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Duration)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.EndTime).HasColumnType("datetime");
+            entity.Property(e => e.StartTime).HasColumnType("datetime");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -92,9 +87,8 @@ public partial class ParkingDbContext : DbContext
             entity.ToTable("BookingHistory");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.BookingType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.EndTime).HasColumnType("datetime");
+            entity.Property(e => e.StartTime).HasColumnType("datetime");
             entity.Property(e => e.StatusSnapshot)
                 .HasMaxLength(50)
                 .IsUnicode(false);

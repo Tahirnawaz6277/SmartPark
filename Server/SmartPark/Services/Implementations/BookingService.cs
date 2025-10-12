@@ -31,7 +31,6 @@ namespace SmartPark.Services.Implementations
                 {
                     //Duration = dto.Duration,
                     Status = "Booked",
-                    BookingDateTime = serverTime,
                     TimeStamp = serverTime,
                     UserId = userId ?? Guid.Empty,
                     SlotId = dto.SlotId
@@ -99,9 +98,7 @@ namespace SmartPark.Services.Implementations
                           .Select(b => new BookingDto
                           {
                               Id = b.Id,
-                              Duration = b.Duration,
                               Status = b.Status,
-                              BookingDateTime = b.BookingDateTime,
                               UserId = b.UserId,
                               UserName = b.User != null ? b.User.Name : null,
                               SlotId = b.SlotId,
@@ -118,9 +115,7 @@ namespace SmartPark.Services.Implementations
                           .Select(b => new BookingDto
                           {
                               Id = b.Id,
-                              Duration = b.Duration,
                               Status = b.Status,
-                              BookingDateTime = b.BookingDateTime,
                               UserId = b.UserId,
                               UserName = b.User != null ? b.User.Name : null,
                               SlotId = b.SlotId,
@@ -180,9 +175,7 @@ namespace SmartPark.Services.Implementations
             return new BookingResponse
             {
                 Id = booking.Id,
-                Duration = booking.Duration,
                 Status = booking.Status,
-                BookingDateTime = booking.BookingDateTime,
                 UserId = booking.UserId,
                 SlotId = booking.SlotId
             };
@@ -201,7 +194,6 @@ namespace SmartPark.Services.Implementations
                 .Select(h => new BookingHistoryDto
                 {
                     Id = h.Id,
-                    Duration = h.Duration,
                     StatusSnapshot = h.StatusSnapshot,
                     TimeStamp = h.TimeStamp,
                     SlotId = h.SlotId,
@@ -221,7 +213,6 @@ namespace SmartPark.Services.Implementations
                 .Select(h => new BookingHistoryDto
                 {
                     Id = h.Id,
-                    Duration = h.Duration,
                     StatusSnapshot = h.StatusSnapshot,
                     TimeStamp = h.TimeStamp,
                     SlotId = h.SlotId,

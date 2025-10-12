@@ -7,19 +7,19 @@ public partial class BookingHistory
 {
     public Guid Id { get; set; }
 
-    public int Duration { get; set; }
-
-    public string BookingType { get; set; } = null!;
-
     public string? StatusSnapshot { get; set; }
-
-    public DateTime? TimeStamp { get; set; }
 
     public Guid SlotId { get; set; }
 
     public Guid BookingId { get; set; }
 
     public Guid UserId { get; set; }
+
+    public DateTime StartTime { get; set; }
+
+    public DateTime EndTime { get; set; }
+
+    public DateTime? TimeStamp { get; set; }
 
     public virtual Booking Booking { get; set; } = null!;
 
