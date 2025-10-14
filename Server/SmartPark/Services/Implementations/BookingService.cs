@@ -56,7 +56,9 @@ namespace SmartPark.Services.Implementations
                 var slot = await _dbContext.Slots.FindAsync(dto.SlotId);
                 if (slot == null)
                     throw new NotFoundException("Slot not found");
-
+                 if (slot.IsAvailable ==false)
+                    throw new ConflictException("This Slot is already Booked");
+                
                 slot.IsAvailable = false;
                 _dbContext.Slots.Update(slot);
 
@@ -78,7 +80,8 @@ namespace SmartPark.Services.Implementations
             if (booking == null)
                 throw new NotFoundException("Booking not found");
 
-            _dbContext.Bookings.Remove(booking);
+            //_dbContext.Bookings.Remove(booking);
+            booking.IsDeleted = true;
 
             //  free the slot again
             var slot = await _dbContext.Slots.FindAsync(booking.SlotId);
@@ -135,6 +138,53 @@ namespace SmartPark.Services.Implementations
             return booking;
         }
 
+        //cancell booking
+        public async Task<BookingResponse> CancelBookingAsync(Guid id)
+        {
+            var booking = await _dbContext.Bookings.FindAsync(id);
+            if (booking == null)
+                throw new NotFoundException("Booking not found");
+
+            var serverTime = await _helper.GetDatabaseTime();
+            var userId = await _helper.GetUserIdFromToken();
+            if (booking.Status == "Cancelled")
+            {
+                throw new ConflictException("This booking is already Cancelled");
+            }
+
+            // update booking
+            booking.Status = "Cancelled";
+            booking.CancelledAt = serverTime;
+            booking.CancelledBy = userId;
+
+            _dbContext.Bookings.Update(booking);
+
+            //  insert new history snapshot
+            var history = new BookingHistory
+            {
+                StatusSnapshot = booking.Status,
+                TimeStamp = serverTime,
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
+                SlotId = booking.SlotId,
+                BookingId = booking.Id,
+                UserId = booking.UserId
+            };
+            _dbContext.BookingHistories.Add(history);
+
+            //  update slot availability (if slot changed)
+            var slot = await _dbContext.Slots.FindAsync(booking.SlotId);
+            if (slot != null)
+            {
+                //if (slot.IsAvailable == false)
+                //    throw new ConflictException("This booking is already Cancelled");
+                slot.IsAvailable = false;
+                _dbContext.Slots.Update(slot);
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return MapToResponse(booking);
+        }
         //  Update Booking
         public async Task<BookingResponse> UpdateBookingAsync(Guid id, BookingRequest dto)
         {
@@ -155,9 +205,10 @@ namespace SmartPark.Services.Implementations
             //  insert new history snapshot
             var history = new BookingHistory
             {
-                //Duration = dto.Duration,
                 StatusSnapshot = booking.Status,
                 TimeStamp = serverTime,
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
                 SlotId = dto.SlotId,
                 BookingId = booking.Id,
                 UserId = booking.UserId
@@ -168,6 +219,8 @@ namespace SmartPark.Services.Implementations
             var slot = await _dbContext.Slots.FindAsync(dto.SlotId);
             if (slot != null)
             {
+                if (slot.IsAvailable == false)
+                    throw new ConflictException("This Slot is already Booked");
                 slot.IsAvailable = false;
                 _dbContext.Slots.Update(slot);
             }
@@ -236,5 +289,6 @@ namespace SmartPark.Services.Implementations
             return history;
         }
 
+   
     }
 }

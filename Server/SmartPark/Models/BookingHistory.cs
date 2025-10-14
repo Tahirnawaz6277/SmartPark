@@ -19,6 +19,10 @@ public partial class BookingHistory
 
     public DateTime EndTime { get; set; }
 
+    public DateTime? CancelledAt { get; set; }
+
+    public Guid? CancelledBy { get; set; }
+
     public DateTime? TimeStamp { get; set; }
 
     public virtual Booking Booking { get; set; } = null!;

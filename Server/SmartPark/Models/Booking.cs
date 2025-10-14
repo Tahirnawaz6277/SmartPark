@@ -21,6 +21,12 @@ public partial class Booking
 
     public DateTime? UpdatedAt { get; set; }
 
+    public DateTime? CancelledAt { get; set; }
+
+    public Guid? CancelledBy { get; set; }
+
+    public bool IsDeleted { get; set; }
+
     public virtual ICollection<Billing> Billings { get; set; } = new List<Billing>();
 
     public virtual ICollection<BookingHistory> BookingHistories { get; set; } = new List<BookingHistory>();

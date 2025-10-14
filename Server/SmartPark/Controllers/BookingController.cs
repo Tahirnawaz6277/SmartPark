@@ -67,6 +67,20 @@ namespace SmartPark.Controllers
             });
         }
 
+        //  Cancel Booking
+        [Authorize(Roles = "Admin,Driver")]
+        [HttpPut("cancel-booking/{id:guid}")]
+        public async Task<IActionResult> CancelAsync(Guid id)
+        {
+            var result = await _mediator.Send(new CancelBookingCommand(id));
+            return Ok(new ApiResponse<BookingResponse>
+            {
+                Success = true,
+                Message = "Booking Cancelled successfully",
+                Data = result
+            });
+        }
+
         // Delete Booking
         [HttpDelete("delete-booking/{id:guid}")]
         public async Task<IActionResult> DeleteAsync(Guid id)

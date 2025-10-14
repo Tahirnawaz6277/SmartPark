@@ -60,6 +60,7 @@ public partial class ParkingDbContext : DbContext
             entity.ToTable("Booking");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.CancelledAt).HasColumnType("datetime");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -88,6 +89,7 @@ public partial class ParkingDbContext : DbContext
             entity.ToTable("BookingHistory");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.CancelledAt).HasColumnType("datetime");
             entity.Property(e => e.EndTime).HasColumnType("datetime");
             entity.Property(e => e.StartTime).HasColumnType("datetime");
             entity.Property(e => e.StatusSnapshot)
@@ -99,6 +101,7 @@ public partial class ParkingDbContext : DbContext
 
             entity.HasOne(d => d.Booking).WithMany(p => p.BookingHistories)
                 .HasForeignKey(d => d.BookingId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__BookingHi__Booki__6477ECF3");
 
             entity.HasOne(d => d.Slot).WithMany(p => p.BookingHistories)
