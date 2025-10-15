@@ -50,6 +50,7 @@ public partial class ParkingDbContext : DbContext
 
             entity.HasOne(d => d.Booking).WithMany(p => p.Billings)
                 .HasForeignKey(d => d.BookingId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Billing__Booking__5DCAEF64");
         });
 

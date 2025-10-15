@@ -15,6 +15,9 @@ namespace SmartPark.Data.Contexts
             modelBuilder.Entity<Booking>()
                         .HasQueryFilter(u => !u.IsDeleted);
 
+            modelBuilder.Entity<Billing>()
+                        .HasQueryFilter(u => !u.IsDeleted);
+
 
         }
     }
