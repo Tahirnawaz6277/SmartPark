@@ -47,6 +47,18 @@ namespace SmartPark.Controllers
             });
         }
 
+
+        [Authorize(Roles = "Admin,Driver")]
+        [HttpGet("get-user-profile")]
+        [ProducesResponseType(typeof(ProfileDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetUserProfileAsync()
+        {
+            var query = new ProfileQuery();
+            var user = await _mediator.Send(query);
+            //return user != null ? Ok(user) : NotFound();
+            return Ok(user);
+        }
+
         [Authorize(Roles = "Admin,Driver")]
         [HttpGet("get-user-by/{id}")]
         [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]

@@ -11,11 +11,13 @@ namespace SmartPark.Services.Implementations
     {
         private readonly ICryptoService _cryptoService;
         private readonly ParkingDbContext _dbContext;
+        private readonly IHelper _helper;
 
-        public UserService(ICryptoService cryptoService, ParkingDbContext dbContext)
+        public UserService(ICryptoService cryptoService, ParkingDbContext dbContext, IHelper helper)
         {
             _cryptoService = cryptoService;
             _dbContext = dbContext;
+            _helper = helper;
         }
 
         public async Task<RegistrationResponse?> CreateUserAsync(RegistrationRequest requestDto)
@@ -125,6 +127,24 @@ namespace SmartPark.Services.Implementations
 
             user.IsDeleted = true;
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<ProfileDto?> GetUserProfile()
+        {
+            var loggedInUserId = await _helper.GetUserIdFromToken();
+
+            return await _dbContext.Users
+                .Where(x => x.Id == loggedInUserId)
+                .Select(u => new ProfileDto
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Email = u.Email,
+                    PhoneNumber = u.PhoneNumber,
+                    City = u.City,
+                    //picture = u.Picture
+                }).FirstOrDefaultAsync();
+
         }
     }
 }

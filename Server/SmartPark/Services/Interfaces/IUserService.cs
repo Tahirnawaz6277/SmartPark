@@ -7,6 +7,7 @@ namespace SmartPark.Services.Interfaces
         Task<RegistrationResponse?> CreateUserAsync(RegistrationRequest requestDto);
         Task<UserDto?> GetUserByIdAsync(Guid id);
         Task<IEnumerable<UserDto?>> GetAllUserAsync();
+        Task<ProfileDto?> GetUserProfile();
         Task<RegistrationResponse> UpdateUserAsync(Guid id, UpdateUserRequest requestDto);
         Task DeleteUserAsync(Guid id);
     }
