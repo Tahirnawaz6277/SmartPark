@@ -51,6 +51,7 @@ builder.Services.ConfigureSwaggerAuthentication();
 
 var app = builder.Build();
 
+app.UseStaticFiles(); // Enables access to files in wwwroot
 // Use CORS
 app.UseCors("AllowAngularDev");
 

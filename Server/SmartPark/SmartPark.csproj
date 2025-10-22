@@ -28,6 +28,8 @@
 
   <ItemGroup>
     <Folder Include="AutoMapper\" />
+    <Folder Include="wwwroot\Uploads\Location\" />
+    <Folder Include="wwwroot\Uploads\Profile\" />
   </ItemGroup>
 
 </Project>
