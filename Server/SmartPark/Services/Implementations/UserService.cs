@@ -86,7 +86,6 @@ namespace SmartPark.Services.Implementations
                         Id = u.Id,
                         Name = u.Name,
                         Email = u.Email,
-                        Address = u.Address,
                         PhoneNumber = u.PhoneNumber,
                         City = u.City,
                         RoleId = u.RoleId,
@@ -106,7 +105,6 @@ namespace SmartPark.Services.Implementations
             user.Name = requestDto.Name;
             user.Email = requestDto.Email;
             user.PhoneNumber = requestDto.PhoneNumber;
-            user.Address = requestDto.Address;
             user.City = requestDto.City;
 
             await _dbContext.SaveChangesAsync();

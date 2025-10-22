@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using SmartPark.Models;
+using SmartPark.Services.Implementations;
 
 namespace SmartPark.Data.Contexts;
 
@@ -179,6 +180,19 @@ public partial class ParkingDbContext : DbContext
             entity.Property(e => e.RoleName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            // ✅ Seed roles
+            entity.HasData(
+                new Role
+                {
+                    Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    RoleName = "Admin"
+                },
+                new Role
+                {
+                    Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    RoleName = "Driver"
+                }
+            );
         });
 
         modelBuilder.Entity<Slot>(entity =>
@@ -205,9 +219,7 @@ public partial class ParkingDbContext : DbContext
             entity.HasIndex(e => e.Email, "UQ__User__A9D10534CBBEE4F1").IsUnique();
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.Address)
-                .HasMaxLength(200)
-                .IsUnicode(false);
+          
             entity.Property(e => e.City)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -232,6 +244,32 @@ public partial class ParkingDbContext : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__User__RoleId__48CFD27E");
+
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddJsonFile("appsettings.Development.json", optional: true)
+                .Build();
+
+            var crypto = new CryptoService(configuration);
+
+            // Encrypt password using your crypto
+            var encryptedPassword = crypto.Encrypt("Admin@123");
+
+            // Fixed Admin Role Id which (already seeded)
+            Guid adminRoleId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+            // Seed Admin user
+            modelBuilder.Entity<User>().HasData(new User
+            {
+                Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                Name = "admin",
+                Email = "admin@gmail.com",
+                Password = encryptedPassword,
+                PhoneNumber = "1234567890",
+                City = "AdminCity",
+                RoleId = adminRoleId
+            });
+
         });
 
         OnModelCreatingPartial(modelBuilder);

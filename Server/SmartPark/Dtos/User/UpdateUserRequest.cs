@@ -13,8 +13,6 @@ namespace SmartPark.Dtos.UserDtos
 
         public string Email { get; set; }
 
-        public string? Address { get; set; }
-
         //[Required(ErrorMessage = "PhoneNumber is Required")]
         public string? PhoneNumber { get; set; }
 

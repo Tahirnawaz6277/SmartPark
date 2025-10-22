@@ -16,8 +16,6 @@ namespace SmartPark.Dtos.UserDtos
         [Required(ErrorMessage = "Password is Required")]
         public string Password { get; set; }
 
-        public string? Address { get; set; }
-
         //[Required(ErrorMessage = "PhoneNumber is Required")]
         public string? PhoneNumber { get; set; }
 

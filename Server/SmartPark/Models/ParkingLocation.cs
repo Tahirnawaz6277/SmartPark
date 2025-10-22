@@ -18,6 +18,8 @@ public partial class ParkingLocation
     public string? Image { get; set; }
 
     public Guid UserId { get; set; }
+    public string? ImagePath { get; set; }
+    public string? ImageExtension { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -26,6 +28,7 @@ public partial class ParkingLocation
     public DateTime? UpdatedAt { get; set; }
 
     public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 

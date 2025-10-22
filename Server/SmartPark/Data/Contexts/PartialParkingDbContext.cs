@@ -9,15 +9,19 @@ namespace SmartPark.Data.Contexts
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
         {
             // global query filter for soft delete
+
+
             modelBuilder.Entity<User>()
-                        .HasQueryFilter(u => !u.IsDeleted);
+                        .HasQueryFilter(u => !u.IsDeleted);         
 
             modelBuilder.Entity<Booking>()
-                        .HasQueryFilter(u => !u.IsDeleted);
+                        .HasQueryFilter(u => !u.IsDeleted && !u.User.IsDeleted);
 
             modelBuilder.Entity<Billing>()
-                        .HasQueryFilter(u => !u.IsDeleted);
+                        .HasQueryFilter(u => !u.IsDeleted && !u.Booking.IsDeleted);
 
+            modelBuilder.Entity<ParkingLocation>()
+                        .HasQueryFilter(pl => !pl.IsDeleted);
 
         }
     }
