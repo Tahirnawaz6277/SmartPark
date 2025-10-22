@@ -130,6 +130,7 @@ namespace SmartPark.Services.Implementations
         public async Task<ProfileDto?> GetUserProfile()
         {
             var loggedInUserId = await _helper.GetUserIdFromToken();
+            var baseUrl = await _helper.GetBaseUrl();
 
             return await _dbContext.Users
                 .Where(x => x.Id == loggedInUserId)
@@ -140,7 +141,9 @@ namespace SmartPark.Services.Implementations
                     Email = u.Email,
                     PhoneNumber = u.PhoneNumber,
                     City = u.City,
-                    //picture = u.Picture
+                    ProfileImageUrl = string.IsNullOrEmpty(u.ProfileImagePath)
+                            ? null
+                            : $"{baseUrl.TrimEnd('/')}/{u.ProfileImagePath.TrimStart('/')}",
                 }).FirstOrDefaultAsync();
 
         }

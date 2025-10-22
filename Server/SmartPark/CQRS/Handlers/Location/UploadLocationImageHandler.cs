@@ -3,7 +3,7 @@ using SmartPark.CQRS.Commands.Location;
 using SmartPark.Data.Contexts;
 using SmartPark.Services.Interfaces;
 
-namespace SmartPark.CQRS.Handlers.User
+namespace SmartPark.CQRS.Handlers.Location
 {
     public class UploadLocationImageHandler : IRequestHandler<UploadLocationImageCommand, string>
     {

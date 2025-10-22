@@ -20,7 +20,7 @@
         public string? Email { get; init; }
         public string? PhoneNumber { get; init; }
         public string? City { get; init; }
-        public string? picture { get; set; }
+        public string? ProfileImageUrl { get; set; }  
 
     }
 }

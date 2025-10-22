@@ -5,6 +5,7 @@ using SmartPark.Common.Wrapper;
 using SmartPark.CQRS.Commands;
 using SmartPark.CQRS.Commands.User;
 using SmartPark.CQRS.Queries.User;
+using SmartPark.Dtos.User;
 using SmartPark.Dtos.UserDtos;
 using SmartPark.Models;
 
@@ -49,11 +50,14 @@ namespace SmartPark.Controllers
         }
 
         [Authorize(Roles = "Admin,Driver")]
-        [HttpPost("profile")]
-        public async Task<IActionResult> UploadProfile([FromQuery] Guid userId, [FromQuery] IFormFile file)
+        [HttpPost("upload-profile-img")]
+        public async Task<IActionResult> UploadProfile([FromForm] ProfileImageDto dto)
         {
-            var result = await _mediator.Send(new UploadProfileImageCommand { UserId = userId, File = file });
-            return Ok(new { path = result });
+            var result = await _mediator.Send(new UploadProfileImageCommand { UserId = dto.UserId, File = dto?.ImageFile });
+            return Ok(new
+            {
+                Message = "Profile image updated successfully.",
+                path = result });
         }
 
 

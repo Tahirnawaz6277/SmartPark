@@ -44,13 +44,13 @@ namespace SmartPark.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
-        [HttpPost("location")]
-        public async Task<IActionResult> UploadLocation([FromForm] Guid locationId, [FromForm] IFormFile file)
-        {
-            var result = await _mediator.Send(new UploadLocationImageCommand { LocationId = locationId, File = file });
-            return Ok(new { path = result });
-        }
+        //[Authorize(Roles = "Admin")]
+        //[HttpPost("location")]
+        //public async Task<IActionResult> UploadLocation([FromForm] Guid locationId, [FromForm] IFormFile file)
+        //{
+        //    var result = await _mediator.Send(new UploadLocationImageCommand { LocationId = locationId, File = file });
+        //    return Ok(new { path = result });
+        //}
 
 
         [Authorize(Roles = "Driver,Admin")]

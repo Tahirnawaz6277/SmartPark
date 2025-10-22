@@ -25,10 +25,10 @@ namespace SmartPark.Services.Implementations
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {       
-                await file.CopyToAsync(fileStream); // ✅ fixed: await this
+                await file.CopyToAsync(fileStream); 
             }
 
-            // ✅ Return relative path for DB
+            // Return relative path for DB
             return $"/uploads/{folder}/{uniqueFileName}";
         }
     }
