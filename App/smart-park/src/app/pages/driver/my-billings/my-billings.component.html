@@ -1,0 +1,91 @@
+<div class="container-fluid">
+  <h2 class="mb-4">My Billings</h2>
+
+  <div class="row mb-4" *ngIf="!loading">
+    <div class="col-md-6">
+      <div class="card text-white bg-info">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-uppercase mb-0">Total Amount</h6>
+              <h2 class="mb-0">${{ getTotalAmount().toFixed(2) }}</h2>
+            </div>
+            <div class="icon">
+              <i class="bi bi-currency-dollar fs-1"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card text-white bg-success">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-uppercase mb-0">Total Billings</h6>
+              <h2 class="mb-0">{{ billings.length }}</h2>
+            </div>
+            <div class="icon">
+              <i class="bi bi-receipt fs-1"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="mb-3">
+        <input 
+          type="text" 
+          class="form-control" 
+          placeholder="Search by payment status or method..." 
+          [(ngModel)]="searchTerm">
+      </div>
+
+      <div *ngIf="loading" class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!loading" class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Amount</th>
+              <th>Payment Status</th>
+              <th>Payment Method</th>
+              <th>Timestamp</th>
+              <th>Booking ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let billing of filteredBillings">
+              <td>{{ billing.id.substring(0, 8) }}...</td>
+              <td>${{ billing.amount?.toFixed(2) || '0.00' }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'bg-success': billing.paymentStatus === 'Paid',
+                  'bg-warning': billing.paymentStatus === 'Pending',
+                  'bg-danger': billing.paymentStatus === 'Failed'
+                }">
+                  {{ billing.paymentStatus || 'Unknown' }}
+                </span>
+              </td>
+              <td>{{ billing.paymentMethod || 'N/A' }}</td>
+              <td>{{ billing.timeStamp | date:'short' }}</td>
+              <td>{{ billing.bookingId?.substring(0, 8) || 'N/A' }}...</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="filteredBillings.length === 0" class="text-center text-muted py-4">
+          No billings found
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

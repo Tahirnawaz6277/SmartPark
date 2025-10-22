@@ -1,9 +1,12 @@
 .navbar {
-  background: var(--navbar-bg, #ffffff);
-  color: var(--navbar-color, #222222);
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
 }
 
-:host-context(body.dark) .navbar {
-  background: #1a202c;
-  color: #ffffff;
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.nav-link {
+  cursor: pointer;
 }

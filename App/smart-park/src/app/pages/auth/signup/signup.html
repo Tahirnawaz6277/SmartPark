@@ -1,0 +1,148 @@
+<section class="vh-100">
+  <div class="container-fluid h-custom">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-md-9 col-lg-6 col-xl-5">
+        <img
+          src="assets/images/smart-parking-login.jpg"
+          class="img-fluid"
+          alt="Sample image"
+          style="border-radius: 15px"
+        />
+      </div>
+
+      <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+        <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+          <h2 class="mb-4">Create Account</h2>
+
+          <!-- Success Message -->
+          <div class="alert alert-success" *ngIf="successMessage">
+            <i class="bi bi-check-circle me-2"></i>{{ successMessage }}
+          </div>
+
+          <!-- Error Message -->
+          <div class="alert alert-danger" *ngIf="errorMessage">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMessage }}
+          </div>
+
+          <!-- Name input -->
+          <div class="form-outline mb-3">
+            <input
+              type="text"
+              class="form-control form-control-lg"
+              placeholder="Enter your full name"
+              formControlName="name"
+            />
+            <label class="form-label">Full Name *</label>
+            <div class="text-danger small" *ngIf="f['name'].touched && f['name'].invalid">
+              <span *ngIf="f['name'].errors?.['required']">Name is required</span>
+              <span *ngIf="f['name'].errors?.['minlength']">Name must be at least 3 characters</span>
+            </div>
+          </div>
+
+          <!-- Email input -->
+          <div class="form-outline mb-3">
+            <input
+              type="email"
+              class="form-control form-control-lg"
+              placeholder="Enter a valid email address"
+              formControlName="email"
+            />
+            <label class="form-label">Email address *</label>
+            <div class="text-danger small" *ngIf="f['email'].touched && f['email'].invalid">
+              <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+              <span *ngIf="f['email'].errors?.['email']">Enter a valid email</span>
+            </div>
+          </div>
+
+          <!-- Password input -->
+          <div class="form-outline mb-3">
+            <input
+              type="password"
+              class="form-control form-control-lg"
+              placeholder="Enter password"
+              formControlName="password"
+            />
+            <label class="form-label">Password *</label>
+            <div class="text-danger small" *ngIf="f['password'].touched && f['password'].invalid">
+              <span *ngIf="f['password'].errors?.['required']">Password is required</span>
+              <span *ngIf="f['password'].errors?.['minlength']">Password must be at least 6 characters</span>
+            </div>
+          </div>
+
+          <!-- Confirm Password input -->
+          <div class="form-outline mb-3">
+            <input
+              type="password"
+              class="form-control form-control-lg"
+              placeholder="Confirm password"
+              formControlName="confirmPassword"
+            />
+            <label class="form-label">Confirm Password *</label>
+            <div class="text-danger small" *ngIf="f['confirmPassword'].touched && f['confirmPassword'].invalid">
+              <span *ngIf="f['confirmPassword'].errors?.['required']">Please confirm your password</span>
+              <span *ngIf="f['confirmPassword'].errors?.['passwordMismatch']">Passwords do not match</span>
+            </div>
+          </div>
+
+          <!-- Phone Number input -->
+          <div class="form-outline mb-3">
+            <input
+              type="tel"
+              class="form-control form-control-lg"
+              placeholder="Enter phone number"
+              formControlName="phoneNumber"
+            />
+            <label class="form-label">Phone Number</label>
+            <div class="text-danger small" *ngIf="f['phoneNumber'].touched && f['phoneNumber'].invalid">
+              <span *ngIf="f['phoneNumber'].errors?.['pattern']">Enter a valid phone number (10-15 digits)</span>
+            </div>
+          </div>
+
+          <!-- City input -->
+          <div class="form-outline mb-3">
+            <input
+              type="text"
+              class="form-control form-control-lg"
+              placeholder="Enter your city"
+              formControlName="city"
+            />
+            <label class="form-label">City *</label>
+            <div class="text-danger small" *ngIf="f['city'].touched && f['city'].invalid">
+              <span *ngIf="f['city'].errors?.['required']">City is required</span>
+            </div>
+          </div>
+
+          <!-- Address input -->
+          <div class="form-outline mb-4">
+            <textarea
+              class="form-control form-control-lg"
+              placeholder="Enter your address (optional)"
+              formControlName="address"
+              rows="2"
+            ></textarea>
+            <label class="form-label">Address</label>
+          </div>
+
+          <!-- Submit button -->
+          <div class="text-center text-lg-start mt-4 pt-2">
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg w-100"
+              [disabled]="signupForm.invalid || loading"
+            >
+              <span *ngIf="!loading"><i class="bi bi-person-plus me-2"></i>Create Account</span>
+              <span *ngIf="loading">
+                <span class="spinner-border spinner-border-sm me-2"></span>Creating Account...
+              </span>
+            </button>
+
+            <p class="small fw-bold mt-3 pt-1 mb-0 text-center">
+              Already have an account? 
+              <a routerLink="/login" class="link-primary">Login here</a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

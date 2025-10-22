@@ -1,17 +1,100 @@
-<nav class="navbar flex items-center justify-between px-6 py-4 shadow-lg bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white">
-  <div class="flex items-center space-x-3">
-    <div class="w-12 h-12 rounded-full ring-2 ring-primary ring-offset-2 ring-offset-white dark:ring-offset-gray-900">
-      <img src="assets/images.jpeg" alt="SmartPark Admin Logo" class="w-full h-full object-cover rounded-full" />
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" routerLink="/">SmartPark</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+            <img *ngIf="userProfile?.profileImageUrl" 
+                 [src]="userProfile?.profileImageUrl" 
+                 alt="Profile" 
+                 class="rounded-circle me-2" 
+                 style="width: 32px; height: 32px; object-fit: cover;">
+            <i *ngIf="!userProfile?.profileImageUrl" class="bi bi-person-circle"></i>
+            {{ userName || 'User' }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" (click)="openProfileModal()" style="cursor: pointer;"><i class="bi bi-person"></i> Profile</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" (click)="logout()" style="cursor: pointer;"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+          </ul>
+        </li>
+      </ul>
     </div>
-    <div class="font-bold text-2xl text-primary">SmartPark Admin</div>
   </div>
-  <div class="flex items-center space-x-3">
-  <button (click)="toggleTheme()" class="btn btn-sm">
-    <span *ngIf="!isDark">🌙 Dark</span>
-    <span *ngIf="isDark">☀️ Light</span>
-  </button>
-  <div class="w-10 h-10 rounded-full ring-2 ring-primary ring-offset-2 ring-offset-white dark:ring-offset-gray-900 flex items-center justify-center bg-gray-300 dark:bg-gray-600">
-    <img src="assets/profile-pic.jpeg" alt="Profile Avatar" class="w-full h-full object-cover rounded-full" />
+</nav>
+
+<!-- Profile Modal -->
+<div class="modal fade" [class.show]="showProfileModal" [style.display]="showProfileModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">My Profile</h5>
+        <button type="button" class="btn-close" (click)="closeProfileModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="profileLoading" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <div *ngIf="!profileLoading && userProfile" class="text-center">
+          <!-- Profile Image -->
+          <div class="mb-4">
+            <img [src]="previewUrl || userProfile.profileImageUrl || 'assets/default-avatar.png'" 
+                 alt="Profile" 
+                 class="rounded-circle mb-3" 
+                 style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #007bff;">
+            
+            <div class="mb-3">
+              <input type="file" 
+                     class="form-control" 
+                     accept="image/*" 
+                     (change)="onFileSelected($event)"
+                     id="profileImageInput">
+              <small class="text-muted">Choose a new profile image</small>
+            </div>
+
+            <button *ngIf="selectedFile" 
+                    class="btn btn-primary btn-sm" 
+                    (click)="uploadProfileImage()"
+                    [disabled]="uploadLoading">
+              <span *ngIf="uploadLoading" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!uploadLoading" class="bi bi-upload me-2"></i>
+              {{ uploadLoading ? 'Uploading...' : 'Upload Image' }}
+            </button>
+          </div>
+
+          <!-- Profile Info -->
+          <div class="text-start">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Name</label>
+              <p class="form-control-plaintext">{{ userProfile.name }}</p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Email</label>
+              <p class="form-control-plaintext">{{ userProfile.email }}</p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Phone</label>
+              <p class="form-control-plaintext">{{ userProfile.phoneNumber || 'N/A' }}</p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">City</label>
+              <p class="form-control-plaintext">{{ userProfile.city || 'N/A' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeProfileModal()">Close</button>
+      </div>
+    </div>
   </div>
 </div>
-</nav>
+<div class="modal-backdrop fade" [class.show]="showProfileModal" *ngIf="showProfileModal"></div>

@@ -1,7 +1,0 @@
-:host {
-  display: block;
-  background: var(--main-bg, #f7fafc);
-}
-:host.dark {
-  background: #18181b;
-}/*# sourceMappingURL=admin-dashboard.component.css.map */

@@ -1,0 +1,103 @@
+<div class="container-fluid">
+  <h2 class="mb-4">Admin Dashboard</h2>
+  
+  <div class="row" *ngIf="!loading">
+    <!-- Total Users Card -->
+    <div class="col-md-4 col-lg-3 mb-4">
+      <div class="card text-white bg-primary dashboard-card" (click)="navigateTo('users')" style="cursor: pointer;">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-uppercase mb-0">Total Users</h6>
+              <h2 class="mb-0">{{ totalUsers }}</h2>
+              <small class="text-white-50">Click to view all</small>
+            </div>
+            <div class="icon">
+              <i class="bi bi-people fs-1"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Bookings Card -->
+    <div class="col-md-4 col-lg-3 mb-4">
+      <div class="card text-white bg-success dashboard-card" (click)="navigateTo('bookings')" style="cursor: pointer;">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-uppercase mb-0">Total Bookings</h6>
+              <h2 class="mb-0">{{ totalBookings }}</h2>
+              <small class="text-white-50">Click to view all</small>
+            </div>
+            <div class="icon">
+              <i class="bi bi-calendar-check fs-1"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Locations Card -->
+    <div class="col-md-4 col-lg-3 mb-4">
+      <div class="card text-white bg-warning dashboard-card" (click)="navigateTo('locations')" style="cursor: pointer;">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-uppercase mb-0">Total Locations</h6>
+              <h2 class="mb-0">{{ totalLocations }}</h2>
+              <small class="text-white-50">Click to view all</small>
+            </div>
+            <div class="icon">
+              <i class="bi bi-geo-alt fs-1"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Billings Card -->
+    <div class="col-md-4 col-lg-3 mb-4">
+      <div class="card text-white bg-danger dashboard-card" (click)="navigateTo('billings')" style="cursor: pointer;">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-uppercase mb-0">Total Billings</h6>
+              <h2 class="mb-0">{{ totalBillings }}</h2>
+              <small class="text-white-50">Click to view all</small>
+            </div>
+            <div class="icon">
+              <i class="bi bi-receipt fs-1"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Revenue Card -->
+    <div class="col-md-4 col-lg-3 mb-4">
+      <div class="card text-white bg-info dashboard-card" (click)="navigateTo('billings')" style="cursor: pointer;">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-uppercase mb-0">Total Revenue</h6>
+              <h2 class="mb-0">${{ totalRevenue.toFixed(2) }}</h2>
+              <small class="text-white-50">Click to view all</small>
+            </div>
+            <div class="icon">
+              <i class="bi bi-currency-dollar fs-1"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="loading">
+    <div class="col-12 text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+</div>

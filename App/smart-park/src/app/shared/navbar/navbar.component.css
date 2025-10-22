@@ -1,9 +1,0 @@
-.navbar {
-  background: var(--navbar-bg, #ffffff);
-  color: var(--navbar-color, #222222);
-}
-
-:host-context(body.dark) .navbar {
-  background: #1a202c;
-  color: #ffffff;
-}/*# sourceMappingURL=navbar.component.css.map */

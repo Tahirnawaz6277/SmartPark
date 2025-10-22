@@ -1,7 +1,0 @@
-.master-layout {
-  min-height: 100vh;
-  background: var(--main-bg, #f7fafc);
-}
-.master-layout.dark {
-  background: #18181b;
-}/*# sourceMappingURL=master-layout.component.css.map */

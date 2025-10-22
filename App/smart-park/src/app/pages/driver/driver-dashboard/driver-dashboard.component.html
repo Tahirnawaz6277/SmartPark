@@ -1,0 +1,82 @@
+<div class="container-fluid">
+  <h2 class="mb-4">Driver Dashboard</h2>
+  
+  <div class="row" *ngIf="!loading">
+    <div class="col-md-6 mb-4">
+      <div class="card text-white bg-success">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-uppercase mb-0">My Bookings</h6>
+              <h2 class="mb-0">{{ totalBookings }}</h2>
+            </div>
+            <div class="icon">
+              <i class="bi bi-calendar-check fs-1"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+      <div class="card text-white bg-info">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title text-uppercase mb-0">Total Spent</h6>
+              <h2 class="mb-0">${{ totalSpent.toFixed(2) }}</h2>
+            </div>
+            <div class="icon">
+              <i class="bi bi-currency-dollar fs-1"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="!loading">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Upcoming Bookings</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="upcomingBookings.length === 0" class="text-center text-muted py-4">
+            No upcoming bookings
+          </div>
+          <div class="table-responsive" *ngIf="upcomingBookings.length > 0">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Slot</th>
+                  <th>Start Time</th>
+                  <th>End Time</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let booking of upcomingBookings">
+                  <td>{{ booking.slotNumber || 'N/A' }}</td>
+                  <td>{{ booking.startTime | date:'short' }}</td>
+                  <td>{{ booking.endTime | date:'short' }}</td>
+                  <td>
+                    <span class="badge bg-success">{{ booking.status || 'Active' }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="loading">
+    <div class="col-12 text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+</div>
