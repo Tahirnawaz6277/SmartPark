@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Billings Management</h2>
-    <button class="btn btn-primary">
+    <button class="btn btn-primary" (click)="openAddModal()">
       <i class="bi bi-plus-circle me-2"></i>New Billing
     </button>
   </div>
@@ -70,3 +70,53 @@
     </div>
   </div>
 </div>
+
+<!-- Add Billing Modal -->
+<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create New Billing</h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="modalLoading" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <form *ngIf="!modalLoading" [formGroup]="billingForm">
+          <div class="mb-3">
+            <label class="form-label">Booking ID <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="bookingId">
+              <option value="">Select a booking</option>
+              <option *ngFor="let booking of bookings" [value]="booking.id">
+                {{ booking.id.substring(0, 8) }}... - {{ booking.userName }} ({{ booking.slotNumber }})
+              </option>
+            </select>
+            <div *ngIf="billingForm.get('bookingId')?.invalid && billingForm.get('bookingId')?.touched" class="text-danger small">
+              Booking ID is required
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Amount <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" formControlName="amount" step="0.01" min="0">
+            <div *ngIf="billingForm.get('amount')?.invalid && billingForm.get('amount')?.touched" class="text-danger small">
+              Amount is required and must be greater than 0
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+        <button type="button" class="btn btn-primary" (click)="saveBilling()" [disabled]="modalLoading || billingForm.invalid">
+          <span *ngIf="modalLoading" class="spinner-border spinner-border-sm me-2"></span>
+          Create Billing
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showModal" *ngIf="showModal"></div>

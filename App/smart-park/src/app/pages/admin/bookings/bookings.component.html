@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Bookings Management</h2>
-    <button class="btn btn-primary">
+    <button class="btn btn-primary" (click)="openAddModal()">
       <i class="bi bi-plus-circle me-2"></i>New Booking
     </button>
   </div>
@@ -71,3 +71,71 @@
     </div>
   </div>
 </div>
+
+<!-- Add Booking Modal -->
+<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create New Booking</h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="modalLoading" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <form *ngIf="!modalLoading" [formGroup]="bookingForm">
+          <div class="mb-3">
+            <label class="form-label">Location <span class="text-danger">*</span></label>
+            <select class="form-select" (change)="onLocationChange($event)" [(ngModel)]="selectedLocationId" [ngModelOptions]="{standalone: true}">
+              <option value="">Select a location</option>
+              <option *ngFor="let location of locations" [value]="location.id">
+                {{ location.name }} - {{ location.city }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Slot <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="slotId" [disabled]="!selectedLocationId || availableSlots.length === 0">
+              <option value="">Select a slot</option>
+              <option *ngFor="let slot of availableSlots" [value]="slot.id">
+                Slot {{ slot.slotNumber }} {{ slot.isAvailable ? '(Available)' : '(Occupied)' }}
+              </option>
+            </select>
+            <div *ngIf="bookingForm.get('slotId')?.invalid && bookingForm.get('slotId')?.touched" class="text-danger small">
+              Slot is required
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Start Time <span class="text-danger">*</span></label>
+            <input type="datetime-local" class="form-control" formControlName="startTime">
+            <div *ngIf="bookingForm.get('startTime')?.invalid && bookingForm.get('startTime')?.touched" class="text-danger small">
+              Start time is required
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">End Time <span class="text-danger">*</span></label>
+            <input type="datetime-local" class="form-control" formControlName="endTime">
+            <div *ngIf="bookingForm.get('endTime')?.invalid && bookingForm.get('endTime')?.touched" class="text-danger small">
+              End time is required
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+        <button type="button" class="btn btn-primary" (click)="saveBooking()" [disabled]="modalLoading || bookingForm.invalid">
+          <span *ngIf="modalLoading" class="spinner-border spinner-border-sm me-2"></span>
+          Create Booking
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showModal" *ngIf="showModal"></div>

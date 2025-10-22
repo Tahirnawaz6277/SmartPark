@@ -20,6 +20,10 @@ export class LocationService {
     return this.http.post(`${this.apiUrl}/create-location`, data);
   }
 
+  createLocationWithFormData(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/create-location`, formData);
+  }
+
   getLocationById(id: string): Observable<LocationDto> {
     return this.http.get<LocationDto>(`${this.apiUrl}/get-location-by/${id}`);
   }

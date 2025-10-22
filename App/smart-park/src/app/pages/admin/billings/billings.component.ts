@@ -1,29 +1,48 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, NavigationEnd } from '@angular/router';
 import { BillingService } from '../../../api/billing/billing.service';
 import { BillingDto } from '../../../api/billing/billing.models';
+import { BookingService } from '../../../api/booking/booking.service';
+import { BookingDto } from '../../../api/booking/booking.models';
 import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-billings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './billings.component.html',
   styleUrls: ['./billings.component.scss']
 })
 export class BillingsComponent implements OnInit, OnDestroy {
   billings: BillingDto[] = [];
+  bookings: BookingDto[] = [];
   loading = true;
   searchTerm = '';
   private routerSubscription?: Subscription;
+  
+  // Modal state
+  showModal = false;
+  modalLoading = false;
+  billingForm!: FormGroup;
 
   constructor(
     private billingService: BillingService,
+    private bookingService: BookingService,
     private cdr: ChangeDetectorRef,
-    private router: Router
-  ) {}
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    this.initForm();
+  }
+
+  initForm(): void {
+    this.billingForm = this.fb.group({
+      bookingId: ['', Validators.required],
+      amount: [0, [Validators.required, Validators.min(0.01)]]
+    });
+  }
 
   ngOnInit(): void {
     this.loadBillings();
@@ -77,6 +96,59 @@ export class BillingsComponent implements OnInit, OnDestroy {
       billing.paymentStatus?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       billing.paymentMethod?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
+  }
+
+  // Open add billing modal
+  openAddModal(): void {
+    this.showModal = true;
+    this.modalLoading = true;
+    this.billingForm.reset();
+    
+    // Load bookings for dropdown
+    this.bookingService.getAllBookings().subscribe({
+      next: (bookings) => {
+        this.bookings = bookings;
+        this.modalLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading bookings:', err);
+        alert('Error loading bookings: ' + (err.error?.Message || err.message));
+        this.modalLoading = false;
+        this.showModal = false;
+      }
+    });
+  }
+
+  // Close modal
+  closeModal(): void {
+    this.showModal = false;
+    this.billingForm.reset();
+    this.modalLoading = false;
+  }
+
+  // Save billing
+  saveBilling(): void {
+    if (this.billingForm.invalid) {
+      alert('Please fill all required fields correctly');
+      return;
+    }
+
+    this.modalLoading = true;
+    const formData = this.billingForm.getRawValue();
+
+    this.billingService.createBilling(formData).subscribe({
+      next: () => {
+        alert('Billing created successfully');
+        this.closeModal();
+        this.loadBillings();
+      },
+      error: (err) => {
+        console.error('Error creating billing:', err);
+        alert('Error creating billing: ' + (err.error?.Message || err.message));
+        this.modalLoading = false;
+      }
+    });
   }
 
   deleteBilling(id: string): void {

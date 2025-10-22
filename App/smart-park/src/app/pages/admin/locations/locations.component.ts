@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, NavigationEnd } from '@angular/router';
 import { LocationService } from '../../../api/location/location.service';
 import { LocationDto } from '../../../api/location/location.models';
@@ -9,7 +9,7 @@ import { Subscription, filter } from 'rxjs';
 @Component({
   selector: 'app-locations',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './locations.component.html',
   styleUrls: ['./locations.component.scss']
 })
@@ -18,12 +18,31 @@ export class LocationsComponent implements OnInit, OnDestroy {
   loading = true;
   searchTerm = '';
   private routerSubscription?: Subscription;
+  
+  // Modal state
+  showModal = false;
+  modalLoading = false;
+  locationForm!: FormGroup;
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
 
   constructor(
     private locationService: LocationService,
     private cdr: ChangeDetectorRef,
-    private router: Router
-  ) {}
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    this.initForm();
+  }
+
+  initForm(): void {
+    this.locationForm = this.fb.group({
+      name: ['', Validators.required],
+      address: ['', Validators.required],
+      totalSlots: [1, [Validators.required, Validators.min(1)]],
+      city: ['', Validators.required]
+    });
+  }
 
   ngOnInit(): void {
     this.loadLocations();
@@ -77,6 +96,75 @@ export class LocationsComponent implements OnInit, OnDestroy {
       location.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       location.city?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
+  }
+
+  // Open add location modal
+  openAddModal(): void {
+    this.showModal = true;
+    this.locationForm.reset({ totalSlots: 1 });
+    this.selectedFile = null;
+    this.imagePreview = null;
+  }
+
+  // Close modal
+  closeModal(): void {
+    this.showModal = false;
+    this.locationForm.reset();
+    this.selectedFile = null;
+    this.imagePreview = null;
+    this.modalLoading = false;
+  }
+
+  // Handle file selection
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreview = e.target.result;
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Save location
+  saveLocation(): void {
+    if (this.locationForm.invalid) {
+      alert('Please fill all required fields correctly');
+      return;
+    }
+
+    this.modalLoading = true;
+    const formData = new FormData();
+    
+    // Append form fields
+    formData.append('Name', this.locationForm.get('name')?.value);
+    formData.append('Address', this.locationForm.get('address')?.value);
+    formData.append('TotalSlots', this.locationForm.get('totalSlots')?.value.toString());
+    formData.append('City', this.locationForm.get('city')?.value);
+    
+    // Append image file if selected
+    if (this.selectedFile) {
+      formData.append('ImageFile', this.selectedFile, this.selectedFile.name);
+    }
+
+    // Call API with multipart form data
+    this.locationService.createLocationWithFormData(formData).subscribe({
+      next: () => {
+        alert('Location created successfully');
+        this.closeModal();
+        this.loadLocations();
+      },
+      error: (err) => {
+        console.error('Error creating location:', err);
+        alert('Error creating location: ' + (err.error?.Message || err.message));
+        this.modalLoading = false;
+      }
+    });
   }
 
   deleteLocation(id: string): void {

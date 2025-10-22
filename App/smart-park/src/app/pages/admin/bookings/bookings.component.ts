@@ -1,29 +1,51 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, NavigationEnd } from '@angular/router';
 import { BookingService } from '../../../api/booking/booking.service';
 import { BookingDto } from '../../../api/booking/booking.models';
+import { LocationService } from '../../../api/location/location.service';
+import { LocationDto, SlotDto } from '../../../api/location/location.models';
 import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './bookings.component.html',
   styleUrls: ['./bookings.component.scss']
 })
 export class BookingsComponent implements OnInit, OnDestroy {
   bookings: BookingDto[] = [];
+  locations: LocationDto[] = [];
+  availableSlots: SlotDto[] = [];
   loading = true;
   searchTerm = '';
   private routerSubscription?: Subscription;
+  
+  // Modal state
+  showModal = false;
+  modalLoading = false;
+  bookingForm!: FormGroup;
+  selectedLocationId: string = '';
 
   constructor(
     private bookingService: BookingService,
+    private locationService: LocationService,
     private cdr: ChangeDetectorRef,
-    private router: Router
-  ) {}
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    this.initForm();
+  }
+
+  initForm(): void {
+    this.bookingForm = this.fb.group({
+      slotId: ['', Validators.required],
+      startTime: ['', Validators.required],
+      endTime: ['', Validators.required]
+    });
+  }
 
   ngOnInit(): void {
     this.loadBookings();
@@ -96,6 +118,83 @@ export class BookingsComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  // Open add booking modal
+  openAddModal(): void {
+    this.showModal = true;
+    this.modalLoading = true;
+    this.bookingForm.reset();
+    this.selectedLocationId = '';
+    this.availableSlots = [];
+    
+    // Load locations for dropdown
+    this.locationService.getAllLocations().subscribe({
+      next: (locations) => {
+        this.locations = locations;
+        this.modalLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading locations:', err);
+        alert('Error loading locations: ' + (err.error?.Message || err.message));
+        this.modalLoading = false;
+        this.showModal = false;
+      }
+    });
+  }
+
+  // Handle location change to load slots
+  onLocationChange(event: any): void {
+    const locationId = event.target.value;
+    if (locationId) {
+      const selectedLocation = this.locations.find(loc => loc.id === locationId);
+      this.availableSlots = selectedLocation?.slots || [];
+      this.bookingForm.patchValue({ slotId: '' });
+    } else {
+      this.availableSlots = [];
+    }
+    this.cdr.detectChanges();
+  }
+
+  // Close modal
+  closeModal(): void {
+    this.showModal = false;
+    this.bookingForm.reset();
+    this.selectedLocationId = '';
+    this.availableSlots = [];
+    this.modalLoading = false;
+  }
+
+  // Save booking
+  saveBooking(): void {
+    if (this.bookingForm.invalid) {
+      alert('Please fill all required fields correctly');
+      return;
+    }
+
+    this.modalLoading = true;
+    const formData = this.bookingForm.getRawValue();
+    
+    // Convert datetime-local to ISO string
+    const bookingData = {
+      slotId: formData.slotId,
+      startTime: new Date(formData.startTime).toISOString(),
+      endTime: new Date(formData.endTime).toISOString()
+    };
+
+    this.bookingService.createBooking(bookingData).subscribe({
+      next: () => {
+        alert('Booking created successfully');
+        this.closeModal();
+        this.loadBookings();
+      },
+      error: (err) => {
+        console.error('Error creating booking:', err);
+        alert('Error creating booking: ' + (err.error?.Message || err.message));
+        this.modalLoading = false;
+      }
+    });
   }
 
   deleteBooking(id: string): void {
