@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Threading;
+using Microsoft.EntityFrameworkCore;
 using SmartPark.Data.Contexts;
 using SmartPark.Dtos.Location;
 using SmartPark.Exceptions;
@@ -25,15 +26,43 @@ namespace SmartPark.Services.Implementations
                 // Get user ID and server time
                 var userId = await _helper.GetUserIdFromToken();
                 var serverTime = await _helper.GetDatabaseTime();
+                string? imagePath = null;
+                string? imageExtension = null;
+                if (dto.ImageFile != null && dto.ImageFile.Length>0)
+                {
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+                    if (!allowedExtensions.Contains(imageExtension?.ToLower()))
+                    {
+                        throw new InvalidOperationException("Only .jpg, .jpeg, and .png files are allowed.");
+                    }
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "locations");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+                    var extension = Path.GetExtension(dto.ImageFile.FileName).ToLower();
+                    var uniqueFileName = $"{Guid.NewGuid()}{extension}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await dto.ImageFile.CopyToAsync(fileStream, cancellationToken);
+                    }
+                    imagePath = $"/uploads/locations/{uniqueFileName}";
+                    imageExtension = extension;
+                    
+                }
+
+               
                 // Create the location with Guid
                 var location = new ParkingLocation
                 {
                     Name = dto.Name,
                     Address = dto.Address,
                     City = dto.City,
-                    Image = dto.Image,
                     TotalSlots = dto.TotalSlots,
+                    ImagePath = imagePath,
+                    ImageExtension = imageExtension,
                     UserId = userId ?? Guid.Empty,
                     CreatedAt = serverTime,
                     CreatedBy = userId,
@@ -81,6 +110,8 @@ namespace SmartPark.Services.Implementations
 
         public async Task<IEnumerable<LocationDto>> GetAllLocationsAsync()
         {
+            var baseUrl = await _helper.GetBaseUrl();
+
             return await _dbContext.ParkingLocations
                 //.Where(n => )
                 .Include(l => l.Slots)
@@ -90,7 +121,10 @@ namespace SmartPark.Services.Implementations
                     Name = l.Name,
                     Address = l.Address,
                     City = l.City,
-                    Image = l.Image,
+                    ImageUrl = string.IsNullOrEmpty(l.ImagePath)
+                            ? null
+                            : $"{baseUrl.TrimEnd('/')}/{l.ImagePath.TrimStart('/')}", 
+                    ImageExtension = l.ImageExtension,
                     TotalSlots = l.TotalSlots,
 
                     Slots = l.Slots.Select(s => new SlotResponseDto
@@ -106,6 +140,8 @@ namespace SmartPark.Services.Implementations
 
         public async Task<LocationDto?> GetLocationByIdAsync(Guid id)
         {
+            var baseUrl = await _helper.GetBaseUrl();
+
             return await _dbContext.ParkingLocations
                 .Include(l => l.Slots)
                 .Where(l => l.Id == id)
@@ -115,7 +151,10 @@ namespace SmartPark.Services.Implementations
                     Name = l.Name,
                     Address = l.Address,
                     City = l.City,
-                    Image = l.Image,
+                    ImageUrl = string.IsNullOrEmpty(l.ImagePath)
+                        ? null
+                            : $"{baseUrl.TrimEnd('/')}/{l.ImagePath.TrimStart('/')}",
+                    ImageExtension = l.ImageExtension,
                     TotalSlots = l.TotalSlots,
 
                     Slots = l.Slots.Select(s => new SlotResponseDto
@@ -155,12 +194,39 @@ namespace SmartPark.Services.Implementations
             // Get user ID and server time
             var userId = await _helper.GetUserIdFromToken();
             var serverTime = await _helper.GetDatabaseTime();
+            string? imagePath = null;
+            string? imageExtension = null;
+            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "locations");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+                var extension = Path.GetExtension(dto.ImageFile.FileName);
+                var uniqueFileName = $"{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.ImageFile.CopyToAsync(fileStream);
+                }
+                imagePath = $"/uploads/locations/{uniqueFileName}";
+                imageExtension = extension;
+            }
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            if (!allowedExtensions.Contains(imageExtension?.ToLower()))
+            {
+                throw new InvalidOperationException("Only .jpg, .jpeg, and .png files are allowed.");
+            }
 
             location.Name = dto.Name;
             location.Address = dto.Address;
             location.TotalSlots = dto.TotalSlots;
             location.City = dto.City ?? location.City;
-            location.Image = dto.Image ?? location.Image;
+            location.ImagePath = imagePath;
+            location.ImageExtension = imageExtension;
             location.UpdatedAt = serverTime;
             location.UpdatedBy = userId;
 

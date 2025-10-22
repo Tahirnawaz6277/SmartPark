@@ -15,8 +15,6 @@ public partial class ParkingLocation
 
     public string? City { get; set; }
 
-    public string? Image { get; set; }
-
     public Guid UserId { get; set; }
     public string? ImagePath { get; set; }
     public string? ImageExtension { get; set; }

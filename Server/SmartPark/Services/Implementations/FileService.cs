@@ -10,25 +10,26 @@ namespace SmartPark.Services.Implementations
             _env = env;
         }
 
-        public Task<string> SaveImageAsync(IFormFile file, string folder)
+        public async Task<string> SaveImageAsync(IFormFile file, string folder)
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("Invalid file.");
 
-            var uploadsFolder = Path.Combine(_env.WebRootPath,"Uploads", folder);
+            var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", folder);
             if (!Directory.Exists(uploadsFolder))
-            {
                 Directory.CreateDirectory(uploadsFolder);
-            }
-            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+
+            var extension = Path.GetExtension(file.FileName);
+            var uniqueFileName = $"{Guid.NewGuid()}{extension}";
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                file.CopyToAsync(fileStream);
+            {       
+                await file.CopyToAsync(fileStream); // ✅ fixed: await this
             }
-            // Return relative path to store in DB
-            return Task.FromResult(Path.Combine("Uploads", folder, uniqueFileName).Replace("\\", "/"));
+
+            // ✅ Return relative path for DB
+            return $"/uploads/{folder}/{uniqueFileName}";
         }
     }
 }

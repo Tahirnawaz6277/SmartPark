@@ -6,6 +6,7 @@ using SmartPark.CQRS.Commands;
 using SmartPark.CQRS.Commands.User;
 using SmartPark.CQRS.Queries.User;
 using SmartPark.Dtos.UserDtos;
+using SmartPark.Models;
 
 namespace SmartPark.Controllers
 {
@@ -37,14 +38,22 @@ namespace SmartPark.Controllers
         [HttpPost("user-login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest requestDto)
         {
-            var query = new LoginQuery(requestDto.Email,requestDto.Password);
+            var query = new LoginQuery(requestDto.Email, requestDto.Password);
             var user = await _mediator.Send(query);
-            return Ok(new ApiResponse<LoginResponse> 
-            { 
+            return Ok(new ApiResponse<LoginResponse>
+            {
                 Success = true,
                 Message = "User login successfully ",
-                Data = user 
+                Data = user
             });
+        }
+
+        [Authorize(Roles = "Admin,Driver")]
+        [HttpPost("profile")]
+        public async Task<IActionResult> UploadProfile([FromQuery] Guid userId, [FromQuery] IFormFile file)
+        {
+            var result = await _mediator.Send(new UploadProfileImageCommand { UserId = userId, File = file });
+            return Ok(new { path = result });
         }
 
 

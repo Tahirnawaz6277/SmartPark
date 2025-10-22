@@ -21,7 +21,7 @@ namespace SmartPark.Controllers
 
 
         [HttpPost("create-location")]
-        public async Task<IActionResult> CreateAsync([FromBody] LocationRequest dto)
+        public async Task<IActionResult> CreateAsync([FromForm] LocationRequest dto)
         {
             var result = await _mediator.Send(new CreateLocationCommand(dto));
             return Ok(new ApiResponse<LocationReponse>
@@ -41,6 +41,15 @@ namespace SmartPark.Controllers
             var result = await _mediator.Send(new GetLocationByIdQuery(id));
             if (result == null) return NotFound();
             return Ok(result);
+        }
+
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("location")]
+        public async Task<IActionResult> UploadLocation([FromForm] Guid locationId, [FromForm] IFormFile file)
+        {
+            var result = await _mediator.Send(new UploadLocationImageCommand { LocationId = locationId, File = file });
+            return Ok(new { path = result });
         }
 
 

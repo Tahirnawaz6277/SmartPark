@@ -7,7 +7,9 @@
         public string? Address { get; set; }
         public int? TotalSlots { get; set; }
         public string? City { get; set; }
-        public string? Image { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? ImageExtension { get; set; }
+
 
         public List<SlotResponseDto> Slots { get; set; } = new();
 

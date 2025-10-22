@@ -156,9 +156,7 @@ public partial class ParkingDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.Image)
-                .HasMaxLength(255)
-                .IsUnicode(false);
+           
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .IsUnicode(false);

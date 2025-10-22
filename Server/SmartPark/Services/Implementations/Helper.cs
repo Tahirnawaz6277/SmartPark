@@ -22,6 +22,18 @@ namespace SmartPark.Services.Implementations
             return await _dbContext.Users.Include(r => r.Role)
                                    .FirstOrDefaultAsync(u => u.Email == email);
         }
+        
+        public Task<string> GetBaseUrl()
+        {
+            var request = _contextAccessor?.HttpContext?.Request;
+            if (request == null)
+            {
+                return Task.FromResult(string.Empty);
+            }
+            return Task.FromResult($"{request?.Scheme}://{request?.Host}");
+
+        }
+
 
         public async Task<DateTime> GetDatabaseTime()
         {

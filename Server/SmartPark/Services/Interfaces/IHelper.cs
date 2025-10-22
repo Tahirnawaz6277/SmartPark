@@ -7,5 +7,7 @@ namespace SmartPark.Services.Interfaces
         Task<User> GetActiveUserAsync(string userName);
         Task<Guid?> GetUserIdFromToken();
         Task<DateTime> GetDatabaseTime();
+        Task<string> GetBaseUrl();
+
     }
 }

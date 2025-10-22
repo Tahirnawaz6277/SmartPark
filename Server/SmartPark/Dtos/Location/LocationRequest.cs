@@ -15,6 +15,8 @@ namespace SmartPark.Dtos.Location
 
         [Required(ErrorMessage = "City is required")]
         public string City { get; set; } = null!;
-        public string? Image { get; set; }
+
+        public IFormFile? ImageFile { get; set; }
+
     }
 }
