@@ -7,13 +7,12 @@ using SmartPark.CQRS.Commands.User;
 using SmartPark.CQRS.Queries.User;
 using SmartPark.Dtos.User;
 using SmartPark.Dtos.UserDtos;
-using SmartPark.Models;
 
 namespace SmartPark.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -82,7 +81,7 @@ namespace SmartPark.Controllers
             return user != null ? Ok(user) : NotFound();
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpGet("get-all-users")]
         [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
 
@@ -93,6 +92,7 @@ namespace SmartPark.Controllers
             return Ok(users);
         }
 
+        [Authorize(Roles = "Admin,Driver")]
         [HttpPut("update-user/{id}")]
         public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserRequest updateUser)
         {
@@ -106,6 +106,7 @@ namespace SmartPark.Controllers
             });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete-user/{id}")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
