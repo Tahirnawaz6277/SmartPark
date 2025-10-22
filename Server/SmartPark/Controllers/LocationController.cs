@@ -43,6 +43,17 @@ namespace SmartPark.Controllers
             return Ok(result);
         }
 
+
+        [Authorize(Roles = "Driver,Admin")]
+        [HttpGet("get-slots-by/{locationId}")]
+        [ProducesResponseType(typeof(SlotResponseDto), StatusCodes.Status200OK)]
+
+        public async Task<IActionResult> GetSlotsByLocationIdAsync(Guid locationId)
+        {
+            var result = await _mediator.Send(new GetSlotsByLocationIdQuery(locationId));
+            return Ok(result);
+        }
+
         [Authorize(Roles = "Driver,Admin")]
         [HttpGet("get-all-locations")]
         [ProducesResponseType(typeof(IEnumerable<LocationDto>), StatusCodes.Status200OK)]

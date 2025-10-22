@@ -129,6 +129,20 @@ namespace SmartPark.Services.Implementations
                 .FirstOrDefaultAsync();
         }
 
+        public Task<List<SlotResponseDto?>> GetSlotsByLocationIdAsync(Guid id)
+        {
+            var slots = _dbContext.Slots
+                .Where(s => s.LocationId == id)
+                .Select(s => new SlotResponseDto
+                {
+                    Id = s.Id,
+                    LocationId = s.LocationId,
+                    SlotNumber = s.SlotNumber,
+                    IsAvailable = s.IsAvailable
+                }).ToListAsync();
+            return slots;
+        }
+
         public async Task<LocationReponse> UpdateLocationAsync(Guid id, LocationRequest dto)
         {
             var location = await _dbContext.ParkingLocations
