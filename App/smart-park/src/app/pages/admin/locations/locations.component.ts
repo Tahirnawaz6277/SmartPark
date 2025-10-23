@@ -128,6 +128,18 @@ export class LocationsComponent implements OnInit, OnDestroy {
     this.viewingLocation = null;
   }
 
+  // Open edit modal from view modal
+  openEditFromView(): void {
+    if (this.viewingLocation) {
+      const locationToEdit = this.viewingLocation;
+      this.closeViewModal();
+      // Small delay to ensure view modal is closed before opening edit modal
+      setTimeout(() => {
+        this.openEditModal(locationToEdit);
+      }, 100);
+    }
+  }
+
   // Open edit location modal
   openEditModal(location: LocationDto): void {
     this.isEditMode = true;
@@ -193,35 +205,77 @@ export class LocationsComponent implements OnInit, OnDestroy {
     }
 
     this.modalLoading = true;
-    const formData = new FormData();
-    
-    // Append form fields
-    formData.append('Name', this.locationForm.get('name')?.value);
-    formData.append('Address', this.locationForm.get('address')?.value);
-    formData.append('TotalSlots', this.locationForm.get('totalSlots')?.value.toString());
-    formData.append('City', this.locationForm.get('city')?.value);
-    
-    // Append image file if selected
-    if (this.selectedFile) {
-      formData.append('ImageFile', this.selectedFile, this.selectedFile.name);
-    }
 
     if (this.isEditMode && this.editingLocationId) {
       // Update existing location
-      this.locationService.updateLocationWithFormData(this.editingLocationId, formData).subscribe({
-        next: () => {
-          alert('Location updated successfully');
-          this.closeModal();
-          this.loadLocations();
-        },
-        error: (err) => {
-          console.error('Error updating location:', err);
-          alert('Error updating location: ' + (err.error?.Message || err.message));
+      if (this.selectedFile) {
+        // Convert image to base64 for JSON payload
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64String = reader.result as string;
+          // Remove the data:image/...;base64, prefix
+          const base64Data = base64String.split(',')[1];
+          
+          const updateData = {
+            name: this.locationForm.get('name')?.value,
+            address: this.locationForm.get('address')?.value,
+            totalSlots: this.locationForm.get('totalSlots')?.value,
+            city: this.locationForm.get('city')?.value,
+            image: base64Data
+          };
+
+          this.locationService.updateLocation(this.editingLocationId!, updateData).subscribe({
+            next: () => {
+              alert('Location updated successfully');
+              this.closeModal();
+              this.loadLocations();
+            },
+            error: (err) => {
+              console.error('Error updating location:', err);
+              alert('Error updating location: ' + (err.error?.Message || err.message));
+              this.modalLoading = false;
+            }
+          });
+        };
+        reader.onerror = () => {
+          alert('Error reading image file');
           this.modalLoading = false;
-        }
-      });
+        };
+        reader.readAsDataURL(this.selectedFile);
+      } else {
+        // If no image, use JSON without image field
+        const updateData = {
+          name: this.locationForm.get('name')?.value,
+          address: this.locationForm.get('address')?.value,
+          totalSlots: this.locationForm.get('totalSlots')?.value,
+          city: this.locationForm.get('city')?.value
+        };
+
+        this.locationService.updateLocation(this.editingLocationId, updateData).subscribe({
+          next: () => {
+            alert('Location updated successfully');
+            this.closeModal();
+            this.loadLocations();
+          },
+          error: (err) => {
+            console.error('Error updating location:', err);
+            alert('Error updating location: ' + (err.error?.Message || err.message));
+            this.modalLoading = false;
+          }
+        });
+      }
     } else {
-      // Create new location
+      // Create new location - use FormData
+      const formData = new FormData();
+      formData.append('Name', this.locationForm.get('name')?.value);
+      formData.append('Address', this.locationForm.get('address')?.value);
+      formData.append('TotalSlots', this.locationForm.get('totalSlots')?.value.toString());
+      formData.append('City', this.locationForm.get('city')?.value);
+      
+      if (this.selectedFile) {
+        formData.append('ImageFile', this.selectedFile, this.selectedFile.name);
+      }
+
       this.locationService.createLocationWithFormData(formData).subscribe({
         next: () => {
           alert('Location created successfully');

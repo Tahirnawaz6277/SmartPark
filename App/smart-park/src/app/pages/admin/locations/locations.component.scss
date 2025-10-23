@@ -21,3 +21,39 @@
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
 }
+
+// Slots container styling
+.slots-container {
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #e9ecef;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #6c757d;
+    border-radius: 4px;
+    
+    &:hover {
+      background: #495057;
+    }
+  }
+
+  // Firefox scrollbar styling
+  scrollbar-width: thin;
+  scrollbar-color: #6c757d #e9ecef;
+}
+
+// Slot card styling
+.slots-container .card {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}
