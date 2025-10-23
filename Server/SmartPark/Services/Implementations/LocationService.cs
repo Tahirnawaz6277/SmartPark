@@ -198,12 +198,18 @@ namespace SmartPark.Services.Implementations
             string? imageExtension = null;
             if (dto.ImageFile != null && dto.ImageFile.Length > 0)
             {
+                var extension = Path.GetExtension(dto.ImageFile.FileName);
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+                if (!allowedExtensions.Contains(extension?.ToLower()))
+                {
+                    throw new InvalidOperationException("Only .jpg, .jpeg, and .png files are allowed.");
+                }
+
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "locations");
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
                 }
-                var extension = Path.GetExtension(dto.ImageFile.FileName);
                 var uniqueFileName = $"{Guid.NewGuid()}{extension}";
                 var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
@@ -213,20 +219,15 @@ namespace SmartPark.Services.Implementations
                 }
                 imagePath = $"/uploads/locations/{uniqueFileName}";
                 imageExtension = extension;
-            }
-
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-            if (!allowedExtensions.Contains(imageExtension?.ToLower()))
-            {
-                throw new InvalidOperationException("Only .jpg, .jpeg, and .png files are allowed.");
-            }
+                location.ImagePath = imagePath;
+                location.ImageExtension = imageExtension;
+            }        
 
             location.Name = dto.Name;
             location.Address = dto.Address;
             location.TotalSlots = dto.TotalSlots;
             location.City = dto.City ?? location.City;
-            location.ImagePath = imagePath;
-            location.ImageExtension = imageExtension;
+         
             location.UpdatedAt = serverTime;
             location.UpdatedBy = userId;
 

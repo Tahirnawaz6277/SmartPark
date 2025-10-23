@@ -80,7 +80,6 @@ namespace SmartPark.Middlwares
                 //AutoMapperMappingException => StatusCodes.Status500InternalServerError,
                 _ => StatusCodes.Status500InternalServerError,
             };
-
             string message = exception.Message; // Default
             if (exception is DbUpdateException dbEx)
             {
@@ -90,6 +89,17 @@ namespace SmartPark.Middlwares
                     errorMessage.IndexOf("foreign key", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     message = "Invalid reference detected. Please ensure the related data exists.";
+
+                }
+                else if (!string.IsNullOrEmpty(errorMessage) && errorMessage.IndexOf("REFERENCE", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    message = "Unable to delete this record because it is linked to other data. Please remove related records first.";
+
+                }
+                else if (errorMessage.IndexOf("UNIQUE", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    // Example: duplicate record insertion
+                    message = "A record with similar details already exists.";
                 }
                 else
                 {
