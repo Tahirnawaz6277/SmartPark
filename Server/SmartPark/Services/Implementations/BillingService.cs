@@ -95,7 +95,9 @@ namespace SmartPark.Services.Implementations
                     PaymentStatus = b.PaymentStatus,
                     PaymentMethod = b.PaymentMethod,
                     TimeStamp = b.TimeStamp,
-                    BookingId = b.BookingId
+                    BookingId = b.BookingId,
+                    SlotNumber = b.Booking != null && b.Booking.Slot != null ? b.Booking.Slot.SlotNumber : null,
+                    UserName = b.Booking != null && b.Booking.User != null ? b.Booking.User.Name : null
                 })
                 .ToListAsync(cancellationToken);
         }
@@ -111,7 +113,9 @@ namespace SmartPark.Services.Implementations
                     PaymentStatus = b.PaymentStatus,
                     PaymentMethod = b.PaymentMethod,
                     TimeStamp = b.TimeStamp,
-                    BookingId = b.BookingId
+                    BookingId = b.BookingId,
+                    SlotNumber = b.Booking != null && b.Booking.Slot != null ? b.Booking.Slot.SlotNumber : null,
+                    UserName = b.Booking != null && b.Booking.User != null ? b.Booking.User.Name : null
                 })
                 .FirstOrDefaultAsync(cancellationToken);
         }

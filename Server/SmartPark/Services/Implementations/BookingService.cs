@@ -289,6 +289,35 @@ namespace SmartPark.Services.Implementations
             return history;
         }
 
-   
+
+        //get booking with unpaid bills for billing dropdown
+
+        public async Task<IEnumerable<BookingDto>> GetUnpaidBookingsAsync()
+        {
+            var paidBookingIds = await _dbContext.Billings
+                .Where(b => b.PaymentStatus.ToLower() == "paid")
+                .Select(b => b.BookingId)
+                .ToListAsync();
+
+            return await _dbContext.Bookings
+                .Where(b => !paidBookingIds.Contains(b.Id)
+                         && b.Status != null
+                         && b.Status.ToLower() != "Cancelled")
+                .Select(b => new BookingDto
+                {
+                    Id = b.Id,
+                    Status = b.Status,
+                    StartTime = b.StartTime,
+                    EndTime = b.EndTime,
+                    UserId = b.UserId,
+                    UserName = b.User != null ? b.User.Name : null,
+                    SlotId = b.SlotId,
+                    SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null
+                })
+                .ToListAsync();
+        }
+
+
+
     }
 }

@@ -53,6 +53,16 @@ namespace SmartPark.Controllers
             return Ok(result);
         }
 
+        //  Get All Bookings which bill is pending
+        [HttpGet("get-unpaid-bookings")]
+        [ProducesResponseType(typeof(IEnumerable<BookingDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllUnpaidBookingAsync()
+        {
+            var result = await _mediator.Send(new GetUnpaidBookingsQuery());
+            return Ok(result);
+        }
+
+
         //  Update Booking
         [Authorize(Roles = "Admin,Driver")]
         [HttpPut("update-booking/{id:guid}")]

@@ -9,6 +9,7 @@ namespace SmartPark.Services.Interfaces
         Task<BookingHistoryDto?> GetBookingHistoryByIdAsync(Guid historyId);
         Task<IEnumerable<BookingHistoryDto?>> GetBookingHistoriesAsync(Guid? bookingId);
         Task<IEnumerable<BookingDto>> GetAllBookingsAsync();
+        Task<IEnumerable<BookingDto>> GetUnpaidBookingsAsync();
         Task<BookingResponse> UpdateBookingAsync(Guid id, BookingRequest dto);
         Task<BookingResponse> CancelBookingAsync(Guid id);
         Task<bool> DeleteBookingAsync(Guid id);

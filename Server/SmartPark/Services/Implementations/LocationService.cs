@@ -28,10 +28,11 @@ namespace SmartPark.Services.Implementations
                 var serverTime = await _helper.GetDatabaseTime();
                 string? imagePath = null;
                 string? imageExtension = null;
+                var extension = Path.GetExtension(dto.ImageFile.FileName).ToLower();
                 if (dto.ImageFile != null && dto.ImageFile.Length>0)
                 {
                     var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-                    if (!allowedExtensions.Contains(imageExtension?.ToLower()))
+                    if (!allowedExtensions.Contains(extension?.ToLower()))
                     {
                         throw new InvalidOperationException("Only .jpg, .jpeg, and .png files are allowed.");
                     }
@@ -40,7 +41,6 @@ namespace SmartPark.Services.Implementations
                     {
                         Directory.CreateDirectory(uploadsFolder);
                     }
-                    var extension = Path.GetExtension(dto.ImageFile.FileName).ToLower();
                     var uniqueFileName = $"{Guid.NewGuid()}{extension}";
                     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
