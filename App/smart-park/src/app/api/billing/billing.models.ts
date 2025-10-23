@@ -10,6 +10,8 @@ export interface BillingDto {
   paymentMethod?: string;
   timeStamp?: string;
   bookingId?: string;
+  userName?: string;
+  slotNumber?: string;
 }
 
 export interface BillingUpdateRequest {

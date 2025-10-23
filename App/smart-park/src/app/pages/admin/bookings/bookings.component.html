@@ -26,7 +26,6 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>ID</th>
               <th>User</th>
               <th>Slot</th>
               <th>Start Time</th>
@@ -37,7 +36,6 @@
           </thead>
           <tbody>
             <tr *ngFor="let booking of filteredBookings">
-              <td>{{ booking.id.substring(0, 8) }}...</td>
               <td>{{ booking.userName || 'N/A' }}</td>
               <td>{{ booking.slotNumber || 'N/A' }}</td>
               <td>{{ booking.startTime | date:'short' }}</td>
@@ -45,9 +43,10 @@
               <td>
                 <span class="badge" [ngClass]="{
                   'bg-success': booking.status === 'Active',
-                  'bg-warning': booking.status === 'Pending',
+                  'bg-warning text-dark': booking.status === 'Pending',
                   'bg-danger': booking.status === 'Cancelled',
-                  'bg-secondary': booking.status === 'Completed'
+                  'bg-secondary': booking.status === 'Completed',
+                  'bg-primary': booking.status === 'Booked'
                 }">
                   {{ booking.status || 'Unknown' }}
                 </span>

@@ -26,6 +26,8 @@ export class BillingsComponent implements OnInit, OnDestroy {
   showModal = false;
   modalLoading = false;
   billingForm!: FormGroup;
+  isEditMode = false;
+  editingBillingId: string | null = null;
 
   constructor(
     private billingService: BillingService,
@@ -42,6 +44,12 @@ export class BillingsComponent implements OnInit, OnDestroy {
       bookingId: ['', Validators.required],
       amount: [0, [Validators.required, Validators.min(0.01)]]
     });
+  }
+
+  resetForm(): void {
+    this.billingForm.reset();
+    this.isEditMode = false;
+    this.editingBillingId = null;
   }
 
   ngOnInit(): void {
@@ -102,18 +110,48 @@ export class BillingsComponent implements OnInit, OnDestroy {
   openAddModal(): void {
     this.showModal = true;
     this.modalLoading = true;
-    this.billingForm.reset();
+    this.resetForm();
     
-    // Load bookings for dropdown
-    this.bookingService.getAllBookings().subscribe({
+    // Load unpaid bookings for dropdown
+    this.bookingService.getUnpaidBookings().subscribe({
       next: (bookings) => {
         this.bookings = bookings;
         this.modalLoading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error loading bookings:', err);
-        alert('Error loading bookings: ' + (err.error?.Message || err.message));
+        console.error('Error loading unpaid bookings:', err);
+        alert('Error loading unpaid bookings: ' + (err.error?.Message || err.message));
+        this.modalLoading = false;
+        this.showModal = false;
+      }
+    });
+  }
+
+  // Open edit billing modal
+  openEditModal(billing: BillingDto): void {
+    this.isEditMode = true;
+    this.editingBillingId = billing.id;
+    this.showModal = true;
+    this.modalLoading = true;
+
+    // Load unpaid bookings for dropdown
+    this.bookingService.getUnpaidBookings().subscribe({
+      next: (bookings) => {
+        this.bookings = bookings;
+        
+        // Patch form with existing billing data
+        this.billingForm.patchValue({
+          bookingId: billing.bookingId,
+          amount: billing.amount
+        });
+        
+        this.modalLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading unpaid bookings:', err);
+        alert('Error loading unpaid bookings: ' + (err.error?.Message || err.message));
         this.modalLoading = false;
         this.showModal = false;
       }
@@ -123,11 +161,11 @@ export class BillingsComponent implements OnInit, OnDestroy {
   // Close modal
   closeModal(): void {
     this.showModal = false;
-    this.billingForm.reset();
+    this.resetForm();
     this.modalLoading = false;
   }
 
-  // Save billing
+  // Save billing (create or update)
   saveBilling(): void {
     if (this.billingForm.invalid) {
       alert('Please fill all required fields correctly');
@@ -137,18 +175,35 @@ export class BillingsComponent implements OnInit, OnDestroy {
     this.modalLoading = true;
     const formData = this.billingForm.getRawValue();
 
-    this.billingService.createBilling(formData).subscribe({
-      next: () => {
-        alert('Billing created successfully');
-        this.closeModal();
-        this.loadBillings();
-      },
-      error: (err) => {
-        console.error('Error creating billing:', err);
-        alert('Error creating billing: ' + (err.error?.Message || err.message));
-        this.modalLoading = false;
-      }
-    });
+    if (this.isEditMode && this.editingBillingId) {
+      // Update existing billing
+      this.billingService.updateBilling(this.editingBillingId, formData).subscribe({
+        next: () => {
+          alert('Billing updated successfully');
+          this.closeModal();
+          this.loadBillings();
+        },
+        error: (err) => {
+          console.error('Error updating billing:', err);
+          alert('Error updating billing: ' + (err.error?.Message || err.message));
+          this.modalLoading = false;
+        }
+      });
+    } else {
+      // Create new billing
+      this.billingService.createBilling(formData).subscribe({
+        next: () => {
+          alert('Billing created successfully');
+          this.closeModal();
+          this.loadBillings();
+        },
+        error: (err) => {
+          console.error('Error creating billing:', err);
+          alert('Error creating billing: ' + (err.error?.Message || err.message));
+          this.modalLoading = false;
+        }
+      });
+    }
   }
 
   deleteBilling(id: string): void {

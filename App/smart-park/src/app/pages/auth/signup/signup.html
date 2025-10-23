@@ -99,7 +99,7 @@
           </div>
 
           <!-- City input -->
-          <div class="form-outline mb-3">
+          <div class="form-outline mb-4">
             <input
               type="text"
               class="form-control form-control-lg"
@@ -110,17 +110,6 @@
             <div class="text-danger small" *ngIf="f['city'].touched && f['city'].invalid">
               <span *ngIf="f['city'].errors?.['required']">City is required</span>
             </div>
-          </div>
-
-          <!-- Address input -->
-          <div class="form-outline mb-4">
-            <textarea
-              class="form-control form-control-lg"
-              placeholder="Enter your address (optional)"
-              formControlName="address"
-              rows="2"
-            ></textarea>
-            <label class="form-label">Address</label>
           </div>
 
           <!-- Submit button -->

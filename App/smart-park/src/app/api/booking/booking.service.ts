@@ -48,4 +48,8 @@ export class BookingService {
   getBookingHistoryById(id: string): Observable<BookingHistoryDto> {
     return this.http.get<BookingHistoryDto>(`${this.apiUrl}/get-booking-history-by/${id}`);
   }
+
+  getUnpaidBookings(): Observable<BookingDto[]> {
+    return this.http.get<BookingDto[]>(`${this.apiUrl}/get-unpaid-bookings`);
+  }
 }

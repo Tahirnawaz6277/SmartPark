@@ -39,4 +39,12 @@ export class LocationService {
   deleteLocation(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/delete-location/${id}`);
   }
+
+  getSlotsByLocationId(locationId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get-slots-by/${locationId}`);
+  }
+
+  updateLocationWithFormData(id: string, formData: FormData): Observable<any> {
+    return this.http.put(`${this.apiUrl}/update-location/${id}`, formData);
+  }
 }

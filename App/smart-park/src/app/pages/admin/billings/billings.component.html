@@ -26,18 +26,17 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Amount</th>
               <th>Payment Status</th>
               <th>Payment Method</th>
               <th>Timestamp</th>
-              <th>Booking ID</th>
+              <th>User Name</th>
+              <th>Slot Number</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let billing of filteredBillings">
-              <td>{{ billing.id.substring(0, 8) }}...</td>
               <td>${{ billing.amount?.toFixed(2) || '0.00' }}</td>
               <td>
                 <span class="badge" [ngClass]="{
@@ -50,9 +49,10 @@
               </td>
               <td>{{ billing.paymentMethod || 'N/A' }}</td>
               <td>{{ billing.timeStamp | date:'short' }}</td>
-              <td>{{ billing.bookingId?.substring(0, 8) || 'N/A' }}...</td>
+              <td>{{ billing.userName || 'N/A' }}</td>
+              <td>{{ billing.slotNumber || 'N/A' }}</td>
               <td>
-                <button class="btn btn-sm btn-info me-2">
+                <button class="btn btn-sm btn-info me-2" (click)="openEditModal(billing)">
                   <i class="bi bi-pencil"></i> Edit
                 </button>
                 <button class="btn btn-sm btn-danger" (click)="deleteBilling(billing.id)">
@@ -76,7 +76,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Create New Billing</h5>
+        <h5 class="modal-title">{{ isEditMode ? 'Edit Billing' : 'Create New Billing' }}</h5>
         <button type="button" class="btn-close" (click)="closeModal()"></button>
       </div>
       <div class="modal-body">
@@ -92,7 +92,7 @@
             <select class="form-select" formControlName="bookingId">
               <option value="">Select a booking</option>
               <option *ngFor="let booking of bookings" [value]="booking.id">
-                {{ booking.id.substring(0, 8) }}... - {{ booking.userName }} ({{ booking.slotNumber }})
+                {{ booking.userName }} - Slot: {{ booking.slotNumber }} ({{ booking.status }})
               </option>
             </select>
             <div *ngIf="billingForm.get('bookingId')?.invalid && billingForm.get('bookingId')?.touched" class="text-danger small">
@@ -113,7 +113,7 @@
         <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
         <button type="button" class="btn btn-primary" (click)="saveBilling()" [disabled]="modalLoading || billingForm.invalid">
           <span *ngIf="modalLoading" class="spinner-border spinner-border-sm me-2"></span>
-          Create Billing
+          {{ isEditMode ? 'Update Billing' : 'Create Billing' }}
         </button>
       </div>
     </div>

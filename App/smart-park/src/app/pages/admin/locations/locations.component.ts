@@ -21,10 +21,14 @@ export class LocationsComponent implements OnInit, OnDestroy {
   
   // Modal state
   showModal = false;
+  showViewModal = false;
   modalLoading = false;
   locationForm!: FormGroup;
   selectedFile: File | null = null;
   imagePreview: string | null = null;
+  isEditMode = false;
+  editingLocationId: string | null = null;
+  viewingLocation: LocationDto | null = null;
 
   constructor(
     private locationService: LocationService,
@@ -42,6 +46,14 @@ export class LocationsComponent implements OnInit, OnDestroy {
       totalSlots: [1, [Validators.required, Validators.min(1)]],
       city: ['', Validators.required]
     });
+  }
+
+  resetForm(): void {
+    this.locationForm.reset({ totalSlots: 1 });
+    this.selectedFile = null;
+    this.imagePreview = null;
+    this.isEditMode = false;
+    this.editingLocationId = null;
   }
 
   ngOnInit(): void {
@@ -101,17 +113,59 @@ export class LocationsComponent implements OnInit, OnDestroy {
   // Open add location modal
   openAddModal(): void {
     this.showModal = true;
-    this.locationForm.reset({ totalSlots: 1 });
-    this.selectedFile = null;
-    this.imagePreview = null;
+    this.resetForm();
+  }
+
+  // Open view location modal
+  openViewModal(location: LocationDto): void {
+    this.viewingLocation = location;
+    this.showViewModal = true;
+  }
+
+  // Close view modal
+  closeViewModal(): void {
+    this.showViewModal = false;
+    this.viewingLocation = null;
+  }
+
+  // Open edit location modal
+  openEditModal(location: LocationDto): void {
+    this.isEditMode = true;
+    this.editingLocationId = location.id;
+    this.showModal = true;
+    this.modalLoading = true;
+
+    // Fetch full location details
+    this.locationService.getLocationById(location.id).subscribe({
+      next: (data) => {
+        this.locationForm.patchValue({
+          name: data.name,
+          address: data.address,
+          totalSlots: data.totalSlots,
+          city: data.city
+        });
+        
+        // Set image preview if exists
+        if (data.imageUrl) {
+          this.imagePreview = data.imageUrl;
+        }
+        
+        this.modalLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading location details:', err);
+        alert('Error loading location details: ' + (err.error?.Message || err.message));
+        this.modalLoading = false;
+        this.showModal = false;
+      }
+    });
   }
 
   // Close modal
   closeModal(): void {
     this.showModal = false;
-    this.locationForm.reset();
-    this.selectedFile = null;
-    this.imagePreview = null;
+    this.resetForm();
     this.modalLoading = false;
   }
 
@@ -131,7 +185,7 @@ export class LocationsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Save location
+  // Save location (create or update)
   saveLocation(): void {
     if (this.locationForm.invalid) {
       alert('Please fill all required fields correctly');
@@ -152,19 +206,35 @@ export class LocationsComponent implements OnInit, OnDestroy {
       formData.append('ImageFile', this.selectedFile, this.selectedFile.name);
     }
 
-    // Call API with multipart form data
-    this.locationService.createLocationWithFormData(formData).subscribe({
-      next: () => {
-        alert('Location created successfully');
-        this.closeModal();
-        this.loadLocations();
-      },
-      error: (err) => {
-        console.error('Error creating location:', err);
-        alert('Error creating location: ' + (err.error?.Message || err.message));
-        this.modalLoading = false;
-      }
-    });
+    if (this.isEditMode && this.editingLocationId) {
+      // Update existing location
+      this.locationService.updateLocationWithFormData(this.editingLocationId, formData).subscribe({
+        next: () => {
+          alert('Location updated successfully');
+          this.closeModal();
+          this.loadLocations();
+        },
+        error: (err) => {
+          console.error('Error updating location:', err);
+          alert('Error updating location: ' + (err.error?.Message || err.message));
+          this.modalLoading = false;
+        }
+      });
+    } else {
+      // Create new location
+      this.locationService.createLocationWithFormData(formData).subscribe({
+        next: () => {
+          alert('Location created successfully');
+          this.closeModal();
+          this.loadLocations();
+        },
+        error: (err) => {
+          console.error('Error creating location:', err);
+          alert('Error creating location: ' + (err.error?.Message || err.message));
+          this.modalLoading = false;
+        }
+      });
+    }
   }
 
   deleteLocation(id: string): void {

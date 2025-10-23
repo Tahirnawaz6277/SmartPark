@@ -20,6 +20,8 @@ export interface LocationDto {
   totalSlots?: number;
   city?: string;
   image?: string;
+  imageUrl?: string;
+  imageExtension?: string;
   slots?: SlotDto[];
 }
 

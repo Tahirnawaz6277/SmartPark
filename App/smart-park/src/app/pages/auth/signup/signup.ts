@@ -30,7 +30,6 @@ export class Signup implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
       phoneNumber: ['', [Validators.pattern(/^[0-9]{10,15}$/)]],
-      address: [''],
       city: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
   }
