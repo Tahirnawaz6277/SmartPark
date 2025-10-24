@@ -20,7 +20,7 @@ namespace SmartPark.Controllers
             _mediator = mediator;
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("create-billing")]
 
         public async Task<IActionResult> CreateAsync([FromBody] BillingRequest dto)
@@ -34,6 +34,7 @@ namespace SmartPark.Controllers
             });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("get-billing-by/{id:guid}")]
         [ProducesResponseType(typeof(BillingDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetByIdAsync(Guid id)
@@ -43,6 +44,7 @@ namespace SmartPark.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("get-all-billings")]
         [ProducesResponseType(typeof(IEnumerable<BillingDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllAsync()
@@ -51,6 +53,16 @@ namespace SmartPark.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin,Driver")]
+        [HttpGet("get-my-billings")]
+        [ProducesResponseType(typeof(IEnumerable<BillingDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMyBillingsAsync()
+        {
+            var result = await _mediator.Send(new GetMyBillingsQuery());
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin")]
         [HttpPut("update-billing/{id:guid}")]
         public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] BillingRequest dto)
         {
@@ -63,6 +75,8 @@ namespace SmartPark.Controllers
             });
         }
 
+
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete-billing/{id:guid}")]
         public async Task<IActionResult> DeleteAsync(Guid id)
         {

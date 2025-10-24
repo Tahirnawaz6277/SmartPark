@@ -10,10 +10,12 @@ namespace SmartPark.Services.Implementations
     public class BillingService : IBillingService
     {
         private readonly ParkingDbContext _dbContext;
+        private readonly IHelper _helper;
 
-        public BillingService(ParkingDbContext dbContext)
+        public BillingService(ParkingDbContext dbContext, IHelper helper)
         {
             _dbContext = dbContext;
+            _helper = helper;
         }
 
         public async Task<BillingResponse> CreateBillingAsync(BillingRequest request, CancellationToken cancellationToken)
@@ -118,6 +120,24 @@ namespace SmartPark.Services.Implementations
                     UserName = b.Booking != null && b.Booking.User != null ? b.Booking.User.Name : null
                 })
                 .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<IEnumerable<BillingDto>> GetMyBillingsAsync(CancellationToken cancellationToken)
+        {
+            var UserId = await _helper.GetUserIdFromToken();
+            return await _dbContext.Billings
+                          .Where(b => b.Booking != null && b.Booking.UserId == UserId)
+                          .Select(b => new BillingDto
+                          {
+                              Id = b.Id,
+                              Amount = b.Amount,
+                              PaymentStatus = b.PaymentStatus,
+                              PaymentMethod = b.PaymentMethod,
+                              TimeStamp = b.TimeStamp,
+                              BookingId = b.BookingId,
+                              SlotNumber = b.Booking != null && b.Booking.Slot != null ? b.Booking.Slot.SlotNumber : null,
+                              UserName = b.Booking != null && b.Booking.User != null ? b.Booking.User.Name : null
+                          }).ToListAsync(cancellationToken);
         }
     }
 }

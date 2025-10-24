@@ -109,7 +109,8 @@ namespace SmartPark.Services.Implementations
                               UserId = b.UserId,
                               UserName = b.User != null ? b.User.Name : null,
                               SlotId = b.SlotId,
-                              SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null
+                              SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null,
+                              LocationName = b.Slot != null && b.Slot.Location != null ? b.Slot.Location.Name : ""
                           }).ToListAsync();
         }
 
@@ -128,7 +129,8 @@ namespace SmartPark.Services.Implementations
                               UserId = b.UserId,
                               UserName = b.User != null ? b.User.Name : null,
                               SlotId = b.SlotId,
-                              SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null
+                              SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null,
+                              LocationName = b.Slot != null && b.Slot.Location != null ? b.Slot.Location.Name : ""
                           }).FirstOrDefaultAsync();
 
 
@@ -312,7 +314,8 @@ namespace SmartPark.Services.Implementations
                     UserId = b.UserId,
                     UserName = b.User != null ? b.User.Name : null,
                     SlotId = b.SlotId,
-                    SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null
+                    SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null,
+                    LocationName = b.Slot != null && b.Slot.Location != null ? b.Slot.Location.Name : ""
                 })
                 .ToListAsync();
         }
@@ -333,7 +336,8 @@ namespace SmartPark.Services.Implementations
                                         UserId = b.UserId,
                                         UserName = b.User != null ? b.User.Name : null,
                                         SlotId = b.SlotId,
-                                        SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null
+                                        SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null,
+                                        LocationName = b.Slot != null && b.Slot.Location != null ? b.Slot.Location.Name : ""
                                     }).ToListAsync();
         }
     }
