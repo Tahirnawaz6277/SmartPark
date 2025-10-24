@@ -102,7 +102,8 @@ namespace SmartPark.Services.Implementations
             if (location == null)
                 throw new NotFoundException("Locaiont not found");
 
-            _dbContext.ParkingLocations.Remove(location);
+            //_dbContext.ParkingLocations.Remove(location);
+            location.IsDeleted = true;
             await _dbContext.SaveChangesAsync();
 
             return true;

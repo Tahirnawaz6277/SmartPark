@@ -10,7 +10,7 @@ namespace SmartPark.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class BookingController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -45,6 +45,7 @@ namespace SmartPark.Controllers
         }
 
         //  Get All Bookings
+        [Authorize(Roles = "Admin")]
         [HttpGet("get-all-bookings")]
         [ProducesResponseType(typeof(IEnumerable<BookingDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllAsync()
@@ -53,7 +54,19 @@ namespace SmartPark.Controllers
             return Ok(result);
         }
 
+
+        //  Get My Bookings
+        [Authorize(Roles = "Admin,Driver")]
+        [HttpGet("get-my-bookings")]
+        [ProducesResponseType(typeof(IEnumerable<BookingDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMyBookingsAsync()
+        {
+            var result = await _mediator.Send(new GetMyBookingsQuery());
+            return Ok(result);
+        }
+
         //  Get All Bookings which bill is pending
+        [Authorize(Roles = "Admin")]
         [HttpGet("get-unpaid-bookings")]
         [ProducesResponseType(typeof(IEnumerable<BookingDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllUnpaidBookingAsync()
@@ -92,6 +105,7 @@ namespace SmartPark.Controllers
         }
 
         // Delete Booking
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete-booking/{id:guid}")]
         public async Task<IActionResult> DeleteAsync(Guid id)
         {
@@ -101,6 +115,7 @@ namespace SmartPark.Controllers
         }
 
         //  Get Booking Histories (by BookingId)
+        [Authorize(Roles = "Admin")]
         [HttpGet("get-booking-histories")]
         [ProducesResponseType(typeof(IEnumerable<BookingHistoryDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetHistoriesAsync([FromQuery] Guid? bookingId)

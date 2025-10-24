@@ -10,7 +10,7 @@ namespace SmartPark.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class LocationController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -19,7 +19,7 @@ namespace SmartPark.Controllers
             _mediator = mediator;
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("create-location")]
         public async Task<IActionResult> CreateAsync([FromForm] LocationRequest dto)
         {
@@ -72,8 +72,10 @@ namespace SmartPark.Controllers
             return Ok(result);
         }
 
+
+        [Authorize(Roles = "Admin")]
         [HttpPut("update-location/{id:guid}")]
-        public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] LocationRequest dto)
+        public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] LocationRequest dto)
         {
             var result = await _mediator.Send(new UpdateLocationCommand(id, dto));
             return Ok(new ApiResponse<LocationReponse>
@@ -84,6 +86,7 @@ namespace SmartPark.Controllers
             });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete-location/{id:guid}")]
         public async Task<IActionResult> DeleteAsync(Guid id)
         {

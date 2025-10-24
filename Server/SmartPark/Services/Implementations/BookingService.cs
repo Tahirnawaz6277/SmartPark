@@ -317,7 +317,24 @@ namespace SmartPark.Services.Implementations
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<BookingDto>> GetMyBookingsAsync()
+        {
+            var UserId = await _helper.GetUserIdFromToken();
 
-
+            return await _dbContext.Bookings
+                                      .AsNoTracking()
+                                      .Where(u => u.UserId == UserId)
+                                    .Select(b => new BookingDto
+                                    {
+                                        Id = b.Id,
+                                        Status = b.Status,
+                                        StartTime = b.StartTime,
+                                        EndTime = b.EndTime,
+                                        UserId = b.UserId,
+                                        UserName = b.User != null ? b.User.Name : null,
+                                        SlotId = b.SlotId,
+                                        SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null
+                                    }).ToListAsync();
+        }
     }
 }
