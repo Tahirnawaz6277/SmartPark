@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Bookings Management</h2>
+    <h2>My Bookings</h2>
     <button class="btn btn-primary" (click)="openAddModal()">
       <i class="bi bi-plus-circle me-2"></i>New Booking
     </button>
@@ -9,10 +9,10 @@
   <div class="card">
     <div class="card-body">
       <div class="mb-3">
-        <input 
-          type="text" 
-          class="form-control" 
-          placeholder="Search by user name, location, slot, or status..." 
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by location, slot, or status..."
           [(ngModel)]="searchTerm">
       </div>
 
@@ -26,7 +26,6 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>User</th>
               <th>Location</th>
               <th>Slot</th>
               <th>Start Time</th>
@@ -37,7 +36,6 @@
           </thead>
           <tbody>
             <tr *ngFor="let booking of filteredBookings">
-              <td>{{ booking.userName || 'N/A' }}</td>
               <td>{{ booking.locationName || 'N/A' }}</td>
               <td>{{ booking.slotNumber || 'N/A' }}</td>
               <td>{{ booking.startTime | date:'short' }}</td>
@@ -54,11 +52,11 @@
                 </span>
               </td>
               <td>
-                <button class="btn btn-sm btn-warning me-2" (click)="cancelBooking(booking.id)">
-                  <i class="bi bi-x-circle"></i> Cancel
+                <button class="btn btn-sm btn-info me-2" (click)="viewBookingDetails(booking)" title="View Details">
+                  <i class="bi bi-eye"></i> Details
                 </button>
-                <button class="btn btn-sm btn-danger" (click)="deleteBooking(booking.id)">
-                  <i class="bi bi-trash"></i> Delete
+                <button class="btn btn-sm btn-warning" (click)="cancelBooking(booking.id)" title="Cancel Booking">
+                  <i class="bi bi-x-circle"></i> Cancel
                 </button>
               </td>
             </tr>
@@ -91,12 +89,15 @@
         <form *ngIf="!modalLoading" [formGroup]="bookingForm">
           <div class="mb-3">
             <label class="form-label">Location <span class="text-danger">*</span></label>
-            <select class="form-select" (change)="onLocationChange($event)" [(ngModel)]="selectedLocationId" [ngModelOptions]="{standalone: true}">
+            <select class="form-select" (change)="onLocationChange($event)" formControlName="locationId">
               <option value="">Select a location</option>
               <option *ngFor="let location of locations" [value]="location.id">
                 {{ location.name }} - {{ location.city }}
               </option>
             </select>
+            <div *ngIf="bookingForm.get('locationId')?.invalid && bookingForm.get('locationId')?.touched" class="text-danger small">
+              Location is required
+            </div>
           </div>
 
           <div class="mb-3">
@@ -140,3 +141,79 @@
   </div>
 </div>
 <div class="modal-backdrop fade" [class.show]="showModal" *ngIf="showModal"></div>
+
+<!-- Booking Details Modal -->
+<div class="modal fade" [class.show]="showDetailsModal" [style.display]="showDetailsModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Booking Details</h5>
+        <button type="button" class="btn-close" (click)="closeDetailsModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="!selectedBooking" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <div *ngIf="selectedBooking" class="row">
+          <div class="col-md-6">
+            <h6>Booking Information</h6>
+            <table class="table table-borderless table-sm">
+              <tr>
+                <td><strong>Location:</strong></td>
+                <td>{{ selectedBooking.locationName || 'N/A' }}</td>
+              </tr>
+              <tr>
+                <td><strong>Slot:</strong></td>
+                <td>{{ selectedBooking.slotNumber || 'N/A' }}</td>
+              </tr>
+              <tr>
+                <td><strong>Start Time:</strong></td>
+                <td>{{ selectedBooking.startTime | date:'medium' }}</td>
+              </tr>
+              <tr>
+                <td><strong>End Time:</strong></td>
+                <td>{{ selectedBooking.endTime | date:'medium' }}</td>
+              </tr>
+              <tr>
+                <td><strong>Status:</strong></td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'bg-success': selectedBooking.status === 'Active',
+                    'bg-warning text-dark': selectedBooking.status === 'Pending',
+                    'bg-danger': selectedBooking.status === 'Cancelled',
+                    'bg-secondary': selectedBooking.status === 'Completed',
+                    'bg-primary': selectedBooking.status === 'Booked'
+                  }">
+                    {{ selectedBooking.status || 'Unknown' }}
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Duration:</strong></td>
+                <td>
+                  {{ selectedBookingDuration | number:'1.0-2' }} hours
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-md-6">
+            <h6>Additional Information</h6>
+            <div class="alert alert-info">
+              <small>
+                <strong>Booking ID:</strong> {{ selectedBooking.id }}<br>
+                <strong>Created:</strong> {{ selectedBooking.startTime | date:'short' }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDetailsModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showDetailsModal" *ngIf="showDetailsModal"></div>

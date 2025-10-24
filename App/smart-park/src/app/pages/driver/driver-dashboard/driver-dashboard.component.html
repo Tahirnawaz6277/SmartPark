@@ -49,6 +49,7 @@
             <table class="table table-hover">
               <thead>
                 <tr>
+                  <th>Location</th>
                   <th>Slot</th>
                   <th>Start Time</th>
                   <th>End Time</th>
@@ -57,6 +58,7 @@
               </thead>
               <tbody>
                 <tr *ngFor="let booking of upcomingBookings">
+                  <td>{{ booking.locationName || 'N/A' }}</td>
                   <td>{{ booking.slotNumber || 'N/A' }}</td>
                   <td>{{ booking.startTime | date:'short' }}</td>
                   <td>{{ booking.endTime | date:'short' }}</td>

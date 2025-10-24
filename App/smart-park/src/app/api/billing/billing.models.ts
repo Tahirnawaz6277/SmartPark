@@ -12,6 +12,7 @@ export interface BillingDto {
   bookingId?: string;
   userName?: string;
   slotNumber?: string;
+  locationName?: string;
 }
 
 export interface BillingUpdateRequest {

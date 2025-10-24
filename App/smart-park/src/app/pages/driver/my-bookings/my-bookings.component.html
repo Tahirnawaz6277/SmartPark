@@ -12,7 +12,7 @@
         <input 
           type="text" 
           class="form-control" 
-          placeholder="Search by slot or status..." 
+          placeholder="Search by location, slot, or status..." 
           [(ngModel)]="searchTerm">
       </div>
 
@@ -26,7 +26,7 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>ID</th>
+              <th>Location</th>
               <th>Slot</th>
               <th>Start Time</th>
               <th>End Time</th>
@@ -36,7 +36,7 @@
           </thead>
           <tbody>
             <tr *ngFor="let booking of filteredBookings">
-              <td>{{ booking.id.substring(0, 8) }}...</td>
+              <td>{{ booking.locationName || 'N/A' }}</td>
               <td>{{ booking.slotNumber || 'N/A' }}</td>
               <td>{{ booking.startTime | date:'short' }}</td>
               <td>{{ booking.endTime | date:'short' }}</td>

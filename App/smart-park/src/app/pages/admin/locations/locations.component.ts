@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, NavigationEnd } from '@angular/router';
 import { LocationService } from '../../../api/location/location.service';
-import { LocationDto } from '../../../api/location/location.models';
+import { LocationDto, SlotDto } from '../../../api/location/location.models';
 import { Subscription, filter } from 'rxjs';
 
 @Component({
@@ -22,6 +22,7 @@ export class LocationsComponent implements OnInit, OnDestroy {
   // Modal state
   showModal = false;
   showViewModal = false;
+  showSlotsModal = false;
   modalLoading = false;
   locationForm!: FormGroup;
   selectedFile: File | null = null;
@@ -29,6 +30,11 @@ export class LocationsComponent implements OnInit, OnDestroy {
   isEditMode = false;
   editingLocationId: string | null = null;
   viewingLocation: LocationDto | null = null;
+
+  // Slots modal state
+  slotsModalLoading = false;
+  selectedLocationForSlots: LocationDto | null = null;
+  locationSlots: SlotDto[] = [];
 
   constructor(
     private locationService: LocationService,
@@ -276,5 +282,44 @@ export class LocationsComponent implements OnInit, OnDestroy {
 
   getAvailableSlots(location: LocationDto): number {
     return location.slots?.filter(slot => slot.isAvailable).length || 0;
+  }
+
+  // View slots modal functionality
+  openSlotsModal(location: LocationDto): void {
+    this.selectedLocationForSlots = location;
+    this.showSlotsModal = true;
+    this.slotsModalLoading = true;
+    this.locationSlots = [];
+    this.cdr.detectChanges();
+
+    // Load slots for the selected location
+    this.locationService.getSlotsByLocationId(location.id).subscribe({
+      next: (slots: SlotDto[]) => {
+        this.locationSlots = slots || [];
+        this.slotsModalLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Error loading slots:', err);
+        alert('Error loading slots: ' + (err.error?.Message || err.message));
+        this.slotsModalLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  closeSlotsModal(): void {
+    this.showSlotsModal = false;
+    this.selectedLocationForSlots = null;
+    this.locationSlots = [];
+    this.slotsModalLoading = false;
+  }
+
+  get availableSlotsCount(): number {
+    return this.locationSlots.filter(slot => slot.isAvailable).length;
+  }
+
+  get totalSlotsCount(): number {
+    return this.locationSlots.length;
   }
 }

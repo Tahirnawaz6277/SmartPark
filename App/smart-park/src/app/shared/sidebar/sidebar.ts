@@ -29,7 +29,8 @@ export class Sidebar implements OnInit {
     { label: 'Users', icon: 'bi-people', route: '/admin/users', roles: ['Admin'] },
     { label: 'Dashboard', icon: 'bi-speedometer2', route: '/driver/dashboard', roles: ['Driver'] },
     { label: 'My Bookings', icon: 'bi-calendar-check', route: '/driver/my-bookings', roles: ['Driver'] },
-    { label: 'Locations', icon: 'bi-geo-alt', route: '/driver/locations', roles: ['Driver'] }
+    { label: 'Locations', icon: 'bi-geo-alt', route: '/driver/locations', roles: ['Driver'] },
+    { label: 'My Billings', icon: 'bi-receipt', route: '/driver/my-billings', roles: ['Driver'] }
   ];
 
   constructor(private authService: Auth) {}

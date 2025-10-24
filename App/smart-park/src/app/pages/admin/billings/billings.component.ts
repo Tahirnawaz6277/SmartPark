@@ -102,7 +102,10 @@ export class BillingsComponent implements OnInit, OnDestroy {
     }
     return this.billings.filter(billing =>
       billing.paymentStatus?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      billing.paymentMethod?.toLowerCase().includes(this.searchTerm.toLowerCase())
+      billing.paymentMethod?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      billing.userName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      billing.locationName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      billing.slotNumber?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
 

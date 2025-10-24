@@ -24,6 +24,10 @@ export class BillingService {
     return this.http.get<BillingDto>(`${this.apiUrl}/get-billing-by/${id}`);
   }
 
+  getMyBillings(): Observable<BillingDto[]> {
+    return this.http.get<BillingDto[]>(`${this.apiUrl}/get-my-billings`);
+  }
+
   getAllBillings(): Observable<BillingDto[]> {
     return this.http.get<BillingDto[]>(`${this.apiUrl}/get-all-billings`);
   }

@@ -43,7 +43,7 @@
             <div>
               <span class="badge bg-primary">Total Slots: {{ location.totalSlots }}</span>
             </div>
-            <button class="btn btn-sm btn-outline-primary" (click)="viewSlots(location.id)">
+            <button class="btn btn-sm btn-outline-primary" (click)="viewSlots(location)">
               <i class="bi bi-eye me-1"></i>View Slots
             </button>
           </div>
@@ -59,3 +59,88 @@
     </div>
   </div>
 </div>
+
+<!-- Slots Modal -->
+<div class="modal fade" [class.show]="showSlotsModal" [style.display]="showSlotsModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-geo-alt me-2"></i>
+          {{ selectedLocation?.name }} - {{ selectedLocation?.city }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeSlotsModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="slotsModalLoading" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <div *ngIf="!slotsModalLoading">
+          <!-- Location Summary -->
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <div class="card bg-light">
+                <div class="card-body text-center">
+                  <h6 class="card-title">Total Slots</h6>
+                  <h3 class="text-primary">{{ totalSlotsCount }}</h3>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-light">
+                <div class="card-body text-center">
+                  <h6 class="card-title">Available</h6>
+                  <h3 class="text-success">{{ availableSlotsCount }}</h3>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-light">
+                <div class="card-body text-center">
+                  <h6 class="card-title">Occupied</h6>
+                  <h3 class="text-danger">{{ totalSlotsCount - availableSlotsCount }}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slots List -->
+          <div *ngIf="locationSlots.length > 0">
+            <h6>Parking Slots</h6>
+            <div class="row">
+              <div class="col-md-3 mb-2" *ngFor="let slot of locationSlots">
+                <div class="card" [ngClass]="{
+                  'border-success bg-light': slot.isAvailable,
+                  'border-danger bg-light': !slot.isAvailable
+                }">
+                  <div class="card-body text-center p-2">
+                    <div class="slot-number">Slot {{ slot.slotNumber }}</div>
+                    <div class="slot-status">
+                      <span class="badge" [ngClass]="{
+                        'bg-success': slot.isAvailable,
+                        'bg-danger': !slot.isAvailable
+                      }">
+                        {{ slot.isAvailable ? 'Available' : 'Occupied' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="locationSlots.length === 0" class="text-center text-muted py-4">
+            No slots available for this location
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeSlotsModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showSlotsModal" *ngIf="showSlotsModal"></div>

@@ -12,7 +12,7 @@
         <input 
           type="text" 
           class="form-control" 
-          placeholder="Search by payment status or method..." 
+          placeholder="Search by payment status, method, user, location, or slot..." 
           [(ngModel)]="searchTerm">
       </div>
 
@@ -31,6 +31,7 @@
               <th>Payment Method</th>
               <th>Timestamp</th>
               <th>User Name</th>
+              <th>Location</th>
               <th>Slot Number</th>
               <th>Actions</th>
             </tr>
@@ -50,6 +51,7 @@
               <td>{{ billing.paymentMethod || 'N/A' }}</td>
               <td>{{ billing.timeStamp | date:'short' }}</td>
               <td>{{ billing.userName || 'N/A' }}</td>
+              <td>{{ billing.locationName || 'N/A' }}</td>
               <td>{{ billing.slotNumber || 'N/A' }}</td>
               <td>
                 <button class="btn btn-sm btn-info me-2" (click)="openEditModal(billing)">
@@ -92,7 +94,7 @@
             <select class="form-select" formControlName="bookingId">
               <option value="">Select a booking</option>
               <option *ngFor="let booking of bookings" [value]="booking.id">
-                {{ booking.userName }} - Slot: {{ booking.slotNumber }} ({{ booking.status }})
+                {{ booking.userName }} - {{ booking.locationName }} - Slot: {{ booking.slotNumber }} ({{ booking.status }})
               </option>
             </select>
             <div *ngIf="billingForm.get('bookingId')?.invalid && billingForm.get('bookingId')?.touched" class="text-danger small">

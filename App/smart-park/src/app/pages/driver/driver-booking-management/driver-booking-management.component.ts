@@ -6,32 +6,36 @@ import { BookingService } from '../../../api/booking/booking.service';
 import { BookingDto } from '../../../api/booking/booking.models';
 import { LocationService } from '../../../api/location/location.service';
 import { LocationDto, SlotDto } from '../../../api/location/location.models';
+import { Auth } from '../../../core/services/auth';
 import { Subscription, filter } from 'rxjs';
 
 @Component({
-  selector: 'app-bookings',
+  selector: 'app-driver-booking-management',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl: './bookings.component.html',
-  styleUrls: ['./bookings.component.scss']
+  templateUrl: './driver-booking-management.component.html',
+  styleUrls: ['./driver-booking-management.component.scss']
 })
-export class BookingsComponent implements OnInit, OnDestroy {
+export class DriverBookingManagementComponent implements OnInit, OnDestroy {
   bookings: BookingDto[] = [];
   locations: LocationDto[] = [];
   availableSlots: SlotDto[] = [];
   loading = true;
   searchTerm = '';
   private routerSubscription?: Subscription;
-  
+
   // Modal state
   showModal = false;
+  showDetailsModal = false;
   modalLoading = false;
   bookingForm!: FormGroup;
   selectedLocationId: string = '';
+  selectedBooking: BookingDto | null = null;
 
   constructor(
     private bookingService: BookingService,
     private locationService: LocationService,
+    private authService: Auth,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private fb: FormBuilder
@@ -41,6 +45,7 @@ export class BookingsComponent implements OnInit, OnDestroy {
 
   initForm(): void {
     this.bookingForm = this.fb.group({
+      locationId: ['', Validators.required],
       slotId: ['', Validators.required],
       startTime: ['', Validators.required],
       endTime: ['', Validators.required]
@@ -49,13 +54,13 @@ export class BookingsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadBookings();
-    
+
     // Reload data when navigating back to this component
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
-        if (event.url.includes('/admin/bookings')) {
-          console.log('Navigated to bookings, reloading data...');
+        if (event.url.includes('/driver/booking-management')) {
+          console.log('Navigated to booking management, reloading data...');
           this.loadBookings();
         }
       });
@@ -68,20 +73,20 @@ export class BookingsComponent implements OnInit, OnDestroy {
   loadBookings(): void {
     this.loading = true;
     this.cdr.detectChanges(); // Force UI update
-    
+
     console.log('Loading bookings...');
-    this.bookingService.getAllBookings().subscribe({
+    this.bookingService.getMyBookings().subscribe({
       next: (data) => {
         console.log('Bookings loaded successfully:', data);
         console.log('Number of bookings:', data?.length || 0);
-        
+
         // Ensure data is an array
         this.bookings = Array.isArray(data) ? data : [];
         this.loading = false;
-        
+
         // Force change detection
         this.cdr.detectChanges();
-        
+
         console.log('Bookings assigned to component:', this.bookings.length);
       },
       error: (err) => {
@@ -99,11 +104,28 @@ export class BookingsComponent implements OnInit, OnDestroy {
       return this.bookings;
     }
     return this.bookings.filter(booking =>
-      booking.userName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       booking.locationName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       booking.slotNumber?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       booking.status?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
+  }
+
+  // Get duration in hours for a booking
+  getBookingDuration(booking: BookingDto): number {
+    if (booking.startTime && booking.endTime) {
+      const startTime = new Date(booking.startTime).getTime();
+      const endTime = new Date(booking.endTime).getTime();
+      return (endTime - startTime) / (1000 * 60 * 60);
+    }
+    return 0;
+  }
+
+  // Get duration for selected booking in modal
+  get selectedBookingDuration(): number {
+    if (this.selectedBooking) {
+      return this.getBookingDuration(this.selectedBooking);
+    }
+    return 0;
   }
 
   cancelBooking(id: string): void {
@@ -122,6 +144,28 @@ export class BookingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // View booking details
+  viewBookingDetails(booking: BookingDto): void {
+    this.selectedBooking = booking;
+    this.showDetailsModal = true;
+    this.cdr.detectChanges();
+  }
+
+  // Get full booking details by ID
+  loadBookingDetails(id: string): void {
+    this.bookingService.getBookingById(id).subscribe({
+      next: (booking: BookingDto) => {
+        this.selectedBooking = booking;
+        this.showDetailsModal = true;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Error loading booking details:', err);
+        alert('Error loading booking details: ' + (err.error?.Message || err.message));
+      }
+    });
+  }
+
   // Open add booking modal
   openAddModal(): void {
     this.showModal = true;
@@ -129,15 +173,15 @@ export class BookingsComponent implements OnInit, OnDestroy {
     this.bookingForm.reset();
     this.selectedLocationId = '';
     this.availableSlots = [];
-    
+
     // Load locations for dropdown
     this.locationService.getAllLocations().subscribe({
-      next: (locations) => {
-        this.locations = locations;
+      next: (data: LocationDto[]) => {
+        this.locations = data;
         this.modalLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error loading locations:', err);
         alert('Error loading locations: ' + (err.error?.Message || err.message));
         this.modalLoading = false;
@@ -168,6 +212,12 @@ export class BookingsComponent implements OnInit, OnDestroy {
     this.modalLoading = false;
   }
 
+  // Close details modal
+  closeDetailsModal(): void {
+    this.showDetailsModal = false;
+    this.selectedBooking = null;
+  }
+
   // Save booking
   saveBooking(): void {
     if (this.bookingForm.invalid) {
@@ -177,7 +227,7 @@ export class BookingsComponent implements OnInit, OnDestroy {
 
     this.modalLoading = true;
     const formData = this.bookingForm.getRawValue();
-    
+
     // Convert datetime-local to ISO string
     const bookingData = {
       slotId: formData.slotId,
@@ -191,27 +241,11 @@ export class BookingsComponent implements OnInit, OnDestroy {
         this.closeModal();
         this.loadBookings();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error creating booking:', err);
         alert('Error creating booking: ' + (err.error?.Message || err.message));
         this.modalLoading = false;
       }
     });
-  }
-
-  deleteBooking(id: string): void {
-    if (confirm('Are you sure you want to delete this booking?')) {
-      this.bookingService.deleteBooking(id).subscribe({
-        next: () => {
-          console.log('Booking deleted successfully');
-          alert('Booking deleted successfully');
-          this.loadBookings();
-        },
-        error: (err) => {
-          console.error('Error deleting booking:', err);
-          alert('Error deleting booking: ' + (err.error?.Message || err.message));
-        }
-      });
-    }
   }
 }

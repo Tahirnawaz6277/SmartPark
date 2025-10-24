@@ -40,7 +40,7 @@
         <input 
           type="text" 
           class="form-control" 
-          placeholder="Search by payment status or method..." 
+          placeholder="Search by payment status, method, or location..." 
           [(ngModel)]="searchTerm">
       </div>
 
@@ -54,17 +54,15 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Amount</th>
               <th>Payment Status</th>
               <th>Payment Method</th>
+              <th>Location</th>
               <th>Timestamp</th>
-              <th>Booking ID</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let billing of filteredBillings">
-              <td>{{ billing.id.substring(0, 8) }}...</td>
               <td>${{ billing.amount?.toFixed(2) || '0.00' }}</td>
               <td>
                 <span class="badge" [ngClass]="{
@@ -76,8 +74,8 @@
                 </span>
               </td>
               <td>{{ billing.paymentMethod || 'N/A' }}</td>
+              <td>{{ billing.locationName || 'N/A' }}</td>
               <td>{{ billing.timeStamp | date:'short' }}</td>
-              <td>{{ billing.bookingId?.substring(0, 8) || 'N/A' }}...</td>
             </tr>
           </tbody>
         </table>

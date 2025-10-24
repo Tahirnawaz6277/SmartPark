@@ -12,11 +12,15 @@ export const DRIVER_ROUTES: Routes = [
       },
       {
         path: 'my-bookings',
-        loadComponent: () => import('./my-bookings/my-bookings.component').then(m => m.MyBookingsComponent)
+        loadComponent: () => import('./driver-booking-management/driver-booking-management.component').then(m => m.DriverBookingManagementComponent)
       },
       {
         path: 'locations',
         loadComponent: () => import('./driver-locations/driver-locations.component').then(m => m.DriverLocationsComponent)
+      },
+      {
+        path: 'my-billings',
+        loadComponent: () => import('./my-billings/my-billings.component').then(m => m.MyBillingsComponent)
       }
     ]
   }

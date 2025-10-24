@@ -13,6 +13,7 @@ export interface BookingDto {
   userName?: string;
   slotId?: string;
   slotNumber?: string;
+  locationName?: string;
   lastStatusSnapshot?: string;
 }
 

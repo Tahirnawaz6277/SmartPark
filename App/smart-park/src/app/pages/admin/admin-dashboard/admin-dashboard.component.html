@@ -93,11 +93,78 @@
     </div>
   </div>
 
-  <div class="row" *ngIf="loading">
-    <div class="col-12 text-center">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+  <!-- Location Slot Statistics -->
+  <div class="row" *ngIf="!loading && locationsWithSlots.length > 0">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-geo-alt me-2"></i>
+            Location Slot Statistics
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 col-lg-4 mb-3" *ngFor="let locationStat of locationsWithSlots">
+              <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <h6 class="card-title mb-1">{{ locationStat.location.name }}</h6>
+                      <p class="card-text text-muted small mb-0">
+                        <i class="bi bi-building me-1"></i>{{ locationStat.location.city }}
+                      </p>
+                    </div>
+                    <span class="badge bg-primary">{{ locationStat.location.totalSlots }} total</span>
+                  </div>
+
+                  <div class="row text-center">
+                    <div class="col-4">
+                      <div class="p-2">
+                        <div class="h5 text-success mb-0">{{ locationStat.availableSlots }}</div>
+                        <small class="text-muted">Available</small>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="p-2">
+                        <div class="h5 text-danger mb-0">{{ locationStat.occupiedSlots }}</div>
+                        <small class="text-muted">Occupied</small>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="p-2">
+                        <div class="h5 text-info mb-0">{{ locationStat.totalSlots }}</div>
+                        <small class="text-muted">Total</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Progress bar showing availability -->
+                  <div class="progress mt-2" style="height: 6px;">
+                    <div
+                      class="progress-bar bg-success"
+                      [style.width.%]="locationStat.totalSlots > 0 ? (locationStat.availableSlots / locationStat.totalSlots) * 100 : 0"
+                      title="Available slots">
+                    </div>
+                    <div
+                      class="progress-bar bg-danger"
+                      [style.width.%]="locationStat.totalSlots > 0 ? (locationStat.occupiedSlots / locationStat.totalSlots) * 100 : 0"
+                      title="Occupied slots">
+                    </div>
+                  </div>
+
+                  <small class="text-muted mt-1 d-block">
+                    {{ locationStat.availableSlots }} of {{ locationStat.totalSlots }} slots available
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="locationsWithSlots.length === 0" class="text-center text-muted py-4">
+            No location slot data available
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
