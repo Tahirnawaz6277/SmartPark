@@ -6,22 +6,110 @@
   left: 0;
   z-index: 100;
   overflow-y: auto;
+  background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  
+  @media (max-width: 768px) {
+    width: 200px;
+  }
 }
 
 .sidebar-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 1.25rem 1.5rem !important;
+  background-color: rgba(0, 0, 0, 0.1);
+  
+  h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #fff;
+  }
+}
+
+.nav {
+  padding: 1rem 0;
+}
+
+.nav-item {
+  margin: 0.25rem 0.75rem;
+  
+  &:first-child .nav-link {
+    margin-top: 0.5rem;
+  }
 }
 
 .nav-link {
-  padding: 12px 20px;
-  transition: background-color 0.3s;
+  padding: 0.875rem 1.25rem;
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8) !important;
+  position: relative;
+  
+  i {
+    font-size: 1.2rem;
+    width: 24px;
+    transition: transform 0.3s ease;
+  }
   
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #fff !important;
+    transform: translateX(4px);
+    
+    i {
+      transform: scale(1.1);
+    }
   }
   
   &.active {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-left: 3px solid #fff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    font-weight: 600;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 70%;
+      background-color: #fff;
+      border-radius: 0 4px 4px 0;
+    }
+    
+    i {
+      transform: scale(1.15);
+    }
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    
+    &.show {
+      transform: translateX(0);
+    }
+  }
+  
+  .nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
   }
 }

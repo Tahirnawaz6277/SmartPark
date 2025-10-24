@@ -52,4 +52,8 @@ export class BookingService {
   getUnpaidBookings(): Observable<BookingDto[]> {
     return this.http.get<BookingDto[]>(`${this.apiUrl}/get-unpaid-bookings`);
   }
+
+  getMyBookings(): Observable<BookingDto[]> {
+    return this.http.get<BookingDto[]>(`${this.apiUrl}/get-my-bookings`);
+  }
 }

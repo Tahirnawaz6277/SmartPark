@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BookingService } from '../../../api/booking/booking.service';
-import { BillingService } from '../../../api/billing/billing.service';
 import { Auth } from '../../../core/services/auth';
 import { BookingDto } from '../../../api/booking/booking.models';
 
@@ -21,7 +20,6 @@ export class DriverDashboardComponent implements OnInit {
 
   constructor(
     private bookingService: BookingService,
-    private billingService: BillingService,
     private authService: Auth
   ) {}
 
@@ -33,30 +31,33 @@ export class DriverDashboardComponent implements OnInit {
   loadDashboardData(): void {
     this.loading = true;
 
-    this.bookingService.getAllBookings().subscribe({
+    this.bookingService.getMyBookings().subscribe({
       next: (bookings) => {
-        // Filter bookings for current user
-        const userBookings = bookings.filter(b => b.userId === this.userId);
-        this.totalBookings = userBookings.length;
+        // Get all user's bookings
+        const validBookings = bookings || [];
+        this.totalBookings = validBookings.length;
         
         // Get upcoming bookings
         const now = new Date();
-        this.upcomingBookings = userBookings
+        this.upcomingBookings = validBookings
           .filter(b => b.startTime && new Date(b.startTime) > now)
           .slice(0, 5);
-      },
-      error: (err) => console.error('Error loading bookings:', err)
-    });
-
-    this.billingService.getAllBillings().subscribe({
-      next: (billings) => {
-        // Calculate total spent (would need to filter by user's bookings)
-        this.totalSpent = billings.reduce((sum, bill) => sum + (bill.amount || 0), 0);
+        
+        // Note: Total spent is managed by admin, drivers pay cash
+        this.totalSpent = 0;
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error loading billings:', err);
+        console.error('Error loading bookings:', err);
+        // Initialize with empty data to prevent UI issues
+        this.totalBookings = 0;
+        this.upcomingBookings = [];
+        this.totalSpent = 0;
         this.loading = false;
+        
+        if (err.status === 401) {
+          console.warn('Unauthorized - please log in again');
+        }
       }
     });
   }

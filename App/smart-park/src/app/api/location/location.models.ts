@@ -3,7 +3,7 @@ export interface LocationCreateRequest {
   address: string;
   totalSlots: number;
   city: string;
-  image?: string;
+  imageFile?: string;
 }
 
 export interface SlotDto {
@@ -30,5 +30,5 @@ export interface LocationUpdateRequest {
   address?: string;
   totalSlots?: number;
   city?: string;
-  image?: string;
+  imageFile?: string;
 }

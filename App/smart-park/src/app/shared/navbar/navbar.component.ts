@@ -19,6 +19,7 @@ export class NavbarComponent implements OnInit {
   uploadLoading = false;
   selectedFile: File | null = null;
   previewUrl: string | null = null;
+  isDropdownOpen = false;
 
   constructor(
     public authService: Auth,
@@ -130,6 +131,10 @@ export class NavbarComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  toggleDropdown(): void {
+    this.isDropdownOpen = !this.isDropdownOpen;
   }
 
   logout(): void {

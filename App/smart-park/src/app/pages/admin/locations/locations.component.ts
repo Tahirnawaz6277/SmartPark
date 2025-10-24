@@ -207,63 +207,30 @@ export class LocationsComponent implements OnInit, OnDestroy {
     this.modalLoading = true;
 
     if (this.isEditMode && this.editingLocationId) {
-      // Update existing location
+      // Update existing location - use FormData (API now uses [FromForm])
+      const formData = new FormData();
+      formData.append('Name', this.locationForm.get('name')?.value);
+      formData.append('Address', this.locationForm.get('address')?.value);
+      formData.append('TotalSlots', this.locationForm.get('totalSlots')?.value.toString());
+      formData.append('City', this.locationForm.get('city')?.value);
+      
       if (this.selectedFile) {
-        // Convert image to base64 for JSON payload
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64String = reader.result as string;
-          // Remove the data:image/...;base64, prefix
-          const base64Data = base64String.split(',')[1];
-          
-          const updateData = {
-            name: this.locationForm.get('name')?.value,
-            address: this.locationForm.get('address')?.value,
-            totalSlots: this.locationForm.get('totalSlots')?.value,
-            city: this.locationForm.get('city')?.value,
-            image: base64Data
-          };
-
-          this.locationService.updateLocation(this.editingLocationId!, updateData).subscribe({
-            next: () => {
-              alert('Location updated successfully');
-              this.closeModal();
-              this.loadLocations();
-            },
-            error: (err) => {
-              console.error('Error updating location:', err);
-              alert('Error updating location: ' + (err.error?.Message || err.message));
-              this.modalLoading = false;
-            }
-          });
-        };
-        reader.onerror = () => {
-          alert('Error reading image file');
-          this.modalLoading = false;
-        };
-        reader.readAsDataURL(this.selectedFile);
-      } else {
-        // If no image, use JSON without image field
-        const updateData = {
-          name: this.locationForm.get('name')?.value,
-          address: this.locationForm.get('address')?.value,
-          totalSlots: this.locationForm.get('totalSlots')?.value,
-          city: this.locationForm.get('city')?.value
-        };
-
-        this.locationService.updateLocation(this.editingLocationId, updateData).subscribe({
-          next: () => {
-            alert('Location updated successfully');
-            this.closeModal();
-            this.loadLocations();
-          },
-          error: (err) => {
-            console.error('Error updating location:', err);
-            alert('Error updating location: ' + (err.error?.Message || err.message));
-            this.modalLoading = false;
-          }
-        });
+        formData.append('ImageFile', this.selectedFile, this.selectedFile.name);
       }
+
+      this.locationService.updateLocationWithFormData(this.editingLocationId!, formData).subscribe({
+        next: () => {
+          alert('Location updated successfully');
+          this.modalLoading = false;
+          this.closeModal();
+          this.loadLocations();
+        },
+        error: (err) => {
+          console.error('Error updating location:', err);
+          alert('Error updating location: ' + (err.error?.Message || err.message));
+          this.modalLoading = false;
+        }
+      });
     } else {
       // Create new location - use FormData
       const formData = new FormData();

@@ -15,8 +15,8 @@ export const DRIVER_ROUTES: Routes = [
         loadComponent: () => import('./my-bookings/my-bookings.component').then(m => m.MyBookingsComponent)
       },
       {
-        path: 'my-billings',
-        loadComponent: () => import('./my-billings/my-billings.component').then(m => m.MyBillingsComponent)
+        path: 'locations',
+        loadComponent: () => import('./driver-locations/driver-locations.component').then(m => m.DriverLocationsComponent)
       }
     ]
   }
