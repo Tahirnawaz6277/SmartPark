@@ -4,13 +4,27 @@
   position: fixed;
   top: 56px;
   left: 0;
-  z-index: 100;
+  z-index: 1020;
   overflow-y: auto;
   background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
   
+  // Desktop: sidebar is always visible but can be toggled to collapse
+  @media (min-width: 769px) {
+    &:not(.open) {
+      transform: translateX(-100%);
+    }
+  }
+  
+  // Tablet and mobile: sidebar is hidden by default, slides in when open
   @media (max-width: 768px) {
-    width: 200px;
+    width: 250px;
+    transform: translateX(-100%);
+    
+    &.open {
+      transform: translateX(0);
+    }
   }
 }
 
@@ -97,19 +111,36 @@
   }
 }
 
-// Responsive adjustments
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
+// Sidebar overlay for mobile
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1010;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  
+  @media (max-width: 768px) {
+    display: block;
     
-    &.show {
-      transform: translateX(0);
+    &.active {
+      opacity: 1;
     }
   }
-  
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
   .nav-link {
     padding: 0.75rem 1rem;
     font-size: 0.9rem;
+  }
+  
+  .sidebar-header h5 {
+    font-size: 1rem;
   }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { BookingService } from '../../../api/booking/booking.service';
 import { BookingDto } from '../../../api/booking/booking.models';
 import { LocationService } from '../../../api/location/location.service';
@@ -38,6 +38,7 @@ export class DriverBookingManagementComponent implements OnInit, OnDestroy {
     private authService: Auth,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private route: ActivatedRoute,
     private fb: FormBuilder
   ) {
     this.initForm();
@@ -49,18 +50,77 @@ export class DriverBookingManagementComponent implements OnInit, OnDestroy {
       slotId: ['', Validators.required],
       startTime: ['', Validators.required],
       endTime: ['', Validators.required]
-    });
+    }, { validators: this.dateTimeValidator.bind(this) });
+  }
+
+  // Custom validator for date/time fields
+  dateTimeValidator(group: FormGroup): {[key: string]: any} | null {
+    const startTime = group.get('startTime')?.value;
+    const endTime = group.get('endTime')?.value;
+
+    if (!startTime || !endTime) {
+      return null;
+    }
+
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const now = new Date();
+
+    // Check if start time is in the past
+    if (start < now) {
+      return { pastDate: true };
+    }
+
+    // Check if end time is before or equal to start time
+    if (end <= start) {
+      return { endBeforeStart: true };
+    }
+
+    // Check if booking duration is at least 15 minutes
+    const diffInMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+    if (diffInMinutes < 15) {
+      return { minimumDuration: true };
+    }
+
+    return null;
+  }
+
+  // Get minimum datetime value (current datetime)
+  get minDateTime(): string {
+    const now = new Date();
+    // Format: yyyy-MM-ddTHH:mm
+    return now.toISOString().slice(0, 16);
+  }
+
+  // Get minimum end time based on start time (start time + 15 minutes)
+  get minEndDateTime(): string {
+    const startTime = this.bookingForm.get('startTime')?.value;
+    if (startTime) {
+      const start = new Date(startTime);
+      start.setMinutes(start.getMinutes() + 15);
+      return start.toISOString().slice(0, 16);
+    }
+    return this.minDateTime;
   }
 
   ngOnInit(): void {
     this.loadBookings();
 
+    // Check for query parameters (slot pre-selection from locations page)
+    this.route.queryParams.subscribe(params => {
+      if (params['slotId'] && params['locationId']) {
+        console.log('Opening booking modal with pre-selected slot:', params);
+        // Open modal with pre-selected slot
+        this.openAddModalWithSlot(params['locationId'], params['slotId']);
+      }
+    });
+
     // Reload data when navigating back to this component
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
-        if (event.url.includes('/driver/booking-management')) {
-          console.log('Navigated to booking management, reloading data...');
+        if (event.url.includes('/driver/my-bookings')) {
+          console.log('Navigated to my-bookings, reloading data...');
           this.loadBookings();
         }
       });
@@ -218,10 +278,62 @@ export class DriverBookingManagementComponent implements OnInit, OnDestroy {
     this.selectedBooking = null;
   }
 
+  // Open modal with pre-selected location and slot
+  openAddModalWithSlot(locationId: string, slotId: string): void {
+    this.showModal = true;
+    this.modalLoading = true;
+    this.bookingForm.reset();
+    this.selectedLocationId = '';
+    this.availableSlots = [];
+
+    // Load locations
+    this.locationService.getAllLocations().subscribe({
+      next: (data: LocationDto[]) => {
+        this.locations = data;
+        
+        // Find selected location and load its slots
+        const selectedLocation = this.locations.find(loc => loc.id === locationId);
+        if (selectedLocation) {
+          // Set selectedLocationId BEFORE loading slots
+          this.selectedLocationId = locationId;
+          this.availableSlots = selectedLocation.slots || [];
+          
+          // Pre-fill form with location and slot
+          // Use setTimeout to ensure form is ready and values are set after view init
+          setTimeout(() => {
+            this.bookingForm.patchValue({
+              locationId: locationId,
+              slotId: slotId
+            });
+            this.cdr.detectChanges();
+          }, 100);
+        }
+        
+        this.modalLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Error loading locations:', err);
+        alert('Error loading locations: ' + (err.error?.Message || err.message));
+        this.modalLoading = false;
+        this.showModal = false;
+      }
+    });
+  }
+
   // Save booking
   saveBooking(): void {
     if (this.bookingForm.invalid) {
-      alert('Please fill all required fields correctly');
+      const errors = this.bookingForm.errors;
+      if (errors?.['pastDate']) {
+        alert('Start time cannot be in the past');
+      } else if (errors?.['endBeforeStart']) {
+        alert('End time must be after start time');
+      } else if (errors?.['minimumDuration']) {
+        alert('Minimum booking duration is 15 minutes');
+      } else {
+        alert('Please fill all required fields correctly');
+      }
       return;
     }
 

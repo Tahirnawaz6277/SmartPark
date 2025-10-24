@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Auth } from '../../core/services/auth';
@@ -20,6 +20,8 @@ export class NavbarComponent implements OnInit {
   selectedFile: File | null = null;
   previewUrl: string | null = null;
   isDropdownOpen = false;
+
+  @Output() sidebarToggle = new EventEmitter<void>();
 
   constructor(
     public authService: Auth,
@@ -139,5 +141,9 @@ export class NavbarComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  toggleSidebar(): void {
+    this.sidebarToggle.emit();
   }
 }

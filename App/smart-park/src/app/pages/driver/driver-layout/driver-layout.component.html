@@ -1,11 +1,7 @@
-<app-navbar></app-navbar>
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-auto p-0">
-      <app-sidebar></app-sidebar>
-    </div>
-    <div class="col main-content">
-      <router-outlet></router-outlet>
-    </div>
+<app-navbar (sidebarToggle)="toggleSidebar()"></app-navbar>
+<div class="layout-wrapper">
+  <app-sidebar [isOpen]="isSidebarOpen" (close)="toggleSidebar()"></app-sidebar>
+  <div class="main-content" [class.sidebar-open]="isSidebarOpen">
+    <router-outlet></router-outlet>
   </div>
 </div>

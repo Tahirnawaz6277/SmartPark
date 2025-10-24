@@ -39,12 +39,62 @@ export class BookingsComponent implements OnInit, OnDestroy {
     this.initForm();
   }
 
+  // Custom validator for date/time fields
+  dateTimeValidator(group: FormGroup): {[key: string]: any} | null {
+    const startTime = group.get('startTime')?.value;
+    const endTime = group.get('endTime')?.value;
+
+    if (!startTime || !endTime) {
+      return null;
+    }
+
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const now = new Date();
+
+    // Check if start time is in the past
+    if (start < now) {
+      return { pastDate: true };
+    }
+
+    // Check if end time is before or equal to start time
+    if (end <= start) {
+      return { endBeforeStart: true };
+    }
+
+    // Check if booking duration is at least 15 minutes
+    const diffInMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+    if (diffInMinutes < 15) {
+      return { minimumDuration: true };
+    }
+
+    return null;
+  }
+
+  // Get minimum datetime value (current datetime)
+  get minDateTime(): string {
+    const now = new Date();
+    // Format: yyyy-MM-ddTHH:mm
+    return now.toISOString().slice(0, 16);
+  }
+
+  // Get minimum end time based on start time (start time + 15 minutes)
+  get minEndDateTime(): string {
+    const startTime = this.bookingForm.get('startTime')?.value;
+    if (startTime) {
+      const start = new Date(startTime);
+      start.setMinutes(start.getMinutes() + 15);
+      return start.toISOString().slice(0, 16);
+    }
+    return this.minDateTime;
+  }
+
   initForm(): void {
     this.bookingForm = this.fb.group({
       slotId: ['', Validators.required],
-      startTime: ['', Validators.required],
-      endTime: ['', Validators.required]
-    });
+      startTime: ['', [Validators.required]],
+      endTime: ['', [Validators.required]]
+    }, { validators: this.dateTimeValidator.bind(this) });
   }
 
   ngOnInit(): void {
@@ -171,7 +221,16 @@ export class BookingsComponent implements OnInit, OnDestroy {
   // Save booking
   saveBooking(): void {
     if (this.bookingForm.invalid) {
-      alert('Please fill all required fields correctly');
+      const errors = this.bookingForm.errors;
+      if (errors?.['pastDate']) {
+        alert('Start time cannot be in the past');
+      } else if (errors?.['endBeforeStart']) {
+        alert('End time must be after start time');
+      } else if (errors?.['minimumDuration']) {
+        alert('Minimum booking duration is 15 minutes');
+      } else {
+        alert('Please fill all required fields correctly');
+      }
       return;
     }
 

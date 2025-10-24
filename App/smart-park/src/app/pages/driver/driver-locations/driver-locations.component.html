@@ -109,13 +109,17 @@
 
           <!-- Slots List -->
           <div *ngIf="locationSlots.length > 0">
-            <h6>Parking Slots</h6>
+            <h6>Parking Slots <small class="text-muted">(Click on available slot to book)</small></h6>
             <div class="row">
               <div class="col-md-3 mb-2" *ngFor="let slot of locationSlots">
-                <div class="card" [ngClass]="{
-                  'border-success bg-light': slot.isAvailable,
-                  'border-danger bg-light': !slot.isAvailable
-                }">
+                <div class="card slot-card" 
+                     [ngClass]="{
+                       'border-success bg-light': slot.isAvailable,
+                       'border-danger bg-light': !slot.isAvailable,
+                       'clickable': slot.isAvailable
+                     }"
+                     (click)="slot.isAvailable ? bookSlot(slot) : null"
+                     [style.cursor]="slot.isAvailable ? 'pointer' : 'not-allowed'">
                   <div class="card-body text-center p-2">
                     <div class="slot-number">Slot {{ slot.slotNumber }}</div>
                     <div class="slot-status">
@@ -125,6 +129,9 @@
                       }">
                         {{ slot.isAvailable ? 'Available' : 'Occupied' }}
                       </span>
+                    </div>
+                    <div *ngIf="slot.isAvailable" class="mt-2">
+                      <small class="text-primary"><i class="bi bi-hand-index"></i> Click to book</small>
                     </div>
                   </div>
                 </div>

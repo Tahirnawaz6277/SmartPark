@@ -33,27 +33,43 @@
 }
 
 .location-card {
-  transition: all 0.3s ease;
+  transition: transform 0.2s;
   
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
+}
+
+.slot-card {
+  transition: all 0.3s ease;
   
-  .card-title {
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 1rem;
-  }
-  
-  .card-text {
-    color: #6c757d;
-    font-size: 0.95rem;
-    margin-bottom: 0.5rem;
-    
-    i {
-      color: #667eea;
+  &.clickable {
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+      border-width: 2px !important;
     }
+    
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}
+
+.card-title {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.card-text {
+  color: #6c757d;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  
+  i {
+    color: #667eea;
   }
 }
 

@@ -114,17 +114,26 @@
 
           <div class="mb-3">
             <label class="form-label">Start Time <span class="text-danger">*</span></label>
-            <input type="datetime-local" class="form-control" formControlName="startTime">
+            <input type="datetime-local" class="form-control" formControlName="startTime" [min]="minDateTime">
             <div *ngIf="bookingForm.get('startTime')?.invalid && bookingForm.get('startTime')?.touched" class="text-danger small">
               Start time is required
+            </div>
+            <div *ngIf="bookingForm.errors?.['pastDate']" class="text-danger small">
+              Start time cannot be in the past
             </div>
           </div>
 
           <div class="mb-3">
             <label class="form-label">End Time <span class="text-danger">*</span></label>
-            <input type="datetime-local" class="form-control" formControlName="endTime">
+            <input type="datetime-local" class="form-control" formControlName="endTime" [min]="minEndDateTime">
             <div *ngIf="bookingForm.get('endTime')?.invalid && bookingForm.get('endTime')?.touched" class="text-danger small">
               End time is required
+            </div>
+            <div *ngIf="bookingForm.errors?.['endBeforeStart']" class="text-danger small">
+              End time must be after start time
+            </div>
+            <div *ngIf="bookingForm.errors?.['minimumDuration']" class="text-danger small">
+              Minimum booking duration is 15 minutes
             </div>
           </div>
         </form>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Auth } from '../../core/services/auth';
@@ -18,6 +18,8 @@ interface MenuItem {
   styleUrl: './sidebar.scss'
 })
 export class Sidebar implements OnInit {
+  @Input() isOpen: boolean = true;
+  @Output() close = new EventEmitter<void>();
   userRole: string | null = '';
   menuItems: MenuItem[] = [];
 
@@ -46,5 +48,18 @@ export class Sidebar implements OnInit {
         item.roles.includes(this.userRole!)
       );
     }
+  }
+
+  onOverlayClick(): void {
+    // Close sidebar when overlay is clicked (mobile only)
+    this.close.emit();
+  }
+
+  onMenuItemClick(): void {
+    // Only close sidebar on mobile/tablet screens (≤ 768px)
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      this.close.emit();
+    }
+    // On desktop, sidebar stays open
   }
 }

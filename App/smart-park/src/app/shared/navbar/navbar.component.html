@@ -1,6 +1,12 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container-fluid">
+    <!-- Sidebar Toggle Button -->
+    <button class="btn btn-link sidebar-toggle-btn d-md-block text-white me-2" (click)="toggleSidebar()" type="button">
+      <i class="bi bi-list fs-3"></i>
+    </button>
+    
     <a class="navbar-brand" routerLink="/">SmartPark</a>
+    
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>

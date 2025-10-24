@@ -1,13 +1,15 @@
-<div class="sidebar bg-dark text-white">
+<div class="sidebar bg-dark text-white" [class.open]="isOpen">
   <div class="sidebar-header p-3">
     <h5>{{ userRole }} Panel</h5>
   </div>
   <ul class="nav flex-column">
     <li class="nav-item" *ngFor="let item of menuItems">
-      <a class="nav-link text-white" [routerLink]="item.route" routerLinkActive="active">
+      <a class="nav-link text-white" [routerLink]="item.route" routerLinkActive="active" (click)="onMenuItemClick()">
         <i class="bi {{ item.icon }} me-2"></i>
-        {{ item.label }}
+        <span class="nav-label">{{ item.label }}</span>
       </a>
     </li>
   </ul>
 </div>
+<!-- Overlay for mobile -->
+<div class="sidebar-overlay" [class.active]="isOpen" *ngIf="isOpen" (click)="onOverlayClick()"></div>

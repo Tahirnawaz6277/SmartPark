@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { LocationService } from '../../../api/location/location.service';
 import { LocationDto, SlotDto } from '../../../api/location/location.models';
 import { Auth } from '../../../core/services/auth';
@@ -30,7 +31,8 @@ export class DriverLocationsComponent implements OnInit, OnDestroy {
   constructor(
     private locationService: LocationService,
     private authService: Auth,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -128,5 +130,26 @@ export class DriverLocationsComponent implements OnInit, OnDestroy {
 
   get totalSlotsCount(): number {
     return this.locationSlots.length;
+  }
+
+  // Navigate to booking page with slot pre-selected
+  bookSlot(slot: SlotDto): void {
+    if (!slot.isAvailable) {
+      alert('This slot is currently occupied. Please select an available slot.');
+      return;
+    }
+
+    if (!this.selectedLocation) {
+      return;
+    }
+
+    // Navigate to my-bookings with query parameters
+    this.router.navigate(['/driver/my-bookings'], {
+      queryParams: {
+        locationId: this.selectedLocation.id,
+        slotId: slot.id,
+        locationName: this.selectedLocation.name
+      }
+    });
   }
 }
