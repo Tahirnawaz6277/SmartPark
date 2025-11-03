@@ -1,4 +1,5 @@
 using System.Text;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -41,6 +42,10 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
  });
 
+builder.Services.AddHangfire(config =>
+    config.UseSqlServerStorage(builder.Configuration.GetConnectionString("SmartParkConnectionString")));
+builder.Services.AddHangfireServer();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -50,6 +55,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.ConfigureSwaggerAuthentication();
 
 var app = builder.Build();
+app.UseHangfireDashboard();
 
 app.UseStaticFiles(); // Enables access to files in wwwroot
 // Use CORS

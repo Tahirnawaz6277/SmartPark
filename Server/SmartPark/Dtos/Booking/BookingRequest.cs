@@ -10,7 +10,7 @@ namespace SmartPark.Dtos.Booking
         [Required(ErrorMessage = "EndTime is required")]
         public DateTime EndTime { get; set; }
 
-        [Required(ErrorMessage = "SlotId is required")]
-        public Guid SlotId { get; set; }
+        [Required(ErrorMessage = "At lease one SlotId is required for booking")]
+        public List<Guid> SlotIds { get; set; }
     }
 }

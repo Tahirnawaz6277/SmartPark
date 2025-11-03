@@ -73,11 +73,6 @@ public partial class ParkingDbContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Slot).WithMany(p => p.Bookings)
-                .HasForeignKey(d => d.SlotId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Booking__SlotId__59063A47");
-
             entity.HasOne(d => d.User).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -206,7 +201,15 @@ public partial class ParkingDbContext : DbContext
             entity.HasOne(d => d.Location).WithMany(p => p.Slots)
                 .HasForeignKey(d => d.LocationId)
                 .HasConstraintName("FK__Slots__LocationI__534D60F1");
+
+            entity.HasOne(b => b.Booking).WithMany(s => s.Slots)
+                .HasForeignKey(b => b.BookingId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK__Slots__BookingId__5441852A");
+
         });
+
+ 
 
         modelBuilder.Entity<User>(entity =>
         {

@@ -98,7 +98,7 @@ namespace SmartPark.Services.Implementations
                     PaymentMethod = b.PaymentMethod,
                     TimeStamp = b.TimeStamp,
                     BookingId = b.BookingId,
-                    SlotNumber = b.Booking != null && b.Booking.Slot != null ? b.Booking.Slot.SlotNumber : null,
+                    SlotNumbers = b.Booking == null || b.Booking.Slots == null ? new List<string?>() : b.Booking.Slots.Select(s => s.SlotNumber).ToList(),
                     UserName = b.Booking != null && b.Booking.User != null ? b.Booking.User.Name : null
                 })
                 .ToListAsync(cancellationToken);
@@ -116,7 +116,7 @@ namespace SmartPark.Services.Implementations
                     PaymentMethod = b.PaymentMethod,
                     TimeStamp = b.TimeStamp,
                     BookingId = b.BookingId,
-                    SlotNumber = b.Booking != null && b.Booking.Slot != null ? b.Booking.Slot.SlotNumber : null,
+                    SlotNumbers = b.Booking == null || b.Booking.Slots == null ? new List<string?>() : b.Booking.Slots.Select(s => s.SlotNumber).ToList(),
                     UserName = b.Booking != null && b.Booking.User != null ? b.Booking.User.Name : null
                 })
                 .FirstOrDefaultAsync(cancellationToken);
@@ -135,8 +135,8 @@ namespace SmartPark.Services.Implementations
                               PaymentMethod = b.PaymentMethod,
                               TimeStamp = b.TimeStamp,
                               BookingId = b.BookingId,
-                              SlotNumber = b.Booking != null && b.Booking.Slot != null ? b.Booking.Slot.SlotNumber : null,
-                              UserName = b.Booking != null && b.Booking.User != null ? b.Booking.User.Name : null
+                              UserName = b.Booking != null && b.Booking.User != null ? b.Booking.User.Name : null,
+                              SlotNumbers = b.Booking == null || b.Booking.Slots == null ? new List<string?>() : b.Booking.Slots.Select(s => s.SlotNumber).ToList()
                           }).ToListAsync(cancellationToken);
         }
     }

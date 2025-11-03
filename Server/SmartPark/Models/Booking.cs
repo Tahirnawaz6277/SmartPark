@@ -11,7 +11,7 @@ public partial class Booking
 
     public Guid UserId { get; set; }
 
-    public Guid SlotId { get; set; }
+    //public Guid SlotId { get; set; }
 
     public DateTime StartTime { get; set; }
 
@@ -31,7 +31,8 @@ public partial class Booking
 
     public virtual ICollection<BookingHistory> BookingHistories { get; set; } = new List<BookingHistory>();
 
-    public virtual Slot Slot { get; set; } = null!;
+    // One Booking -> Many Slots
+    public ICollection<Slot> Slots { get; set; }   
 
     public virtual User User { get; set; } = null!;
 }

@@ -10,10 +10,8 @@
         // For lookup/display purposes
         public Guid? UserId { get; set; }
         public string? UserName { get; set; }
-        public string? LocationName { get; set; }
 
-        public Guid? SlotId { get; set; }
-        public string? SlotNumber { get; set; } // e.g. "A1", "B5"
+        public List<SlotDto> Slots { get; set; }
 
         // Optional: last history snapshot
         public string? LastStatusSnapshot { get; set; }

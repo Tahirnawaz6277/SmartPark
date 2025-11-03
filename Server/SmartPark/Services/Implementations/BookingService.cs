@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using SmartPark.Data.Contexts;
 using SmartPark.Dtos.Booking;
 using SmartPark.Exceptions;
@@ -34,33 +35,34 @@ namespace SmartPark.Services.Implementations
                     EndTime = dto.EndTime,
                     CreatedAt = serverTime,
                     UserId = userId ?? Guid.Empty,
-                    SlotId = dto.SlotId
                 };
 
                 _dbContext.Bookings.Add(booking);
                 await _dbContext.SaveChangesAsync(cancellationToken);
 
-                var bookingHistory = new BookingHistory
+                // Handle multiple slots
+                foreach (var slotId in dto.SlotIds)
                 {
-                    StatusSnapshot = booking.Status,
-                    StartTime = dto.StartTime,
-                    EndTime = dto.EndTime,
-                    TimeStamp = serverTime,
-                    SlotId = dto.SlotId,
-                    BookingId = booking.Id,
-                    UserId = userId ?? Guid.Empty
-                };
+                    await BookSlotAsync(slotId, booking.Id);
+                    var delay = booking.EndTime - serverTime;
+                    if (delay.TotalSeconds < 0) delay = TimeSpan.Zero;
 
-                _dbContext.BookingHistories.Add(bookingHistory);
+                    BackgroundJob.Schedule(() => ReleaseSlot(slotId), delay);
 
-                var slot = await _dbContext.Slots.FindAsync(dto.SlotId);
-                if (slot == null)
-                    throw new NotFoundException("Slot not found");
-                 if (slot.IsAvailable ==false)
-                    throw new ConflictException("This Slot is already Booked");
-                
-                slot.IsAvailable = false;
-                _dbContext.Slots.Update(slot);
+                    // Add a booking history per slot
+                    var bookingHistory = new BookingHistory
+                    {
+                        StatusSnapshot = booking.Status,
+                        StartTime = booking.StartTime,
+                        EndTime = booking.EndTime,
+                        TimeStamp = serverTime,
+                        SlotId = slotId,
+                        BookingId = booking.Id,
+                        UserId = userId ?? Guid.Empty
+                    };
+
+                    _dbContext.BookingHistories.Add(bookingHistory);
+                }
 
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
@@ -76,19 +78,21 @@ namespace SmartPark.Services.Implementations
 
         public async Task<bool> DeleteBookingAsync(Guid id)
         {
-            var booking = await _dbContext.Bookings.FindAsync(id);
+            var booking = await _dbContext.Bookings
+                  .Include(b => b.Slots)
+                  .FirstOrDefaultAsync(b => b.Id == id);
             if (booking == null)
                 throw new NotFoundException("Booking not found");
 
             //_dbContext.Bookings.Remove(booking);
             booking.IsDeleted = true;
 
-            //  free the slot again
-            var slot = await _dbContext.Slots.FindAsync(booking.SlotId);
-            if (slot != null)
+            // Free all related slots
+            foreach (var slot in booking.Slots)
             {
                 slot.IsAvailable = true;
-                _dbContext.Slots.Update(slot);
+                slot.BookingId = null;
+                //_dbContext.Slots.Update(slot);
             }
 
             await _dbContext.SaveChangesAsync();
@@ -98,52 +102,66 @@ namespace SmartPark.Services.Implementations
         //  Get All for admin
         public async Task<IEnumerable<BookingDto>> GetAllBookingsAsync()
         {
-           return await _dbContext.Bookings
-                            .AsNoTracking()
-                          .Select(b => new BookingDto
-                          {
-                              Id = b.Id,
-                              Status = b.Status,
-                              StartTime = b.StartTime,
-                              EndTime = b.EndTime,
-                              UserId = b.UserId,
-                              UserName = b.User != null ? b.User.Name : null,
-                              SlotId = b.SlotId,
-                              SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null,
-                              LocationName = b.Slot != null && b.Slot.Location != null ? b.Slot.Location.Name : ""
-                          }).ToListAsync();
+            return await _dbContext.Bookings
+                             .AsNoTracking()
+                           .Select(b => new BookingDto
+                           {
+                               Id = b.Id,
+                               Status = b.Status,
+                               StartTime = b.StartTime,
+                               EndTime = b.EndTime,
+                               UserId = b.UserId,
+                               UserName = b.User != null ? b.User.Name : null,
+                               Slots = b.Slots.Select(s => new SlotDto
+                               {
+                                   SlotId = s.Id,
+                                   SlotNumber = s.SlotNumber,
+                                   LocationName = s.Location != null ? s.Location.Name : ""
+                               }).ToList()
+
+                           }).ToListAsync();
         }
 
         //  Get By Id
         public async Task<BookingDto?> GetBookingByIdAsync(Guid id)
         {
             var booking = await _dbContext.Bookings
-                          .AsNoTracking()
-                          .Where(b => b.Id == id)
-                          .Select(b => new BookingDto
-                          {
-                              Id = b.Id,
-                              Status = b.Status,
-                              StartTime = b.StartTime,
-                              EndTime = b.EndTime,
-                              UserId = b.UserId,
-                              UserName = b.User != null ? b.User.Name : null,
-                              SlotId = b.SlotId,
-                              SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null,
-                              LocationName = b.Slot != null && b.Slot.Location != null ? b.Slot.Location.Name : ""
-                          }).FirstOrDefaultAsync();
-
+                .Include(b => b.User)
+                .Include(b => b.Slots)
+                .ThenInclude(s => s.Location)
+                .AsNoTracking()
+                .Where(b => b.Id == id)
+                .Select(b => new BookingDto
+                {
+                    Id = b.Id,
+                    Status = b.Status,
+                    StartTime = b.StartTime,
+                    EndTime = b.EndTime,
+                    UserId = b.UserId,
+                    UserName = b.User != null ? b.User.Name : null,
+                    Slots = b.Slots.Select(s => new SlotDto
+                    {
+                        SlotId = s.Id,
+                        SlotNumber = s.SlotNumber,
+                        LocationName = s.Location != null ? s.Location.Name : ""
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
 
             if (booking == null)
-                throw new NotFoundException("booking not found");
+                throw new NotFoundException("Booking not found");
 
             return booking;
         }
 
+
         //cancell booking
         public async Task<BookingResponse> CancelBookingAsync(Guid id)
         {
-            var booking = await _dbContext.Bookings.FindAsync(id);
+            var booking = await _dbContext.Bookings
+                     .Include(b => b.Slots)
+                     .FirstOrDefaultAsync(b => b.Id == id);
+
             if (booking == null)
                 throw new NotFoundException("Booking not found");
 
@@ -160,89 +178,71 @@ namespace SmartPark.Services.Implementations
             booking.CancelledBy = userId;
 
             _dbContext.Bookings.Update(booking);
-
-            //  insert new history snapshot
-            var history = new BookingHistory
+            // free all slots associated with this booking
+            foreach (var slot in booking.Slots)
             {
-                StatusSnapshot = booking.Status,
-                TimeStamp = serverTime,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-                SlotId = booking.SlotId,
-                BookingId = booking.Id,
-                UserId = booking.UserId
-            };
-            _dbContext.BookingHistories.Add(history);
-
-            //  update slot availability (if slot changed)
-            var slot = await _dbContext.Slots.FindAsync(booking.SlotId);
-            if (slot != null)
-            {
-                //if (slot.IsAvailable == false)
-                //    throw new ConflictException("This booking is already Cancelled");
-                slot.IsAvailable = false;
+                slot.IsAvailable = true;
+                slot.BookingId = null;
                 _dbContext.Slots.Update(slot);
-            }
 
+                // add cancellation history
+                _dbContext.BookingHistories.Add(new BookingHistory
+                {
+                    StatusSnapshot = "Cancelled",
+                    TimeStamp = serverTime,
+                    StartTime = booking.StartTime,
+                    EndTime = booking.EndTime,
+                    SlotId = slot.Id,
+                    BookingId = booking.Id,
+                    UserId = booking.UserId
+                });
+            }
             await _dbContext.SaveChangesAsync();
             return MapToResponse(booking);
         }
+
         //  Update Booking
         public async Task<BookingResponse> UpdateBookingAsync(Guid id, BookingRequest dto)
         {
-            var booking = await _dbContext.Bookings.FindAsync(id);
+            var booking = await _dbContext.Bookings
+                .Include(b => b.Slots)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
             if (booking == null)
                 throw new NotFoundException("Booking not found");
 
             var serverTime = await _helper.GetDatabaseTime();
 
-            // update booking
-            booking.UpdatedAt = serverTime;
-            booking.StartTime = dto.StartTime;
-            booking.EndTime = dto.EndTime;
-            booking.SlotId = dto.SlotId;
-
-            _dbContext.Bookings.Update(booking);
-
-            //  insert new history snapshot
-            var history = new BookingHistory
+            // Free previous slots
+            foreach (var slot in booking.Slots)
             {
-                StatusSnapshot = booking.Status,
-                TimeStamp = serverTime,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-                SlotId = dto.SlotId,
-                BookingId = booking.Id,
-                UserId = booking.UserId
-            };
-            _dbContext.BookingHistories.Add(history);
-
-            //  update slot availability (if slot changed)
-            var slot = await _dbContext.Slots.FindAsync(dto.SlotId);
-            if (slot != null)
-            {
-                if (slot.IsAvailable == false)
-                    throw new ConflictException("This Slot is already Booked");
-                slot.IsAvailable = false;
+                slot.IsAvailable = true;
+                slot.BookingId = null;
                 _dbContext.Slots.Update(slot);
             }
 
-            await _dbContext.SaveChangesAsync();
-            return MapToResponse(booking);
-        }
+            // Assign new slots
+            var newSlots = await _dbContext.Slots
+                .Where(s => dto.SlotIds.Contains(s.Id))
+                .ToListAsync();
 
-        // Mapping helpers
-        private BookingResponse MapToResponse(Booking booking)
-        {
-            return new BookingResponse
+            foreach (var slot in newSlots)
             {
-                Id = booking.Id,
-                Status = booking.Status,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-                UserId = booking.UserId,
-                SlotId = booking.SlotId
-            };
+                if (!slot.IsAvailable)
+                    throw new ConflictException($"Slot {slot.SlotNumber} is already booked");
+
+                slot.IsAvailable = false;
+                slot.BookingId = booking.Id;
+            }
+
+            booking.StartTime = dto.StartTime;
+            booking.EndTime = dto.EndTime;
+            booking.UpdatedAt = serverTime;
+
+            _dbContext.Bookings.Update(booking);
+            await _dbContext.SaveChangesAsync();
+
+            return MapToResponse(booking);
         }
 
         // booking history get methods
@@ -251,7 +251,7 @@ namespace SmartPark.Services.Implementations
             var query = _dbContext.BookingHistories.AsNoTracking().AsQueryable();
             if (bookingId != null)
             {
-                query = query.Where(h => h.BookingId != null && h.BookingId == bookingId.Value);   
+                query = query.Where(h => h.BookingId != null && h.BookingId == bookingId.Value);
             }
 
             var histories = await query
@@ -291,7 +291,6 @@ namespace SmartPark.Services.Implementations
             return history;
         }
 
-
         //get booking with unpaid bills for billing dropdown
 
         public async Task<IEnumerable<BookingDto>> GetUnpaidBookingsAsync()
@@ -313,32 +312,85 @@ namespace SmartPark.Services.Implementations
                     EndTime = b.EndTime,
                     UserId = b.UserId,
                     UserName = b.User != null ? b.User.Name : null,
-                    SlotId = b.SlotId,
-                    SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null,
-                    LocationName = b.Slot != null && b.Slot.Location != null ? b.Slot.Location.Name : ""
-                })
-                .ToListAsync();
+                    Slots = b.Slots.Select(s => new SlotDto
+                    {
+                        SlotId = s.Id,
+                        SlotNumber = s.SlotNumber,
+                        LocationName = s.Location != null ? s.Location.Name : ""
+                    }).ToList()
+                }).ToListAsync();
         }
 
         public async Task<IEnumerable<BookingDto>> GetMyBookingsAsync()
         {
-            var UserId = await _helper.GetUserIdFromToken();
+            var userId = await _helper.GetUserIdFromToken();
 
             return await _dbContext.Bookings
-                                      .AsNoTracking()
-                                      .Where(u => u.UserId == UserId)
-                                    .Select(b => new BookingDto
-                                    {
-                                        Id = b.Id,
-                                        Status = b.Status,
-                                        StartTime = b.StartTime,
-                                        EndTime = b.EndTime,
-                                        UserId = b.UserId,
-                                        UserName = b.User != null ? b.User.Name : null,
-                                        SlotId = b.SlotId,
-                                        SlotNumber = b.Slot != null ? b.Slot.SlotNumber : null,
-                                        LocationName = b.Slot != null && b.Slot.Location != null ? b.Slot.Location.Name : ""
-                                    }).ToListAsync();
+                .Where(b => b.UserId == userId)
+                .Include(b => b.Slots)
+                .ThenInclude(s => s.Location)
+                .AsNoTracking()
+                .Select(b => new BookingDto
+                {
+                    Id = b.Id,
+                    Status = b.Status,
+                    StartTime = b.StartTime,
+                    EndTime = b.EndTime,
+                    Slots = b.Slots.Select(s => new SlotDto
+                    {
+                        SlotId = s.Id,
+                        SlotNumber = s.SlotNumber,
+                        LocationName = s.Location != null ? s.Location.Name : ""
+                    }).ToList()
+                })
+                .ToListAsync();
+        }
+
+
+        // helper private methods
+        public async Task ReleaseSlot(Guid slotId)
+        {
+            var slot = await _dbContext.Slots.FirstOrDefaultAsync(s => s.Id == slotId);
+            if (slot == null)
+                throw new NotFoundException("Slot not found");
+
+            if (slot.IsAvailable)
+                return;
+
+            slot.IsAvailable = true;
+            _dbContext.Slots.Update(slot);
+            await _dbContext.SaveChangesAsync();
+        }
+
+
+        private async Task BookSlotAsync(Guid slotId, Guid bookingId)
+        {
+            var slot = await _dbContext.Slots.FirstOrDefaultAsync(s => s.Id == slotId);
+            if (slot == null)
+                throw new NotFoundException("Slot not found");
+
+            if (!slot.IsAvailable)
+                throw new ConflictException("Slot is already booked");
+
+            slot.IsAvailable = false;
+            slot.BookingId = bookingId;
+
+            _dbContext.Slots.Update(slot);
+        }
+
+
+        // Mapping helpers
+        private BookingResponse MapToResponse(Booking booking)
+        {
+            return new BookingResponse
+            {
+                Id = booking.Id,
+                Status = booking.Status,
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
+                UserId = booking.UserId,
+                SlotIds = booking.Slots.Select(s => s.Id).ToList()
+            };
         }
     }
 }

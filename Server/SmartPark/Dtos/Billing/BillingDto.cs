@@ -8,7 +8,7 @@
         public string? PaymentMethod { get; set; }
         public DateTime? TimeStamp { get; set; }
         public Guid? BookingId { get; set; }
-        public string? SlotNumber { get; set; }
+        public List<string?> SlotNumbers { get; set; }
         public string? UserName { get; set; }
 
     }

@@ -9,13 +9,13 @@ public partial class Slot
 
     public string SlotNumber { get; set; } = null!;
 
-    public bool? IsAvailable { get; set; }
+    public bool IsAvailable { get; set; } = false;
 
     public Guid LocationId { get; set; }
+    public Guid? BookingId { get; set; }
 
     public virtual ICollection<BookingHistory> BookingHistories { get; set; } = new List<BookingHistory>();
-
-    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public virtual Booking Booking { get; set; }
 
     public virtual ParkingLocation Location { get; set; } = null!;
 }
