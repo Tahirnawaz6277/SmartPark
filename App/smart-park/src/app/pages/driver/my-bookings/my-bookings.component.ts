@@ -54,7 +54,7 @@ export class MyBookingsComponent implements OnInit, OnDestroy {
   initializeForm(): void {
     this.bookingForm = this.fb.group({
       locationId: ['', Validators.required],
-      slotId: ['', Validators.required],
+      slotIds: [[], Validators.required],
       startTime: ['', Validators.required],
       endTime: ['', Validators.required]
     });
@@ -83,6 +83,7 @@ export class MyBookingsComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (slots: any[]) => {
             this.availableSlots = slots.filter((slot: any) => slot.isAvailable);
+            this.bookingForm.patchValue({ slotIds: [] }); // Reset slot selection
             this.cdr.detectChanges();
           },
           error: (err: any) => {
@@ -92,8 +93,30 @@ export class MyBookingsComponent implements OnInit, OnDestroy {
         });
     } else {
       this.availableSlots = [];
+      this.bookingForm.patchValue({ slotIds: [] });
       this.cdr.detectChanges();
     }
+  }
+
+  // Toggle slot selection
+  toggleSlotSelection(slotId: string): void {
+    const currentSlots = this.bookingForm.get('slotIds')?.value || [];
+    const index = currentSlots.indexOf(slotId);
+    
+    if (index === -1) {
+      // Add slot
+      this.bookingForm.patchValue({ slotIds: [...currentSlots, slotId] });
+    } else {
+      // Remove slot
+      const updatedSlots = currentSlots.filter((id: string) => id !== slotId);
+      this.bookingForm.patchValue({ slotIds: updatedSlots });
+    }
+  }
+
+  // Check if slot is selected
+  isSlotSelected(slotId: string): boolean {
+    const selectedSlots = this.bookingForm.get('slotIds')?.value || [];
+    return selectedSlots.includes(slotId);
   }
 
   openBookingModal(): void {
@@ -116,15 +139,23 @@ export class MyBookingsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const selectedSlots = this.bookingForm.get('slotIds')?.value || [];
+    if (selectedSlots.length === 0) {
+      alert('Please select at least one slot');
+      return;
+    }
+
     this.modalLoading = true;
     this.cdr.detectChanges();
 
     const formValue = this.bookingForm.value;
 
+    // Format datetime-local value to ISO string
+    // Treat as UTC to preserve exact time entered by user
     const bookingData = {
-      slotId: formValue.slotId,
-      startTime: new Date(formValue.startTime).toISOString(),
-      endTime: new Date(formValue.endTime).toISOString()
+      slotIds: formValue.slotIds,
+      startTime: formValue.startTime + ':00.000Z',
+      endTime: formValue.endTime + ':00.000Z'
     };
 
     this.bookingService.createBooking(bookingData)
@@ -187,6 +218,7 @@ export class MyBookingsComponent implements OnInit, OnDestroy {
     return this.bookings.filter(booking =>
       booking.locationName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       booking.slotNumber?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      booking.slotNumbers?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       booking.status?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }

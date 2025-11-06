@@ -260,14 +260,21 @@
           </div>
 
           <!-- ✅ Password input -->
-          <div class="form-outline mb-3">
+          <div class="form-outline mb-3 position-relative">
             <input
-              type="password"
+              [type]="showPassword ? 'text' : 'password'"
               id="form3Example4"
-              class="form-control form-control-lg"
+              class="form-control form-control-lg pe-5"
               placeholder="Enter password"
               formControlName="password"
             />
+            <button 
+              type="button" 
+              class="btn btn-link position-absolute end-0 top-0 mt-1 me-2"
+              (click)="togglePasswordVisibility()"
+              style="z-index: 10;">
+              <i [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+            </button>
             <label class="form-label" for="form3Example4">Password</label>
 
             <!-- error messages -->

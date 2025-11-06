@@ -12,7 +12,7 @@
         <input
           type="text"
           class="form-control"
-          placeholder="Search by location, slot, or status..."
+          placeholder="Search by location, slots, or status..."
           [(ngModel)]="searchTerm">
       </div>
 
@@ -27,7 +27,7 @@
           <thead>
             <tr>
               <th>Location</th>
-              <th>Slot</th>
+              <th>Slots</th>
               <th>Start Time</th>
               <th>End Time</th>
               <th>Status</th>
@@ -37,7 +37,7 @@
           <tbody>
             <tr *ngFor="let booking of filteredBookings">
               <td>{{ booking.locationName || 'N/A' }}</td>
-              <td>{{ booking.slotNumber || 'N/A' }}</td>
+              <td>{{ booking.slotNumbers || booking.slotNumber || 'N/A' }}</td>
               <td>{{ booking.startTime | date:'short' }}</td>
               <td>{{ booking.endTime | date:'short' }}</td>
               <td>
@@ -101,15 +101,32 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Slot <span class="text-danger">*</span></label>
-            <select class="form-select" formControlName="slotId" [disabled]="!selectedLocationId || availableSlots.length === 0">
-              <option value="">Select a slot</option>
-              <option *ngFor="let slot of availableSlots" [value]="slot.id">
-                Slot {{ slot.slotNumber }} {{ slot.isAvailable ? '(Available)' : '(Occupied)' }}
-              </option>
-            </select>
-            <div *ngIf="bookingForm.get('slotId')?.invalid && bookingForm.get('slotId')?.touched" class="text-danger small">
-              Slot is required
+            <label class="form-label">Slots <span class="text-danger">*</span> <small class="text-muted">(Select one or more slots)</small></label>
+            <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+              <div *ngIf="!selectedLocationId || availableSlots.length === 0" class="text-muted text-center py-2">
+                Please select a location first
+              </div>
+              <div *ngFor="let slot of availableSlots" class="form-check mb-2">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  [id]="'slot-' + slot.id"
+                  [checked]="isSlotSelected(slot.id)"
+                  [disabled]="!slot.isAvailable"
+                  (change)="toggleSlotSelection(slot.id)">
+                <label class="form-check-label" [for]="'slot-' + slot.id" [class.text-muted]="!slot.isAvailable">
+                  Slot {{ slot.slotNumber }} 
+                  <span class="badge" [ngClass]="slot.isAvailable ? 'bg-success' : 'bg-secondary'">
+                    {{ slot.isAvailable ? 'Available' : 'Occupied' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+            <div *ngIf="bookingForm.get('slotIds')?.invalid && bookingForm.get('slotIds')?.touched" class="text-danger small mt-1">
+              At least one slot is required
+            </div>
+            <div class="text-info small mt-1">
+              Selected: {{ (bookingForm.get('slotIds')?.value || []).length }} slot(s)
             </div>
           </div>
 
@@ -175,8 +192,8 @@
                 <td>{{ selectedBooking.locationName || 'N/A' }}</td>
               </tr>
               <tr>
-                <td><strong>Slot:</strong></td>
-                <td>{{ selectedBooking.slotNumber || 'N/A' }}</td>
+                <td><strong>Slots:</strong></td>
+                <td>{{ selectedBooking.slotNumbers || selectedBooking.slotNumber || 'N/A' }}</td>
               </tr>
               <tr>
                 <td><strong>Start Time:</strong></td>

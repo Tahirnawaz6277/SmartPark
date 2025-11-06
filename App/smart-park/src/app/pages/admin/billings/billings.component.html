@@ -32,7 +32,7 @@
               <th>Timestamp</th>
               <th>User Name</th>
               <th>Location</th>
-              <th>Slot Number</th>
+              <th>Slots</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -52,7 +52,7 @@
               <td>{{ billing.timeStamp | date:'short' }}</td>
               <td>{{ billing.userName || 'N/A' }}</td>
               <td>{{ billing.locationName || 'N/A' }}</td>
-              <td>{{ billing.slotNumber || 'N/A' }}</td>
+              <td>{{ billing.slotNumbers || billing.slotNumber || 'N/A' }}</td>
               <td>
                 <button class="btn btn-sm btn-info me-2" (click)="openEditModal(billing)">
                   <i class="bi bi-pencil"></i> Edit

@@ -47,7 +47,7 @@ export class DriverBookingManagementComponent implements OnInit, OnDestroy {
   initForm(): void {
     this.bookingForm = this.fb.group({
       locationId: ['', Validators.required],
-      slotId: ['', Validators.required],
+      slotIds: [[], Validators.required],
       startTime: ['', Validators.required],
       endTime: ['', Validators.required]
     }, { validators: this.dateTimeValidator.bind(this) });
@@ -139,6 +139,13 @@ export class DriverBookingManagementComponent implements OnInit, OnDestroy {
       next: (data) => {
         console.log('Bookings loaded successfully:', data);
         console.log('Number of bookings:', data?.length || 0);
+        
+        // Debug: Log first booking to see field names
+        if (data && data.length > 0) {
+          console.log('First booking details:', data[0]);
+          console.log('slotNumbers field:', data[0].slotNumbers);
+          console.log('slotNumber field:', data[0].slotNumber);
+        }
 
         // Ensure data is an array
         this.bookings = Array.isArray(data) ? data : [];
@@ -166,6 +173,7 @@ export class DriverBookingManagementComponent implements OnInit, OnDestroy {
     return this.bookings.filter(booking =>
       booking.locationName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       booking.slotNumber?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      booking.slotNumbers?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       booking.status?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
@@ -256,11 +264,32 @@ export class DriverBookingManagementComponent implements OnInit, OnDestroy {
     if (locationId) {
       const selectedLocation = this.locations.find(loc => loc.id === locationId);
       this.availableSlots = selectedLocation?.slots || [];
-      this.bookingForm.patchValue({ slotId: '' });
+      this.bookingForm.patchValue({ slotIds: [] });
     } else {
       this.availableSlots = [];
     }
     this.cdr.detectChanges();
+  }
+
+  // Toggle slot selection
+  toggleSlotSelection(slotId: string): void {
+    const currentSlots = this.bookingForm.get('slotIds')?.value || [];
+    const index = currentSlots.indexOf(slotId);
+    
+    if (index === -1) {
+      // Add slot
+      this.bookingForm.patchValue({ slotIds: [...currentSlots, slotId] });
+    } else {
+      // Remove slot
+      const updatedSlots = currentSlots.filter((id: string) => id !== slotId);
+      this.bookingForm.patchValue({ slotIds: updatedSlots });
+    }
+  }
+
+  // Check if slot is selected
+  isSlotSelected(slotId: string): boolean {
+    const selectedSlots = this.bookingForm.get('slotIds')?.value || [];
+    return selectedSlots.includes(slotId);
   }
 
   // Close modal
@@ -303,7 +332,7 @@ export class DriverBookingManagementComponent implements OnInit, OnDestroy {
           setTimeout(() => {
             this.bookingForm.patchValue({
               locationId: locationId,
-              slotId: slotId
+              slotIds: [slotId]  // Pre-select single slot as array
             });
             this.cdr.detectChanges();
           }, 100);
@@ -337,14 +366,21 @@ export class DriverBookingManagementComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const selectedSlots = this.bookingForm.get('slotIds')?.value || [];
+    if (selectedSlots.length === 0) {
+      alert('Please select at least one slot');
+      return;
+    }
+
     this.modalLoading = true;
     const formData = this.bookingForm.getRawValue();
 
-    // Convert datetime-local to ISO string
+    // Format datetime-local value to ISO string
+    // Treat as UTC to preserve exact time entered by user
     const bookingData = {
-      slotId: formData.slotId,
-      startTime: new Date(formData.startTime).toISOString(),
-      endTime: new Date(formData.endTime).toISOString()
+      slotIds: formData.slotIds,
+      startTime: formData.startTime + ':00.000Z',
+      endTime: formData.endTime + ':00.000Z'
     };
 
     this.bookingService.createBooking(bookingData).subscribe({

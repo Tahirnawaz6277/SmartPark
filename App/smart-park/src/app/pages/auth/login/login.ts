@@ -13,42 +13,10 @@ import { CommonModule } from '@angular/common';
   styleUrl: './login.scss'
 })
 export class Login {
-
-//   loginForm!: FormGroup;
-//   loading = false;
-//   errorMessage = '';
-
-//   constructor(private http: HttpClient, private authService: Auth, private router: Router, private fb: FormBuilder) { }
-//   ngOnInit(): void {
-//     // initializ form
-//     this.loginForm = this.fb.group({
-//       email: ['', [Validators.required, Validators.email]],
-//       password: ['', [Validators.required, Validators.minLength(6)]]
-//     });
-//   }
-
-  
-//   // getter for form controls (for easy template access)
-//   get f() {
-//     return this.loginForm.controls;
-//   }
-  
-//   onSubmit() : void{
-//     if (this.loginForm.invalid) {
-//       return;
-//     }
-//   }
-
-//   this.loading = true;
-//   this.errorMessage = '';
-
-//   this.authService.login()
-
-// }
-
-loginForm!: FormGroup;
+  loginForm!: FormGroup;
   loading = false;
   errorMessage = '';
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -67,6 +35,11 @@ loginForm!: FormGroup;
   // getter for form controls (for easy template access)
   get f() {
     return this.loginForm.controls;
+  }
+
+  // Toggle password visibility
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   onSubmit(): void {

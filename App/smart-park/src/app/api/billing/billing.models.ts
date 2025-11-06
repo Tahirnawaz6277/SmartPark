@@ -12,6 +12,7 @@ export interface BillingDto {
   bookingId?: string;
   userName?: string;
   slotNumber?: string;
+  slotNumbers?: string;  // Multiple slot numbers for bookings with multiple slots
   locationName?: string;
 }
 

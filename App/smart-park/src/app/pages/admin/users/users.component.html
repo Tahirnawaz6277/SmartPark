@@ -23,32 +23,58 @@
       </div>
 
       <div *ngIf="!loading" class="table-responsive">
-        <table class="table table-hover">
-          <thead>
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>City</th>
-              <th>Actions</th>
+              <th><i class="bi bi-person me-2"></i>Name</th>
+              <th><i class="bi bi-envelope me-2"></i>Email</th>
+              <th><i class="bi bi-telephone me-2"></i>Phone</th>
+              <th><i class="bi bi-geo-alt me-2"></i>City</th>
+              <th class="text-center"><i class="bi bi-gear me-2"></i>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let user of filteredUsers">
-              <td>{{ user.name }}</td>
-              <td>{{ user.email }}</td>
-              <td>{{ user.phoneNumber || 'N/A' }}</td>
-              <td>{{ user.city || 'N/A' }}</td>
               <td>
-                <button class="btn btn-sm btn-info me-2" (click)="viewUser(user.id)">
-                  <i class="bi bi-eye"></i> View
-                </button>
-                <button class="btn btn-sm btn-warning me-2" (click)="editUser(user.id)">
-                  <i class="bi bi-pencil"></i> Edit
-                </button>
-                <button class="btn btn-sm btn-danger" (click)="deleteUser(user.id)">
-                  <i class="bi bi-trash"></i> Delete
-                </button>
+                <div class="d-flex align-items-center">
+                  <div class="avatar-circle me-2">
+                    <i class="bi bi-person-fill"></i>
+                  </div>
+                  <strong>{{ user.name }}</strong>
+                </div>
+              </td>
+              <td>
+                <span class="text-muted">
+                  <i class="bi bi-envelope-fill me-1 text-primary"></i>
+                  {{ user.email }}
+                </span>
+              </td>
+              <td>
+                <span *ngIf="user.phoneNumber" class="badge bg-light text-dark">
+                  <i class="bi bi-telephone-fill me-1"></i>
+                  {{ user.phoneNumber }}
+                </span>
+                <span *ngIf="!user.phoneNumber" class="text-muted">—</span>
+              </td>
+              <td>
+                <span *ngIf="user.city" class="badge bg-info text-dark">
+                  <i class="bi bi-geo-alt-fill me-1"></i>
+                  {{ user.city }}
+                </span>
+                <span *ngIf="!user.city" class="text-muted">—</span>
+              </td>
+              <td>
+                <div class="d-flex justify-content-center gap-1">
+                  <button class="btn btn-sm btn-outline-info" (click)="viewUser(user.id)" title="View Details">
+                    <i class="bi bi-eye-fill"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-warning" (click)="editUser(user.id)" title="Edit User">
+                    <i class="bi bi-pencil-fill"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteUser(user.id)" title="Delete User">
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -84,46 +110,71 @@
         <form *ngIf="!modalLoading" [formGroup]="userForm">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="name">
-              <div *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched" class="text-danger small">
-                Name is required
+              <label class="form-label fw-semibold">
+                <i class="bi bi-person-fill text-primary me-2"></i>
+                Name <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                <input type="text" class="form-control" formControlName="name" placeholder="Enter full name">
+              </div>
+              <div *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched" class="text-danger small mt-1">
+                <i class="bi bi-exclamation-circle me-1"></i>Name is required
               </div>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Email <span class="text-danger">*</span></label>
-              <input type="email" class="form-control" formControlName="email">
-              <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="text-danger small">
-                Valid email is required
+              <label class="form-label fw-semibold">
+                <i class="bi bi-envelope-fill text-primary me-2"></i>
+                Email <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input type="email" class="form-control" formControlName="email" placeholder="user@example.com">
+              </div>
+              <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="text-danger small mt-1">
+                <i class="bi bi-exclamation-circle me-1"></i>Valid email is required
               </div>
             </div>
           </div>
 
           <div class="row" *ngIf="modalMode === 'add'">
             <div class="col-md-12 mb-3">
-              <label class="form-label">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-lock-fill text-primary me-2"></i>
                 Password <span class="text-danger">*</span>
               </label>
-              <input type="password" class="form-control" formControlName="password">
-              <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="text-danger small">
-                Password must be at least 6 characters
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-key"></i></span>
+                <input type="password" class="form-control" formControlName="password" placeholder="Enter password (min. 6 characters)">
+              </div>
+              <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="text-danger small mt-1">
+                <i class="bi bi-exclamation-circle me-1"></i>Password must be at least 6 characters
               </div>
             </div>
           </div>
 
           <div class="row">
-            <div class="col-md-12 mb-3">
-              <label class="form-label">Phone Number</label>
-              <input type="text" class="form-control" formControlName="phoneNumber">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-telephone-fill text-primary me-2"></i>
+                Phone Number
+              </label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                <input type="text" class="form-control" formControlName="phoneNumber" placeholder="+1 234 567 8900">
+              </div>
             </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-12 mb-3">
-              <label class="form-label">City <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="city">
-              <div *ngIf="userForm.get('city')?.invalid && userForm.get('city')?.touched" class="text-danger small">
-                City is required
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                City <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                <input type="text" class="form-control" formControlName="city" placeholder="Enter city name">
+              </div>
+              <div *ngIf="userForm.get('city')?.invalid && userForm.get('city')?.touched" class="text-danger small mt-1">
+                <i class="bi bi-exclamation-circle me-1"></i>City is required
               </div>
             </div>
           </div>

@@ -55,13 +55,20 @@
           </div>
 
           <!-- Password input -->
-          <div class="form-outline mb-3">
+          <div class="form-outline mb-3 position-relative">
             <input
-              type="password"
-              class="form-control form-control-lg"
+              [type]="showPassword ? 'text' : 'password'"
+              class="form-control form-control-lg pe-5"
               placeholder="Enter password"
               formControlName="password"
             />
+            <button 
+              type="button" 
+              class="btn btn-link position-absolute end-0 top-0 mt-1 me-2"
+              (click)="togglePasswordVisibility()"
+              style="z-index: 10;">
+              <i [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+            </button>
             <label class="form-label">Password *</label>
             <div class="text-danger small" *ngIf="f['password'].touched && f['password'].invalid">
               <span *ngIf="f['password'].errors?.['required']">Password is required</span>
@@ -70,13 +77,20 @@
           </div>
 
           <!-- Confirm Password input -->
-          <div class="form-outline mb-3">
+          <div class="form-outline mb-3 position-relative">
             <input
-              type="password"
-              class="form-control form-control-lg"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              class="form-control form-control-lg pe-5"
               placeholder="Confirm password"
               formControlName="confirmPassword"
             />
+            <button 
+              type="button" 
+              class="btn btn-link position-absolute end-0 top-0 mt-1 me-2"
+              (click)="toggleConfirmPasswordVisibility()"
+              style="z-index: 10;">
+              <i [class]="showConfirmPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+            </button>
             <label class="form-label">Confirm Password *</label>
             <div class="text-danger small" *ngIf="f['confirmPassword'].touched && f['confirmPassword'].invalid">
               <span *ngIf="f['confirmPassword'].errors?.['required']">Please confirm your password</span>

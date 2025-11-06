@@ -16,6 +16,8 @@ export class Signup implements OnInit {
   loading = false;
   errorMessage = '';
   successMessage = '';
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -48,6 +50,16 @@ export class Signup implements OnInit {
 
   get f() {
     return this.signupForm.controls;
+  }
+
+  // Toggle password visibility
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  // Toggle confirm password visibility
+  toggleConfirmPasswordVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   onSubmit(): void {

@@ -105,7 +105,8 @@ export class BillingsComponent implements OnInit, OnDestroy {
       billing.paymentMethod?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       billing.userName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       billing.locationName?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      billing.slotNumber?.toLowerCase().includes(this.searchTerm.toLowerCase())
+      billing.slotNumber?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      billing.slotNumbers?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
 
