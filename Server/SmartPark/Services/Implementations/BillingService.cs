@@ -35,7 +35,7 @@ namespace SmartPark.Services.Implementations
                 TimeStamp = DateTime.UtcNow,
                 BookingId = request.BookingId
             };
-            
+
             _dbContext.Billings.Add(billing);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -98,8 +98,12 @@ namespace SmartPark.Services.Implementations
                     PaymentMethod = b.PaymentMethod,
                     TimeStamp = b.TimeStamp,
                     BookingId = b.BookingId,
-                    SlotNumbers = b.Booking == null || b.Booking.Slots == null ? new List<string?>() : b.Booking.Slots.Select(s => s.SlotNumber).ToList(),
-                    UserName = b.Booking != null && b.Booking.User != null ? b.Booking.User.Name : null
+                    SlotNumbers = b.Booking.Slots.Select(s => s.SlotNumber).ToList(),
+                    UserName = b.Booking.User.Name,
+                    LocationName = b.Booking.Slots
+                        .OrderBy(s => s.SlotNumber)
+                        .Select(s => s.Location.Name)
+                        .FirstOrDefault()
                 })
                 .ToListAsync(cancellationToken);
         }
@@ -107,6 +111,7 @@ namespace SmartPark.Services.Implementations
         public async Task<BillingDto?> GetBillingByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             return await _dbContext.Billings
+                .AsNoTracking()
                 .Where(b => b.Id == id)
                 .Select(b => new BillingDto
                 {
@@ -116,28 +121,39 @@ namespace SmartPark.Services.Implementations
                     PaymentMethod = b.PaymentMethod,
                     TimeStamp = b.TimeStamp,
                     BookingId = b.BookingId,
-                    SlotNumbers = b.Booking == null || b.Booking.Slots == null ? new List<string?>() : b.Booking.Slots.Select(s => s.SlotNumber).ToList(),
-                    UserName = b.Booking != null && b.Booking.User != null ? b.Booking.User.Name : null
+                    SlotNumbers = b.Booking.Slots.Select(s => s.SlotNumber).ToList(),
+                    UserName = b.Booking.User.Name,
+                    LocationName = b.Booking.Slots
+                        .OrderBy(s => s.SlotNumber)
+                        .Select(s => s.Location.Name)
+                        .FirstOrDefault()
                 })
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<BillingDto>> GetMyBillingsAsync(CancellationToken cancellationToken)
         {
-            var UserId = await _helper.GetUserIdFromToken();
+            var userId = await _helper.GetUserIdFromToken();
+
             return await _dbContext.Billings
-                          .Where(b => b.Booking != null && b.Booking.UserId == UserId)
-                          .Select(b => new BillingDto
-                          {
-                              Id = b.Id,
-                              Amount = b.Amount,
-                              PaymentStatus = b.PaymentStatus,
-                              PaymentMethod = b.PaymentMethod,
-                              TimeStamp = b.TimeStamp,
-                              BookingId = b.BookingId,
-                              UserName = b.Booking != null && b.Booking.User != null ? b.Booking.User.Name : null,
-                              SlotNumbers = b.Booking == null || b.Booking.Slots == null ? new List<string?>() : b.Booking.Slots.Select(s => s.SlotNumber).ToList()
-                          }).ToListAsync(cancellationToken);
+                .AsNoTracking()
+                .Where(b => b.Booking.UserId == userId)
+                .Select(b => new BillingDto
+                {
+                    Id = b.Id,
+                    Amount = b.Amount,
+                    PaymentStatus = b.PaymentStatus,
+                    PaymentMethod = b.PaymentMethod,
+                    TimeStamp = b.TimeStamp,
+                    BookingId = b.BookingId,
+                    UserName = b.Booking.User.Name,
+                    SlotNumbers = b.Booking.Slots.Select(s => s.SlotNumber).ToList(),
+                    LocationName = b.Booking.Slots
+                        .OrderBy(s => s.SlotNumber)
+                        .Select(s => s.Location.Name)
+                        .FirstOrDefault()
+                })
+                .ToListAsync(cancellationToken);
         }
     }
 }

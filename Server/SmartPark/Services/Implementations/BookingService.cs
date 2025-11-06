@@ -103,32 +103,26 @@ namespace SmartPark.Services.Implementations
         public async Task<IEnumerable<BookingDto>> GetAllBookingsAsync()
         {
             return await _dbContext.Bookings
-                             .AsNoTracking()
-                           .Select(b => new BookingDto
-                           {
-                               Id = b.Id,
-                               Status = b.Status,
-                               StartTime = b.StartTime,
-                               EndTime = b.EndTime,
-                               UserId = b.UserId,
-                               UserName = b.User != null ? b.User.Name : null,
-                               Slots = b.Slots.Select(s => new SlotDto
-                               {
-                                   SlotId = s.Id,
-                                   SlotNumber = s.SlotNumber,
-                                   LocationName = s.Location != null ? s.Location.Name : ""
-                               }).ToList()
-
-                           }).ToListAsync();
+                .AsNoTracking()
+                .Select(b => new BookingDto
+                {
+                    Id = b.Id,
+                    Status = b.Status,
+                    StartTime = b.StartTime,
+                    EndTime = b.EndTime,
+                    UserId = b.UserId,
+                    UserName = b.User.Name,
+                    LocationName = b.Slots
+                        .OrderBy(s => s.SlotNumber)
+                        .Select(s => s.Location.Name)
+                        .FirstOrDefault()
+                })
+                .ToListAsync();
         }
 
-        //  Get By Id
         public async Task<BookingDto?> GetBookingByIdAsync(Guid id)
         {
             var booking = await _dbContext.Bookings
-                .Include(b => b.User)
-                .Include(b => b.Slots)
-                .ThenInclude(s => s.Location)
                 .AsNoTracking()
                 .Where(b => b.Id == id)
                 .Select(b => new BookingDto
@@ -138,12 +132,12 @@ namespace SmartPark.Services.Implementations
                     StartTime = b.StartTime,
                     EndTime = b.EndTime,
                     UserId = b.UserId,
-                    UserName = b.User != null ? b.User.Name : null,
+                    UserName = b.User.Name,
                     Slots = b.Slots.Select(s => new SlotDto
                     {
                         SlotId = s.Id,
                         SlotNumber = s.SlotNumber,
-                        LocationName = s.Location != null ? s.Location.Name : ""
+                        LocationName = s.Location.Name
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();
@@ -155,7 +149,6 @@ namespace SmartPark.Services.Implementations
         }
 
 
-        //cancell booking
         public async Task<BookingResponse> CancelBookingAsync(Guid id)
         {
             var booking = await _dbContext.Bookings
@@ -245,16 +238,19 @@ namespace SmartPark.Services.Implementations
             return MapToResponse(booking);
         }
 
-        // booking history get methods
+
         public async Task<IEnumerable<BookingHistoryDto?>> GetBookingHistoriesAsync(Guid? bookingId)
         {
-            var query = _dbContext.BookingHistories.AsNoTracking().AsQueryable();
-            if (bookingId != null)
+            var query = _dbContext.BookingHistories
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (bookingId.HasValue)
             {
-                query = query.Where(h => h.BookingId != null && h.BookingId == bookingId.Value);
+                query = query.Where(h => h.BookingId == bookingId.Value);
             }
 
-            var histories = await query
+            return await query
                 .Select(h => new BookingHistoryDto
                 {
                     Id = h.Id,
@@ -263,12 +259,10 @@ namespace SmartPark.Services.Implementations
                     SlotId = h.SlotId,
                     BookingId = h.BookingId,
                     UserId = h.UserId
-                }).ToListAsync();
-
-            return histories;
+                })
+                .ToListAsync();
         }
 
-        // get booking history by id
         public async Task<BookingHistoryDto?> GetBookingHistoryByIdAsync(Guid historyId)
         {
             var history = await _dbContext.BookingHistories
@@ -291,8 +285,6 @@ namespace SmartPark.Services.Implementations
             return history;
         }
 
-        //get booking with unpaid bills for billing dropdown
-
         public async Task<IEnumerable<BookingDto>> GetUnpaidBookingsAsync()
         {
             var paidBookingIds = await _dbContext.Billings
@@ -301,9 +293,9 @@ namespace SmartPark.Services.Implementations
                 .ToListAsync();
 
             return await _dbContext.Bookings
+                .AsNoTracking()
                 .Where(b => !paidBookingIds.Contains(b.Id)
-                         && b.Status != null
-                         && b.Status.ToLower() != "Cancelled")
+                         && b.Status.ToLower() != "cancelled")
                 .Select(b => new BookingDto
                 {
                     Id = b.Id,
@@ -311,14 +303,15 @@ namespace SmartPark.Services.Implementations
                     StartTime = b.StartTime,
                     EndTime = b.EndTime,
                     UserId = b.UserId,
-                    UserName = b.User != null ? b.User.Name : null,
+                    UserName = b.User.Name,
                     Slots = b.Slots.Select(s => new SlotDto
                     {
                         SlotId = s.Id,
                         SlotNumber = s.SlotNumber,
-                        LocationName = s.Location != null ? s.Location.Name : ""
+                        LocationName = s.Location.Name
                     }).ToList()
-                }).ToListAsync();
+                })
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<BookingDto>> GetMyBookingsAsync()
@@ -326,28 +319,26 @@ namespace SmartPark.Services.Implementations
             var userId = await _helper.GetUserIdFromToken();
 
             return await _dbContext.Bookings
-                .Where(b => b.UserId == userId)
-                .Include(b => b.Slots)
-                .ThenInclude(s => s.Location)
                 .AsNoTracking()
+                .Where(b => b.UserId == userId)
                 .Select(b => new BookingDto
                 {
                     Id = b.Id,
                     Status = b.Status,
                     StartTime = b.StartTime,
                     EndTime = b.EndTime,
+                    LocationName = b.Slots
+                        .OrderBy(s => s.SlotNumber)
+                        .Select(s => s.Location.Name)
+                        .FirstOrDefault(),
                     Slots = b.Slots.Select(s => new SlotDto
                     {
                         SlotId = s.Id,
-                        SlotNumber = s.SlotNumber,
-                        LocationName = s.Location != null ? s.Location.Name : ""
+                        SlotNumber = s.SlotNumber
                     }).ToList()
                 })
                 .ToListAsync();
         }
-
-
-        // helper private methods
         public async Task ReleaseSlot(Guid slotId)
         {
             var slot = await _dbContext.Slots.FirstOrDefaultAsync(s => s.Id == slotId);
