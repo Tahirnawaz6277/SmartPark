@@ -115,10 +115,18 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Location Image</label>
-            <input type="file" class="form-control" accept="image/*" (change)="onFileSelected($event)">
+            <label class="form-label">Location Image <span *ngIf="!isEditMode" class="text-danger">*</span></label>
+            <input 
+              type="file" 
+              class="form-control" 
+              accept="image/*" 
+              (change)="onFileSelected($event)"
+              [class.is-invalid]="!isEditMode && locationForm.get('imageFile')?.invalid && locationForm.get('imageFile')?.touched">
+            <div *ngIf="!isEditMode && locationForm.get('imageFile')?.invalid && locationForm.get('imageFile')?.touched" class="invalid-feedback">
+              Please select an image for the location
+            </div>
             <small class="text-muted">
-              {{ isEditMode ? 'Optional: Select a new image to update' : 'Optional: Upload an image for this location' }}
+              {{ isEditMode ? 'Optional: Select a new image to update' : 'Required: Please upload an image for this location' }}
             </small>
             <div *ngIf="imagePreview" class="mt-2 position-relative">
               <img [src]="imagePreview" alt="Preview" class="img-thumbnail" style="max-height: 200px;">

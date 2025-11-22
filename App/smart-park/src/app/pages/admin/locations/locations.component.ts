@@ -50,7 +50,8 @@ export class LocationsComponent implements OnInit, OnDestroy {
       name: ['', Validators.required],
       address: ['', Validators.required],
       totalSlots: [1, [Validators.required, Validators.min(1)]],
-      city: ['', Validators.required]
+      city: ['', Validators.required],
+      imageFile: [null, this.isEditMode ? null : Validators.required]
     });
   }
 
@@ -60,6 +61,16 @@ export class LocationsComponent implements OnInit, OnDestroy {
     this.imagePreview = null;
     this.isEditMode = false;
     this.editingLocationId = null;
+    // Update image file validation based on edit mode
+    const imageControl = this.locationForm.get('imageFile');
+    if (imageControl) {
+      if (this.isEditMode) {
+        imageControl.clearValidators();
+      } else {
+        imageControl.setValidators(Validators.required);
+      }
+      imageControl.updateValueAndValidity();
+    }
   }
 
   ngOnInit(): void {
@@ -152,6 +163,13 @@ export class LocationsComponent implements OnInit, OnDestroy {
     this.editingLocationId = location.id;
     this.showModal = true;
     this.modalLoading = true;
+    
+    // Update image file validation for edit mode
+    const imageControl = this.locationForm.get('imageFile');
+    if (imageControl) {
+      imageControl.clearValidators();
+      imageControl.updateValueAndValidity();
+    }
 
     // Fetch full location details
     this.locationService.getLocationById(location.id).subscribe({
@@ -193,6 +211,12 @@ export class LocationsComponent implements OnInit, OnDestroy {
     if (file) {
       this.selectedFile = file;
       
+      // Update form control value and validation
+      this.locationForm.patchValue({
+        imageFile: file
+      });
+      this.locationForm.get('imageFile')?.updateValueAndValidity();
+      
       // Create preview
       const reader = new FileReader();
       reader.onload = (e: any) => {
@@ -205,6 +229,12 @@ export class LocationsComponent implements OnInit, OnDestroy {
 
   // Save location (create or update)
   saveLocation(): void {
+    // Additional validation for new locations
+    if (!this.isEditMode && !this.selectedFile) {
+      alert('Please select an image for the location');
+      return;
+    }
+
     if (this.locationForm.invalid) {
       alert('Please fill all required fields correctly');
       return;
