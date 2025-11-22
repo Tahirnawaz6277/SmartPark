@@ -3,6 +3,6 @@ using SmartPark.Dtos.Location;
 
 namespace SmartPark.CQRS.Commands.Location
 {
-    public record UpdateLocationCommand(Guid Id, LocationRequest Request) : IRequest<LocationReponse>;
+    public record UpdateLocationCommand(Guid Id, UpdateLocationRequest Request) : IRequest<LocationReponse>;
 
 }

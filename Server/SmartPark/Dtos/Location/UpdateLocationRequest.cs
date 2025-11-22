@@ -2,7 +2,7 @@
 
 namespace SmartPark.Dtos.Location
 {
-    public record LocationRequest
+    public class UpdateLocationRequest
     {
         [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; } = null!;
@@ -16,8 +16,6 @@ namespace SmartPark.Dtos.Location
         [Required(ErrorMessage = "City is required")]
         public string City { get; set; } = null!;
 
-        [Required(ErrorMessage = "Image is required")]
         public IFormFile? ImageFile { get; set; }
-
     }
 }

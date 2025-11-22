@@ -183,7 +183,7 @@ namespace SmartPark.Services.Implementations
             return slots;
         }
 
-        public async Task<LocationReponse> UpdateLocationAsync(Guid id, LocationRequest dto)
+        public async Task<LocationReponse> UpdateLocationAsync(Guid id, UpdateLocationRequest dto)
         {
             var location = await _dbContext.ParkingLocations
                 .Include(l => l.Slots)

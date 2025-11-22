@@ -75,7 +75,7 @@ namespace SmartPark.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("update-location/{id:guid}")]
-        public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] LocationRequest dto)
+        public async Task<IActionResult> UpdateAsync(Guid id, [FromForm] UpdateLocationRequest dto)
         {
             var result = await _mediator.Send(new UpdateLocationCommand(id, dto));
             return Ok(new ApiResponse<LocationReponse>

@@ -8,7 +8,7 @@ namespace SmartPark.Services.Interfaces
         Task<LocationDto?> GetLocationByIdAsync(Guid id);
         Task<List<SlotResponseDto?>> GetSlotsByLocationIdAsync(Guid id);
         Task<IEnumerable<LocationDto>> GetAllLocationsAsync();
-        Task<LocationReponse> UpdateLocationAsync(Guid id, LocationRequest dto);
+        Task<LocationReponse> UpdateLocationAsync(Guid id, UpdateLocationRequest dto);
         Task<bool> DeleteLocationAsync(Guid id);
     }
 }
